@@ -11,6 +11,13 @@ import numpy as np
 import pandas as pd
 
 from interfirm_abm.firm import Firm
+from interfirm_abm.random_schedule import (
+    generate_random_schedule,
+)
+from interfirm_abm.learning import (
+    random_exploration,
+    experience_guided_exploration,
+)
 
 
 TECHNOLOGIES = [
@@ -28,6 +35,8 @@ class Simulation:
         n_rounds=50,
         budget=100.0,
         seed=2026,
+        learning_policy="random",
+        matched_randomness=False,
     ):
         if not isinstance(n_firms, int) or n_firms <= 0:
             raise ValueError("n_firms must be a positive integer.")
@@ -35,6 +44,15 @@ class Simulation:
         if not isinstance(n_rounds, int) or n_rounds <= 0:
             raise ValueError("n_rounds must be a positive integer.")
 
+        if learning_policy not in ("random", "guided", "guided_initial"):
+            raise ValueError("Unknown learning policy.")
+
+        self.learning_policy = learning_policy
+        self.matched_randomness = matched_randomness
+        self.random_schedule = (
+            generate_random_schedule(n_firms, n_rounds, seed)
+            if matched_randomness else None
+        )
         self.n_firms = n_firms
         self.n_rounds = n_rounds
         self.rng = np.random.default_rng(seed)
@@ -58,9 +76,55 @@ class Simulation:
 
         for round_number in range(1, self.n_rounds + 1):
             for firm in self.firms:
-                candidate_share = float(
-                    self.rng.uniform(0.05, 0.95)
-                )
+                if self.matched_randomness:
+                    index = (
+                        (round_number - 1) * self.n_firms
+                        + (firm.firm_id - 1)
+                    )
+                    draw = self.random_schedule.iloc[index]
+
+                    if self.learning_policy == "random":
+                        candidate_share = (
+                            0.05 + 0.90 * draw["uniform_draw"]
+                        )
+                    elif (
+                        not firm.history
+                        or draw["exploration_draw"] < 0.20
+                    ):
+                        candidate_share = (
+                            0.05 + 0.90 * draw["uniform_draw"]
+                        )
+                    else:
+                        best = max(
+                            firm.history,
+                            key=lambda r: r["candidate_output"],
+                        )
+                        center = best["candidate_share"]
+
+                        if self.learning_policy == "guided_initial":
+                            initial_output = firm.produce(0.50)
+
+                            if initial_output >= best["candidate_output"]:
+                                center = 0.50
+
+                        candidate_share = float(np.clip(
+                            center + 0.10 * draw["normal_draw"],
+                            0.05,
+                            0.95,
+                        ))
+                elif self.learning_policy == "random":
+                    candidate_share = random_exploration(
+                        self.rng
+                    )
+                elif self.learning_policy == "guided":
+                    candidate_share = experience_guided_exploration(
+                        firm.history,
+                        self.rng,
+                    )
+                else:
+                    raise ValueError(
+                        "guided_initial requires matched_randomness=True"
+                    )
 
                 record = firm.experiment(
                     candidate_share,
