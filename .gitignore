@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated research data
+results/**/*.csv
+results/**/*.parquet
+results/**/*.png
+results/**/*.pdf
+
+# Keep directory placeholders
+!results/**/.gitkeep
