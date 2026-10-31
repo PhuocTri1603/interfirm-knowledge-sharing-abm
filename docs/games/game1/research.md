@@ -163,6 +163,32 @@ The repository history identifies five early validation scripts. **Code existenc
 
 **Cautions:** Seed-level performance correlation is controlled by common random numbers; uncertainty quantification and robustness to firm counts, search-radius, exploration probability, production-function parameters, and longer horizons are still outstanding. In particular, a positive average at a checkpoint alone is not a formal hypothesis test. Store/archive the downloaded artifact before its expiry if long-term traceability is required.
 
+### Statistical follow-up — seed-level uncertainty and heterogeneous outcomes
+
+Recalculated from the **verified** artifact `paired_observations.csv` and `seed_round_summary.csv` associated with GitHub Actions [run 41161569703](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41161569703), source commit `3b31c087f21da751cbaa97d77fc0ea19b493e2e7`.
+
+For each checkpoint, first average the firm-level `advantage_pct` across 20 firms **within each seed**, then compute the across-seed mean and standard deviation. The reported 95% intervals are **approximate two-sided Student-t confidence intervals** `mean ± t_(0.975,99) × SD(seed mean) / sqrt(100)`, using `t_(0.975,99) ≈ 1.984`. These characterize variability across simulated seeds **conditional on this model and parameterization**, not sampling uncertainty about real firms.
+
+| Round | Mean advantage (%) | SD of seed means (pp) | Approx. 95% CI (%) | Seeds with positive mean |
+|---|---:|---:|---|---:|
+| 5 | -1.8556 | 1.8913 | [-2.2309, -1.4804] | 19 / 100 |
+| 10 | -0.0032 | 1.7692 | [-0.3542, +0.3478] | 49 / 100 |
+| 20 | +1.1697 | 0.7617 | [+1.0186, +1.3208] | 97 / 100 |
+| 50 | +0.5893 | 0.2645 | [+0.5368, +0.6418] | 100 / 100 |
+
+At round 50, the **firm-level** distribution shows important heterogeneity. Each technology has 500 observations (5 firms per seed × 100 seeds).
+
+| Technology | Mean advantage (%) | Median advantage (%) | Fraction of firm-seed pairs with strictly positive advantage |
+|---|---:|---:|---:|
+| CES | +0.0472 | +0.0091 | 75.2% |
+| Cobb-Douglas | +0.0332 | +0.0083 | 72.8% |
+| Leontief | +1.1568 | +0.5517 | 71.2% |
+| Linear | +1.1199 | +0.7724 | 100.0% |
+
+**Interpretation and hypotheses, not yet established mechanisms:** Leontief's kink and Linear's boundary-favoring optimum may make search policies behave differently from the smooth interior-optimum technologies. Confirming that explanation requires analyzing the distribution of capital shares, distance-to-optimum, and policy-specific trajectories; the checkpoint artifact contains **outputs only**, not the full trial-by-trial search histories. The positive result in 100/100 seeds at round 50 applies to **seed-level means**, not to every firm. The approximate confidence intervals are descriptive conditional on the chosen seeds/model; multiple-checkpoint comparisons, parameter sensitivity, and longer-horizon tests remain open.
+
+**Next analysis:** retain full firm-round histories for both policies in a future run; compare allocation convergence and the rate of accepted improvements. Investigate the decline in mean advantage from round 20 to 50 and whether random exploration catches up. Avoid interpreting this Game 1 policy comparison as a test of inter-firm knowledge sharing.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
