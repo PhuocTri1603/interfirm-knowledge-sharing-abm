@@ -534,3 +534,47 @@ Maximum absolute error between recomputed and exported output: `4.2633e-14`; out
 **Limitations and boundary of the completed audit:** (1) Firms within a seed are not treated as independent Monte Carlo replications; (2) policy comparison is paired on common seed/firm identifiers and matched random schedules, but different conditional branches may consume the same draws differently; (3) no adjustment for multiple rounds/technologies was made, so intervals are descriptive pointwise intervals; (4) the 100 seeds do not vary structural production parameters, firm composition, or learning hyperparameters; (5) no observed firm data are used, so empirical validity and generalizability remain unverified; (6) deterministic nondecreasing accepted output is imposed by the strict-improvement acceptance rule and is **not** an independently discovered economic finding; (7) reaching an efficiency threshold by round 200 is not universal convergence, and time-to-threshold observations may be right-censored. No additional algorithm or hypothesis is introduced.
 
 **Status:** Statistical interpretation and seed-level interval arithmetic for the listed outcomes: **PASS**. Robustness to alternate structural assumptions and external validity: **NOT TESTED**; these are limits of the fixed baseline, not automatic prerequisites for extending Game 1. Full history and cross-horizon audit are separately recorded above. The audit script and machine-readable results are available in the conversation artifacts; this GitHub commit is documentation-only.
+
+## Game 1 — Consolidated simulation audit and milestone decision (2026-10-31)
+
+> **Decision:** The **existing 100-firm simulation results are accepted for internal baseline interpretation, with documented limitations**. **Do not mark the whole Game 1 research milestone as closed yet**: independent review of the visualization's data lineage/rendered values remains pending under the research-audit skill. This is a simulation-audit sign-off, **not** external economic validation or paper readiness.
+
+### Audit scope and evidence provenance
+
+- **Research baseline:** `experiment/game1-100-firms`; frozen simulation-source revision `40266bf38b644bb169fcb5d1358f9649ab7085cb` (audit/documentation commits are later and do not change the experiment's source).
+- **Execution:** GitHub Actions [run 41171674224](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41171674224), 50/100/200-round jobs marked success; 224 tests reported passing in each job. These test results are historical workflow evidence, **not** newly executed tests in this document update.
+- **Raw data:** 50/100/200-round artifacts `13031790079`, `13031585631`, `13030944570`; paired observations, full firm trajectories, and metadata. Independent recomputations are documented in the audit sections above.
+- **Experiment:** 100 firms (25 each Cobb-Douglas, Leontief, Linear, CES); 100 seeds (2026–2125); Random and Guided with matched random schedules; `B=100`, `p=.20`, `radius=.10`, share bounds `[.05,.95]`. Horizon is an **abstract decision-round count**.
+- **Additional sensitivity evidence:** The existing 5×5 grid of exploration probabilities and search radii (25 parameter configurations) is recorded earlier in this canonical document. Its findings describe robustness **within the tested grid** and do not validate untested settings or empirically calibrate parameters. Do not mistake this as variation of production-function parameters or real-firm composition.
+
+### Audit results and acceptance matrix
+
+| Check | Evidence and result | Disposition |
+|---|---|---|
+| Executable and automated test evidence | Three workflow jobs succeeded; 224 tests reported per job | **PASS (historical CI)** |
+| Dataset integrity | 1M/2M/4M firm-round rows for horizons 50/100/200; corresponding paired row counts 0.5M/1M/2M; 200-round paired data have no missing cells or duplicate keys | **PASS** |
+| Cross-horizon consistency | 50↔100 and 50↔200 histories, 100↔200 complete 2M-row histories; all paired cross-horizon comparisons consistent within absolute tolerance `1e-10` | **PASS** |
+| Production-function arithmetic | Independent recalculation of 4M policy output values in the 200-round paired dataset; maximum output error `4.27e-14`, efficiency error `8.53e-14` | **PASS** |
+| Feasibility and optimum benchmark | Shares inside [.05,.95], outputs nonnegative, no efficiencies >100% beyond tolerance; technology-specific feasible optima checked; Linear optimum at **constrained** share .95 | **PASS** |
+| Acceptance and state transition | No decreases in accepted output; strict-improvement rule reviewed; monotonicity is mechanically guaranteed by code, **not** an independent empirical discovery | **PASS for specified mechanism** |
+| Main policy comparison | Seed-level paired Guided advantage and 95% pointwise t intervals recomputed; round 200 mean +0.1439% relative to Random, CI [+0.1396%, +0.1482%] | **PASS for fixed model** |
+| Timing and threshold outcomes | Round 11 first positive aggregate estimate but CI spans zero; threshold attainment and right-censoring interpreted; 99.9% attainment not universal by round 200 | **PASS with caveats** |
+| Technology heterogeneity | Round-200 relative advantages CES ~+.0030%, Cobb-Douglas ~+.0020%, Leontief ~+.2995%, Linear ~+.2710%; technology differences not attributed to elasticity alone | **PASS, descriptive** |
+| Search-parameter sensitivity | Existing 5×5 `p × radius` analysis reported; grid and uncertainty documented in this record | **REPORTED; full independent raw-data re-audit not established by this consolidation** |
+| Literature and assumptions | Foundational and adjacent references reviewed; researcher-set hyperparameters separated from literature-backed concepts | **DOCUMENTED; not empirical calibration** |
+| Website visualization lineage | No independent audit of data origin, rendered values, or UI behavior in this consolidation | **OPEN** |
+| External validity and structural sensitivity | No observed firm data; structural technology parameters and population composition fixed in principal experiment | **NOT TESTED; explicit limitation** |
+
+### Severity-ranked findings and disposition
+
+1. **Major / open milestone requirement — visualization verification.** Before declaring *the entire Game 1* complete, trace displayed figures to the correct versioned CSV/artifact and sample-check plotted values against source records. **Owner:** implementation/research team; **action:** independently audit after visualization is available. This does not invalidate the simulation calculations already checked.
+2. **Minor / interpretive — early crossover.** Do not state that Guided is statistically superior beginning precisely at round 11; the pointwise 95% interval includes zero. **Action:** retain qualified interpretation in all figures and summaries.
+3. **Minor / inferential — pointwise uncertainty and multiple comparisons.** Report intervals as seed-level Monte Carlo intervals conditional on the model, not simultaneous intervals across all 200 rounds or external-firm sampling intervals. **Action:** preserve method labels in charts and reports.
+4. **Minor / convergence — censoring.** Reaching 99% or 99.9% by the final horizon is a threshold outcome; trajectories not reaching a threshold are right-censored. **Action:** avoid universal-convergence claims.
+5. **Informational / design boundaries.** The model fixes production functions, capital–labor budget, and learning rules; Random/Guided are project-specific algorithms. Sensitivity over `p` and `radius` does not establish external validity. **Action:** keep parameter choices and limitations explicit; no unapproved changes.
+
+### Sign-off recommendation and next gate
+
+**Simulation and descriptive statistical audit: CONDITIONALLY ACCEPTED FOR THE EXISTING BASELINE.** All reported numerical checks marked PASS above support using the results as *simulated, model-conditional findings*. The parameter-grid sensitivity has been documented, but this consolidation does not claim a new independent artifact-level re-audit of its entire grid. **Full Game 1 milestone: OPEN**, pending independently verified website data lineage and sample rendered values, as required by the existing research-audit protocol. No changes to economic assumptions, algorithms, hypotheses, or research-paper novelty claims are authorized by this report.
+
+**Next authorized task:** inspect the existing visualization implementation (if present), connect plots only to verified versioned simulation outputs, and independently compare a representative sample of displayed values with the exported CSVs. If there is no existing website, document that status and seek explicit authorization for the implementation scope before adding a new application.
