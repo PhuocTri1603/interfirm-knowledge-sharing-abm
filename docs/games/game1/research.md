@@ -293,3 +293,11 @@ An independent numerical audit was added in commit `521715cc`: [`tests/test_game
 ## Change tracking
 
 Use **Git commit history** as the authoritative edit log for this file. Material changes to assumptions, hypotheses, definitions, or findings should be explained in commit messages. Do not maintain duplicate draft versions.
+
+### Game 1 sensitivity analysis — registered design (pending results)
+
+The sensitivity experiment is implemented in [`experiments/game1_sensitivity.py`](../../../experiments/game1_sensitivity.py), with configurable exploration probability and search radius in `Simulation`, parameter tests in [`tests/test_game1_sensitivity.py`](../../../tests/test_game1_sensitivity.py), and a dedicated GitHub Actions sensitivity job. [Run 41162810655](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41162810655) was **in progress when checked**; no numerical sensitivity result is claimed here.
+
+The predeclared design uses 100 seeds (2026–2125), 20 firms, 100 rounds, matched Random and Guided schedules, and checkpoints 5, 10, 20, 50, 100. The nine one-factor-at-a-time settings are baseline (exploration probability 0.20, search radius 0.10), exploration probabilities 0.05/0.10/0.40/0.60 at radius 0.10, and search radii 0.03/0.05/0.20/0.30 at probability 0.20. Expected matched observations: 90,000. Outputs are `paired_sensitivity.csv`, `seed_sensitivity.csv`, `summary_sensitivity.csv`, and `metadata.json`.
+
+The planned checks are whether the Guided advantage at rounds 20 and 50 persists across parameter settings, whether the gap narrows at round 100, and how the magnitude and seed-level variability respond to exploration versus local search width. These parameter sweeps test **robustness of this simulated model**, not external validity or causal identification of real firms' learning.
