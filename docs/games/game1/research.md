@@ -240,6 +240,48 @@ An independent numerical audit was added in commit `521715cc`: [`tests/test_game
 
 **Planned interpretation:** evaluate whether Guided's early advantage corresponds to faster reduction in distance-to-optimum, and whether Random catches up later. An association between allocation distance and output does not independently establish a causal mechanism because both derive from the same production function.
 
+### Verified constrained-optimum convergence experiment — 2026-10-31
+
+**Source of truth:** [GitHub Actions run 41162502564](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41162502564), successful, source commit `521715cce192e15764fd5689ba771feee72640c5`. Artifact `game1-validation-05-521715cce192e15764fd5689ba771feee72640c5` (ID `13027672664`). Direct inspection of the artifact confirms 200,000 history rows (14 columns) and 100,000 paired rows (15 columns), zero missing cells, and zero output-efficiency values exceeding 100% (within numerical tolerance). Automated tests including the numerical optimum audit passed in this run.
+
+**Feasible capital share interval:** [0.05, 0.95]. Constrained optimal shares and maximum outputs with budget 100:
+
+| Technology | Optimal capital share | Optimal output |
+|---|---:|---:|
+| CES | 0.637578 | 52.893572 |
+| Cobb-Douglas | 0.700000 | 54.288145 |
+| Leontief | 0.700000 | 100.000000 |
+| Linear | 0.950000 | 68.000000 |
+
+**Mean output efficiency**, defined as `100 × current_output / technology_specific_constrained_optimal_output`:
+
+| Round | Guided (%) | Random (%) | Guided minus Random (percentage points) |
+|---|---:|---:|---:|
+| 5 | 91.41525 | 93.33992 | -1.92466 |
+| 10 | 96.04648 | 96.24937 | -0.20288 |
+| 20 | 99.18220 | 98.12602 | +1.05618 |
+| 50 | 99.82936 | 99.25927 | +0.57008 |
+
+**Mean absolute capital-share distance from the technology-specific constrained optimum:**
+
+| Round | Guided | Random | Guided minus Random |
+|---|---:|---:|---:|
+| 5 | 0.12278 | 0.09420 | +0.02858 |
+| 10 | 0.05859 | 0.05383 | +0.00477 |
+| 20 | 0.01273 | 0.02788 | -0.01515 |
+| 50 | 0.00257 | 0.01180 | -0.00924 |
+
+**Round-50 efficiency by technology:**
+
+| Technology | Guided efficiency (%) | Random efficiency (%) | Guided distance | Random distance |
+|---|---:|---:|---:|---:|
+| CES | 99.99345 | 99.94641 | 0.00316 | 0.00917 |
+| Cobb-Douglas | 99.99508 | 99.96197 | 0.00318 | 0.00919 |
+| Leontief | 99.32890 | 98.22514 | 0.00393 | 0.01021 |
+| Linear | 100.00000 | 98.90356 | 0.00000 | 0.01864 |
+
+**Interpretation:** At rounds 5 and 10, Guided has lower mean efficiency and larger mean distance to the optimum; by rounds 20 and 50, the ranking reverses. Both policies approach high efficiency by round 50, consistent with diminishing headroom for further output gains. Linear Guided reaches the constrained optimum by round 50. These findings support a **descriptive convergence explanation**, not a separately identified causal mechanism. Output efficiency and optimum distance are derived from the same fixed production functions; their agreement is not independent causal confirmation. Robustness to exploration rate, neighborhood width, firm heterogeneity, and horizon is still required.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
