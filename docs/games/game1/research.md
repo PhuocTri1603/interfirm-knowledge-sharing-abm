@@ -610,3 +610,18 @@ Maximum absolute error between recomputed and exported output: `4.2633e-14`; out
 
 **Gate disposition:** repository inspection and a reviewable implementation specification are complete. Data contract remains provisional until full ingestion checks; 50/100 artifact reinspection, frontend implementation, performance measurements, rendered-value checks, browser tests and independent website audit are **NOT RUN**. No economic code, experiment configuration, or website deployment was changed. No claim of full Game 1 completion.
 
+
+
+### Website vertical slice — 200-round replay (2026-10-31)
+
+**Implemented:** `web/index.html` and `tools/build_replay_data.py`, with focused tests and an independent source-sampling script. Local static replay only; no deployment or public access configured. Economic source files and experiment parameters unchanged.
+
+**Data verification executed:** builder checked artifact `13030944570` ZIP SHA-256 and source revision `40266bf3`, parsed all 4,000,000 history rows, checked schema/types/finite values, domains, 40,000 unique policy–firm–round keys per seed and technology balance, and generated 100 seed partitions plus a hash manifest. Independent `tools/check_replay_sample.py` compared all 14 fields for **144 records** (seeds 2026/2075/2125, firms 1–4 representing all technologies, rounds 1/11/20/50/100/200, both policies): **PASS, exact parsed-value equality**. This is a sample lineage check, not a new exhaustive economic audit.
+
+**Browser smoke checks:** rendered at the internal preview; loaded seed 2026 and changed to 2125; all four technology filters selected the appropriate first firm and 25 eligible firms; seeking round 200, stepping, play and pause, exact-source drawer worked. Visible round-200 seed-2026 output values reconciled with sampled source records (Random/Guided): Cobb-Douglas 54.28813608575538/54.28790025521648; Leontief 99.77507732748364/99.84293961255815; Linear 67.58680051601883/68; CES 52.891952509102836/52.89319605470214. This also demonstrates that a positive population mean need not imply benefit for every firm. Candidate versus accepted state and K/L are separately labeled.
+
+**Corrections during QA:** HTTP preview lacks Web Crypto; browser now explicitly distinguishes optional secure-context SHA-256 verification from byte/row checks (mandatory ZIP digest verification remains at preprocessing). Seed loading clears prior-seed figures to avoid stale values being shown with a new seed selection. Labels have explicit accessible names.
+
+**Tests:** four focused unittest tests passed (false boolean parsing, malformed boolean, nonfinite value, missing schema field). Attempted `python -m pytest -q game1-web/tests` could not execute because pytest is absent in this environment; this is **NOT RUN**, not a failed scientific assertion. Existing model suite was not rerun; no model code changed. Desktop screenshot inspected. Mobile, corrupt/missing data browser scenarios, complete keyboard audit, rigorous performance benchmarks and independent milestone audit remain **NOT RUN**.
+
+**Delivery boundaries:** horizon fixed at 200; 50/100 not yet connected. No population CI/statistical view, production-curve view, or Overview screen is claimed implemented. Object-based JSON partitions are approximately 20 MB per seed (~2 GB total); compact encoding or finer partitions remain a performance task. Generated private data is excluded from Git; README provides reproducible local preparation/startup. Full Game 1 remains OPEN.
