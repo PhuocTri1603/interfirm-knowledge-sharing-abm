@@ -282,6 +282,33 @@ An independent numerical audit was added in commit `521715cc`: [`tests/test_game
 
 **Interpretation:** At rounds 5 and 10, Guided has lower mean efficiency and larger mean distance to the optimum; by rounds 20 and 50, the ranking reverses. Both policies approach high efficiency by round 50, consistent with diminishing headroom for further output gains. Linear Guided reaches the constrained optimum by round 50. These findings support a **descriptive convergence explanation**, not a separately identified causal mechanism. Output efficiency and optimum distance are derived from the same fixed production functions; their agreement is not independent causal confirmation. Robustness to exploration rate, neighborhood width, firm heterogeneity, and horizon is still required.
 
+### Verified 100-firm initialization and decision protocol — code audit (2026-10-31)
+
+**Scope and evidence.** This subsection applies `model-specification`, `research-documentation`, and `research-audit` to the actual Game 1 implementation. It documents code behavior; it does not introduce a new economic mechanism or imply new simulation execution. Sources: [simulation](../../../src/interfirm_abm/simulation.py), [firm](../../../src/interfirm_abm/firm.py), [production](../../../src/interfirm_abm/production.py), [learning](../../../src/interfirm_abm/learning.py), [random schedule](../../../src/interfirm_abm/random_schedule.py), [optimum](../../../src/interfirm_abm/production_optimum.py), [horizon experiment](../../../experiments/game1_mechanism_trajectories.py), and [verified run report](horizon_100_firms_results.md).
+
+**Default versus experimental configuration.** `Simulation.__init__` defaults to 20 firms, 50 rounds, seed 2026 and budget 100. The separate horizon experiment invokes 100 firms, 100 seeds (2026 through 2125), 50/100/200 rounds, two policies (`random`, `guided`) and `matched_randomness=True`. The 100-firm experiment is not the simulator's default. The researcher selected this simulated population size; it is not an empirically estimated number of firms.
+
+**Agent construction.** At initialization, `Simulation` creates agents with `firm_id=i+1` and `technology=TECHNOLOGIES[i % 4]`, where `TECHNOLOGIES = ["Cobb-Douglas", "Leontief", "Linear", "CES"]`. For 100 firms this produces 25 agents per technology. Every agent starts with `budget=100`, `capital_share=0.50`, empty experimental history and `current_output=produce(0.50)`. The model does not sample initial budgets or firm-specific productivity parameters. Firms differ by production technology, not by randomly drawn initial resources.
+
+**Allocation and production.** With budget `B=100` and current capital share `s`, `K=B*s`, `L=B*(1-s)`. Initially `K=L=50`; both can change after accepted experiments while `K+L=B` remains fixed. Production functions and exact default parameters:
+
+| Technology | Implemented production function | Default parameters | Feasible optimal capital share in the benchmark |
+|---|---|---|---|
+| Cobb-Douglas | `K^alpha * L^(1-alpha)` | `alpha=0.70` | `0.70` |
+| Leontief | `min(K/kappa, L/(1-kappa))` | `kappa=0.70` | `0.70` |
+| Linear | `alpha*K+(1-alpha)*L` | `alpha=0.70` | `0.95` (constrained; unconstrained optimum at 1.0) |
+| CES | `[alpha*K^rho+(1-alpha)*L^rho]^(1/rho)` | `alpha=0.70`, `rho=-0.50` | `r/(1+r)`, `r=(alpha/(1-alpha))^(1/(1-rho))` |
+
+The feasible benchmark is defined on the policy's share interval `[0.05,0.95]`. The underlying `Firm.experiment` accepts any share strictly inside `(0,1)`; the narrower bounds come from candidate-generation policies. Therefore the benchmark is **policy-feasible**, not an unrestricted technological maximum. These parameter values are modeling choices; this code inspection is not empirical calibration.
+
+**One round, one agent.** For each round `t=1,...,T` and each firm in ID order, the simulation obtains a candidate share. Under matched randomness, a pre-generated schedule provides `exploration_draw`, `uniform_draw`, and `normal_draw` for every `(t, firm_id)`. Random proposes `s'=0.05+0.90*uniform_draw`. Guided proposes the same global-uniform draw when history is empty or `exploration_draw<0.20`; otherwise it finds the historical candidate with highest `candidate_output` and proposes `clip(best_share+0.10*normal_draw,0.05,0.95)`. Note that the best historical *candidate* may have been rejected; the code does not restrict this search to accepted experiments. Each agent evaluates `Y(s')`; it accepts iff `Y(s')>current_output`, updating its share and current output only then. Both successful and unsuccessful candidates enter the history. The exported record includes `firm_id`, `round`, `technology`, `candidate_share`, `candidate_output`, `accepted`, `capital_share`, and `current_output`.
+
+**Comparison design.** For each seed the experiment instantiates independent Random and Guided simulations with identical firm initialization and the same pre-generated firm-round random draws. Policies are paired by `seed`, `round`, `firm_id`, and `technology`. The expected history size is `100 seeds * 100 firms * T rounds * 2 policies`; the expected paired size is half that. Reusing matched draws reduces avoidable simulation noise; it does not make outcomes statistically independent across firms in the same seed.
+
+**Interpretive boundaries.** Game 1 does not implement firm-specific capital prices, endogenous budgets, AI investment as a separate choice, a product market, profit maximization or interfirm knowledge exchange. Monotonic accepted output is guaranteed by the strict acceptance rule; it should not be reported as an emergent empirical discovery. A common multiplicative productivity shock, where used in a future scenario, would not by itself change the optimal share with unchanged functions and budget.
+
+**Audit status.** PASS (code-to-document traceability for the statements above); NOT RUN (new Python tests or Monte Carlo runs during this documentation edit); OPEN (external scholarly grounding of modeling assumptions and independent website visualization). The separate horizon results report records earlier executed validation and should not be conflated with tests run for this documentation-only change.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
