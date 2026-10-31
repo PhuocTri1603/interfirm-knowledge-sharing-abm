@@ -63,6 +63,65 @@ These are implemented equations, not independently validated empirical estimates
 
 No academic source has been assigned a DOI, quotation, or page number without independent verification. Citations should be added as they are reviewed, rather than inferred.
 
+### Literature review — foundational evidence and model-assumption audit (2026-10-31)
+
+**Scope and search.** Targeted foundational-source search on 2026-10-31 across American Economic Association/JSTOR, Oxford Academic, publisher or institutional book records, PubMed and USGS. This is a **focused foundation review**, not a systematic or exhaustive novelty review. Bibliographic records and accessible abstracts/primary texts were checked; full-book chapter-level claims were not independently verified. The purpose is to distinguish established theoretical frameworks from our own Game 1 parameterization.
+
+#### Evidence matrix
+
+| Research strand | Verified work | What it supports | What it **does not** establish for Game 1 |
+|---|---|---|---|
+| Cobb-Douglas production | Cobb & Douglas (1928), *A Theory of Production* | Historical foundation for analyzing output as a function of capital and labor | Does not calibrate our `alpha=0.70`, fixed `B=100`, or firm population |
+| Input substitutability / CES | Arrow, Chenery, Minhas & Solow (1961), *Capital-Labor Substitution and Economic Efficiency* | Explicit comparison of fixed coefficients and Cobb-Douglas substitution assumptions; motivation for a more flexible constant-elasticity form | Does not establish our `rho=-0.50` or equal counts of four technologies |
+| Fixed coefficients / Leontief | Leontief (1941), *The Structure of American Economy, 1919–1929*; Arrow et al. (1961) | Historical fixed-input-coefficient tradition and contrast with substitutable inputs | Does not validate the exact two-input normalization `min(K/.7,L/.3)` for observed firms |
+| Bounded rationality | Simon (1955), *A Behavioral Model of Rational Choice* | Behavioral alternatives to assuming fully informed optimization | Does not prescribe our Gaussian local search or exploration probability |
+| Evolutionary firm behavior | Nelson & Winter (1982), *An Evolutionary Theory of Economic Change*; Nelson & Winter (2002), *Evolutionary Theorizing in Economics* | Firms represented through routines, search, learning and selection instead of assuming instantaneous optimization | Our rule “accept only strictly higher output” is a simplified researcher-specified mechanism, not an exact implementation of their theory |
+| Agent-based computational economics | Tesfatsion (2002), *Agent-Based Computational Economics: Growing Economies from the Bottom Up* | A methodological framework for computational economic systems with autonomous evolving agents | Game 1 firms do **not** interact, so this is a restricted independent-learning ABM baseline, not evidence of emergent interfirm network dynamics |
+| Transparent ABM reporting | Grimm et al. (2006), *A Standard Protocol for Describing Individual-Based and Agent-Based Models* | ODD categories: purpose, state variables/scales, process scheduling, design concepts, initialization, input, submodels | Reporting transparency does not itself validate economic realism or empirical fit |
+| ABM verification and analysis | Railsback & Grimm (2019), *Agent-Based and Individual-Based Modeling*, 2nd ed. | Practical methods for documenting, testing, and analyzing adaptive ABMs | Does not certify that our particular code and experiments are correct |
+
+#### Interpretation for the four production functions
+
+Game 1 compares technologies with distinct *mathematical* substitution properties. Under the chosen forms, Leontief has fixed proportions; Cobb-Douglas has unit elasticity of substitution; Linear represents perfect substitutes; CES has constant elasticity `sigma=1/(1-rho)`, which is `2/3` at `rho=-0.5`. The CES value is **less than one**, so our parameterization is more complementary than Cobb-Douglas, but not perfectly complementary. These properties follow from the specified functions; they are not estimates from industry data. For the Linear technology, the reported optimal share `0.95` is a **feasible-set boundary benchmark**, not the unrestricted optimum.
+
+The code deliberately uses the same `alpha=.7` in Cobb-Douglas, Linear and CES, and `kappa=.7` in Leontief. **Equal numeric parameters do not imply identical economic meaning across functions**. Initial equal `K=L=50` does not imply equal initial output. The four-group 25/25/25/25 assignment is an experimental balancing choice rather than an observed industry composition.
+
+#### Interpretation for adaptive learning
+
+Simon (1955) and Nelson & Winter (1982, 2002) motivate studying firms that adapt under limited information rather than directly calculating their optimum. Our Game 1 operationalizes this with repeated output-feedback experiments, strict improvement acceptance, and policy-specific candidate search. **Random and Guided are algorithms designed by this project**, not named treatments copied from those papers. In particular, `exploration_probability=.20`, `search_radius=.10`, the normal search kernel, the 100-firm population, and horizons 50/100/200 are **researcher design choices** awaiting sensitivity/robustness justification; no reviewed paper is claimed to calibrate them.
+
+Nelson & Winter study evolutionary processes that include organizational and industry dynamics; Game 1 isolates a simpler **within-firm independent learning** mechanism. Tesfatsion's agent-based economics provides a wider methodological context, but interactions and knowledge exchange are reserved for later games. It would be inaccurate to cite these works as empirical evidence that our Guided policy will outperform Random.
+
+#### Research gap — provisional, not yet a novelty claim
+
+A *candidate contribution* is to examine how **production-technology heterogeneity changes the relative learning trajectories of independently experimenting firms under matched randomness**, before introducing observation or interfirm knowledge sharing. The reviewed foundational works motivate the ingredients but **do not establish that no earlier paper studied this exact comparison**. Before any claim of originality, perform a targeted contemporary search for firm learning/search on heterogeneous production landscapes, adaptive resource allocation, local-versus-global exploration and computational experiments using common random numbers. Record close competitors and null/contradictory evidence.
+
+#### ODD-style reporting checklist for Game 1
+
+| ODD element | Existing evidence | Remaining work |
+|---|---|---|
+| Purpose | Section 1 of this canonical record | Tie explicitly to testable estimands |
+| State variables and scales | Firm ID, technology, budget, share, current output, history; rounds | Clarify simulation time is an abstract decision round |
+| Process overview and scheduling | `Simulation.run`, sequential firm iteration per round | Document lack of interfirm interaction and consequences |
+| Design concepts | Trial-and-error search, limited observation, output feedback | Link mechanisms and hypotheses without overclaiming |
+| Initialization | Verified 100-firm protocol above | State calibration limitations |
+| Input data | Synthetic initial parameters and seeded random schedule | Explicitly say no observed firm microdata |
+| Submodels | Production, candidate selection, acceptance, constrained optimum | Include tests, invariants and output schema |
+
+#### Verified references (metadata checked; no unverified page-specific quotations)
+
+1. Cobb, C. W., & Douglas, P. H. (1928). A theory of production. *The American Economic Review, 18*(1, Supplement), 139–165. https://www.jstor.org/stable/1811556
+2. Arrow, K. J., Chenery, H. B., Minhas, B. S., & Solow, R. M. (1961). Capital-labor substitution and economic efficiency. *The Review of Economics and Statistics, 43*(3). https://msuweb.montclair.edu/~lebelp/ACMSCapLabSubREAS1961.pdf (accessible paper; DOI not independently checked here)
+3. Leontief, W. (1941). *The Structure of American Economy, 1919–1929: An Empirical Application of Equilibrium Analysis*. Harvard University Press. https://books.google.com/books?id=cm_HAAAAMAAJ
+4. Simon, H. A. (1955). A behavioral model of rational choice. *The Quarterly Journal of Economics, 69*(1), 99–118. https://doi.org/10.2307/1884852
+5. Nelson, R. R., & Winter, S. G. (1982). *An Evolutionary Theory of Economic Change*. Harvard University Press. https://books.google.com/books?id=uRm5AAAAIAAJ
+6. Nelson, R. R., & Winter, S. G. (2002). Evolutionary theorizing in economics. *Journal of Economic Perspectives, 16*(2), 23–46. https://doi.org/10.1257/0895330027247
+7. Tesfatsion, L. (2002). Agent-based computational economics: Growing economies from the bottom up. *Artificial Life, 8*(1), 55–82. https://doi.org/10.1162/106454602753694765
+8. Grimm, V., Berger, U., Bastiansen, F., et al. (2006). A standard protocol for describing individual-based and agent-based models. *Ecological Modelling, 198*(1–2), 115–126. https://doi.org/10.1016/j.ecolmodel.2006.04.023
+9. Railsback, S. F., & Grimm, V. (2019). *Agent-Based and Individual-Based Modeling: A Practical Introduction* (2nd ed.). Princeton University Press. https://doi.org/10.2307/jj.28274141
+
+**Review status:** Foundational source identities and relevance checked; parameter calibration **not supported**; exhaustive prior-art/novelty review **pending**; full-text scrutiny of every chapter **pending**. This update is documentation-only: no Python tests or new simulations were run.
+
 ## 5. Experiments, results, and reproducibility
 
 | Item | Current status | Next evidence needed |
