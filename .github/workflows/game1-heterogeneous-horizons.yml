@@ -26,6 +26,8 @@ jobs:
       - run: python -m pytest -q
       - name: Run paired heterogeneous experiment
         run: python -m experiments.game1_heterogeneous --rounds ${{ matrix.rounds }} --seeds 100 --population-seed 2026 --export-dir results/heterogeneous_${{ matrix.rounds }}
+      - name: Analyze heterogeneity by technology and alpha strata
+        run: python -m experiments.analyze_game1_heterogeneous --input results/heterogeneous_${{ matrix.rounds }}/paired_firm_outcomes.csv --output results/heterogeneous_${{ matrix.rounds }}/subgroup_summary.json
       - name: Verify exports
         run: |
           python - <<'PY'
