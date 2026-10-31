@@ -8,7 +8,7 @@
 
 Game 1 is a **model baseline** for subsequent knowledge-sharing comparisons. In the implemented model, firms observe their own experiment histories; they do not exchange knowledge, compete in a product market, or optimize profit. The current code does not implement AI investment as a separate decision.
 
-**Source:** [Simulation](../../src/interfirm_abm/simulation.py), [Firm](../../src/interfirm_abm/firm.py), [Project experimental design](../proposals/experimental_design.md).
+**Source:** [Simulation](../../../src/interfirm_abm/simulation.py), [Firm](../../../src/interfirm_abm/firm.py), [Project experimental design](../../proposals/experimental_design.md).
 
 ## 2. Model specification
 
@@ -36,7 +36,7 @@ The current `production.py` uses the following default specifications, where `K`
 
 These are implemented equations, not independently validated empirical estimates. The implementation documents constant returns to scale in capital and labor, and `tests/test_production.py` contains tests for that property. **Test presence is not a claim of a successful test run in this review.**
 
-**Source:** [Production functions](../../src/interfirm_abm/production.py), [Production tests](../../tests/test_production.py).
+**Source:** [Production functions](../../../src/interfirm_abm/production.py), [Production tests](../../../tests/test_production.py).
 
 ## 3. Independent learning policies
 
@@ -49,7 +49,7 @@ These are implemented equations, not independently validated empirical estimates
 
 **Important design interpretation:** Nondecreasing *accepted output* is mechanically guaranteed by the acceptance rule; it is not an independent empirical finding about firms. Failed candidates remain in experiment histories, which may affect guided search.
 
-**Sources:** [Learning policies](../../src/interfirm_abm/learning.py), [Random schedule](../../src/interfirm_abm/random_schedule.py), [Firm tests](../../tests/test_firm.py).
+**Sources:** [Learning policies](../../../src/interfirm_abm/learning.py), [Random schedule](../../../src/interfirm_abm/random_schedule.py), [Firm tests](../../../tests/test_firm.py).
 
 ## 4. Research interpretation and theoretical sources
 
@@ -81,6 +81,15 @@ Every actual run will receive a row below; do not enter hypothetical values as f
 | Run ID | Commit | Policy / treatment | Firms × rounds | Seed(s) | Artifact link | Test/validation | Status |
 |---|---|---|---|---|---|---|---|
 | — | — | — | — | — | — | — | Awaiting verified artifacts |
+
+### Repository audit — 2026-10-31
+
+- **Confirmed executable entry point:** `src/interfirm_abm/simulation.py` defines `Simulation.run()`, `Simulation.summary()`, and a `__main__` block that prints a technology-level and overall summary. The module **does not write its run output to a persistent artifact** in that entry point.
+- **Confirmed raw output schema:** firm-round records include `firm_id`, `round`, `technology`, `candidate_share`, `candidate_output`, `accepted`, `capital_share`, and `current_output`.
+- **Confirmed summary schema:** `firm_id`, `technology`, `initial_output`, `final_output`, `final_capital_share`, `output_growth_pct`, and `accepted_experiments`.
+- **Repository folders:** `experiments/` and `results/` exist, but their complete file inventories have **not** yet been retrieved in this audit. Their existence is **not** evidence of a retained Game 1 run.
+- **No verified run registry entry yet:** no Game 1 artifact has been individually inspected and tied to its parameters, seed, and commit. Accordingly, no numeric Game 1 result is reported here.
+- **Source links:** [Simulation entry point](../../../src/interfirm_abm/simulation.py), [Firm record schema](../../../src/interfirm_abm/firm.py), [Matched random schedule](../../../src/interfirm_abm/random_schedule.py).
 
 ## 6. Open issues for review
 
