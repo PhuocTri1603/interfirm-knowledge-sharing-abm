@@ -20,13 +20,13 @@ CHECKPOINTS = [5, 10, 20, 50]
 POLICIES = ["random", "guided"]
 
 
-def run_experiment():
+def run_experiment(n_firms=100, n_replications=N_REPLICATIONS):
     records = []
 
-    for seed in range(2026, 2026 + N_REPLICATIONS):
+    for seed in range(2026, 2026 + n_replications):
         for policy in POLICIES:
             sim = Simulation(
-                n_firms=20,
+                n_firms=n_firms,
                 n_rounds=50,
                 seed=seed,
                 learning_policy=policy,
@@ -65,7 +65,7 @@ def run_experiment():
     return paired
 
 
-def export_results(paired, output_dir):
+def export_results(paired, output_dir, n_firms=100, n_replications=N_REPLICATIONS):
     """Persist the exact matched observations and reproducibility metadata."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -98,16 +98,16 @@ def export_results(paired, output_dir):
     metadata = {
         "experiment": "validation_05",
         "game": "Game 1",
-        "n_replications": N_REPLICATIONS,
+        "n_replications": n_replications,
         "seed_start": 2026,
-        "seed_end_inclusive": 2026 + N_REPLICATIONS - 1,
-        "n_firms": 20,
+        "seed_end_inclusive": 2026 + n_replications - 1,
+        "n_firms": n_firms,
         "n_rounds": 50,
         "budget_per_firm": 100.0,
         "checkpoints": CHECKPOINTS,
         "policies": POLICIES,
         "matched_randomness": True,
-        "expected_paired_rows": N_REPLICATIONS * 20 * len(CHECKPOINTS),
+        "expected_paired_rows": n_replications * n_firms * len(CHECKPOINTS),
         "observed_paired_rows": len(paired),
         "metric": "100 * (guided - random) / random",
         "numpy_version": np.__version__,
@@ -129,11 +129,17 @@ if __name__ == "__main__":
         default=None,
         help="Write matched CSVs and JSON summaries to this directory.",
     )
+    parser.add_argument("--firms", type=int, default=100)
+    parser.add_argument("--seeds", type=int, default=N_REPLICATIONS)
     args = parser.parse_args()
+    if args.firms <= 0 or args.firms % 4:
+        parser.error("--firms must be a positive multiple of four")
+    if args.seeds <= 0:
+        parser.error("--seeds must be positive")
 
-    paired = run_experiment()
+    paired = run_experiment(n_firms=args.firms, n_replications=args.seeds)
     if args.export_dir is not None:
-        export_results(paired, args.export_dir)
+        export_results(paired, args.export_dir, n_firms=args.firms, n_replications=args.seeds)
 
     run_level = (
         paired.groupby(["seed", "round"])
@@ -180,6 +186,6 @@ if __name__ == "__main__":
     )
 
     print("\n===== EXPERIMENT SUMMARY =====")
-    print("Seeds:", N_REPLICATIONS)
+    print("Seeds:", args.seeds)
     print("Paired observations:", len(paired))
     print("Matched randomness: True")
