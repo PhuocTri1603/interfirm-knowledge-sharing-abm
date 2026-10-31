@@ -473,3 +473,26 @@ At round 50, the mean advantage ranges from **+0.2237% to +0.6626%** across 25 s
 | 100 | -0.0011 | [-0.0254, +0.0232] |
 
 Intervals are descriptive uncertainty across 100 independent simulation seeds, using `mean ± 1.984 × seed-level SD/√100` (approximate t interval). The negative interaction in early rounds means increasing exploration probability is **more beneficial when the local search radius is narrow**; by round 100 the corner contrast is effectively zero at this resolution. This does not imply that the main effects or every other possible interaction are zero. Results establish sensitivity and nonadditivity **within the specified ABM**; they do not identify effects in observed firms. The corner contrast is only one predeclared summary of the full 5 × 5 response surface.
+
+### Independent artifact audit — cross-horizon and economic invariants (2026-10-31)
+
+**Scope:** Documentation-only independent read of GitHub Actions artifacts 13031790079 (50 rounds), 13031585631 (100), 13030944570 (200), all generated at source commit `40266bf38b644bb169fcb5d1358f9649ab7085cb`. No model code, algorithm, or economic parameter was changed.
+
+**Cross-horizon verification, keyed by observation and tolerance 1e-10:**
+- 50 vs 100: 500,000 paired rows and 1,000,000 firm-history rows matched.
+- 50 vs 200: 500,000 paired rows and 1,000,000 firm-history rows matched.
+- 100 vs 200: 1,000,000 paired rows matched.
+- 100 vs 200: full 2,000,000 firm-history row comparison **not yet certified**. An order-insensitive row-hash check did not match; a targeted seed-2026 numeric comparison matched within ~5e-14, indicating that float representation can affect hashing. This is **unresolved**, not proof of either divergence or equivalence. A complete tolerance-based keyed comparison is required.
+
+**Independent economic recalculation, all 2,000,000 paired rows (4,000,000 policy outputs), using fixed budget B=100 and existing production equations:**
+
+| Technology | Feasible optimum capital share | Optimal output |
+|---|---:|---:|
+| Cobb-Douglas | 0.7000000000 | 54.2881452690 |
+| Leontief | 0.7000000000 | 100.0000000000 |
+| Linear | 0.9500000000 | 68.0000000000 |
+| CES | 0.6375775139 | 52.8935719008 |
+
+Maximum absolute error between recomputed and exported output: `4.2633e-14`; output efficiency percentage: `8.5265e-14`; distance to optimum share: `2.1077e-16`. Across both policies: **zero** allocation shares outside `[0.05,0.95]`, **zero** efficiencies above 100% (tolerance 1e-8), **zero** negative outputs.
+
+**Interpretation:** The 200-round output and efficiency fields are arithmetically consistent with the approved production functions and constrained optima. This is a model-internal consistency check, **not** external empirical validation or proof of a novel mechanism. The 100-vs-200 full-history check remains open. No website work or Game 2 mechanism was introduced.
