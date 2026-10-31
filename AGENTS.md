@@ -17,13 +17,19 @@ Scope: this repository is a research ABM, not a general application. Read this f
 - Game 1 source of truth: `src/interfirm_abm/simulation.py`, `firm.py`, `production.py`, `learning.py`, `random_schedule.py`, `production_optimum.py`.
 - Simulation defaults (20 firms/50 rounds) differ from the verified 100-firm experiment (100 firms, 100 seeds, 50/100/200 rounds); always specify which is being discussed.
 
-## P0 skill routing
-Before a task, read all relevant files:
+## Skill routing (P0 + P1 + P2)
+Read the relevant skills before starting a task. **P0 governance is always first for changes to research assumptions.**
 - `.agents/skills/research-governance/SKILL.md` — decisions, scope and approval.
 - `.agents/skills/model-specification/SKILL.md` — equations, firm construction, code-to-doc consistency.
-- `.agents/skills/literature-review/SKILL.md` — literature and references.
-- `.agents/skills/experiment-design/SKILL.md` — hypotheses and treatment design.
+- `.agents/skills/literature-review/SKILL.md` — scholarly evidence and references.
+- `.agents/skills/experiment-design/SKILL.md` — hypotheses, controls and treatment design.
 - `.agents/skills/simulation-validation/SKILL.md` — verification and falsification tests.
 - `.agents/skills/reproducibility/SKILL.md` — seeds, provenance and artifacts.
+- `.agents/skills/statistical-analysis/SKILL.md` — seed-level inference, convergence and sensitivity.
+- `.agents/skills/simulation-visualization/SKILL.md` — real-data website, replay and interaction tests.
+- `.agents/skills/research-documentation/SKILL.md` — canonical research records.
+- `.agents/skills/scientific-writing/SKILL.md` — proposal and manuscript claims.
+- `.agents/skills/research-audit/SKILL.md` — independent milestone checks.
+- `.agents/skills/github-workflow/SKILL.md` — safe repository and Actions operations.
 
-For multi-skill tasks, use governance first; then specification/literature; design; validation; reproducibility. Ask when decisions are ambiguous or approval is needed.
+Suggested multi-skill sequence: governance → specification/literature → design → validation → reproducibility/statistics → documentation/visualization/writing → independent audit. Do not mark Game 1 complete until model documentation, literature review and a verified real-data website have passed audit. Ask when approval is needed.
