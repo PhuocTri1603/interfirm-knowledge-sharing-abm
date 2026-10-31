@@ -1,5 +1,7 @@
 # Game 3C — Research and Development Handoff
 
+> **Repository status note (2026-10-31):** This handoff preserves the 2026-10-27 development snapshot. Since that snapshot, `src/interfirm_abm/disclosure_simulation.py` and `tests/test_disclosure_simulation.py` have been committed on `docs/research-consolidation`. Therefore, the integration task described in Sections 6, 8, and 10 is historical, not an accurate statement of missing files. Code presence has been verified through GitHub; the latest test execution, correctness, and completeness of integration have **not** been independently verified in this review. Retain the original design decisions below pending a separate code-and-test audit.
+
 Last updated: 2026-10-27
 Status: Core learning and knowledge-pool components tested.
 Next task: Integrate Game 3C simulation.
