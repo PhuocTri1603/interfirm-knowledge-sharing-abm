@@ -333,3 +333,33 @@ Exploration probabilities: **0.05, 0.10, 0.20, 0.40, 0.60**. Search radii: **0.0
 The experiment saves `paired_factorial.csv`, `seed_factorial.csv`, `summary_factorial.csv`, `seed_interaction_contrast.csv`, and `metadata.json`. The prespecified interaction contrast at each checkpoint is **[advantage(0.60, 0.30) − advantage(0.05, 0.30)] − [advantage(0.60, 0.03) − advantage(0.05, 0.03)]**, calculated at the seed level. Positive values mean that increasing exploration probability has a more positive effect on Guided's relative advantage at the wider radius; negative values mean the reverse. This is an interaction **within the computational model**, not empirical causal identification.
 
 **Status:** committed; numerical factorial findings and successful workflow completion **not yet verified**. The earlier one-factor-at-a-time results remain the only verified sensitivity evidence until the new artifact is inspected.
+
+### Verified 5 × 5 factorial interaction results — 2026-10-31
+
+**Provenance:** [GitHub Actions run 41163519868](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41163519868), successful, source commit `d19652616db396d0b83d046c68702b07d0e55b24`. Artifact `game1-factorial-d19652616db396d0b83d046c68702b07d0e55b24`, ID `13028770124`. ZIP/CSV files were inspected directly: 250,000 matched observations, 12,500 seed–scenario–checkpoint aggregates, 125 scenario–checkpoint summaries, 500 seed–checkpoint interaction contrasts, 100 seeds, **zero missing cells** in paired observations.
+
+**Fraction of the 25 parameter configurations with positive mean Guided advantage:** round 5: 7/25; round 10: 12/25; round 20: 20/25; round 50: 25/25; round 100: 25/25. Positive mean across seeds does **not** mean every seed or firm benefits.
+
+**Round-20 mean Guided-minus-Random output advantage (%), rows = exploration probability, columns = search radius:**
+
+| p / radius | .03 | .05 | .10 | .20 | .30 |
+|---|---:|---:|---:|---:|---:|
+| .05 | -3.547 | -1.281 | +0.917 | +1.214 | +0.885 |
+| .10 | -2.339 | -0.457 | +1.073 | +1.176 | +0.863 |
+| .20 | -0.750 | +0.361 | +1.170 | +1.184 | +0.846 |
+| .40 | +0.263 | +0.868 | +1.150 | +1.027 | +0.767 |
+| .60 | +0.526 | +0.832 | +0.976 | +0.885 | +0.695 |
+
+At round 50, the mean advantage ranges from **+0.2237% to +0.6626%** across 25 scenarios; at round 100, from **+0.1522% to +0.3502%**. The baseline `p=.20, radius=.10` reproduces the earlier result: **+1.1697%** at round 20, **+0.5893%** at round 50, **+0.2915%** at round 100.
+
+**Prespecified corner interaction contrast** (percentage points): `[advantage(.60,.30)-advantage(.05,.30)]-[advantage(.60,.03)-advantage(.05,.03)]`.
+
+| Round | Mean contrast (pp) | Approx. 95% seed-level CI (pp) |
+|---|---:|---:|
+| 5 | -3.6952 | [-4.0569, -3.3336] |
+| 10 | -5.3112 | [-5.6845, -4.9379] |
+| 20 | -4.2624 | [-4.6509, -3.8739] |
+| 50 | -0.4478 | [-0.5689, -0.3268] |
+| 100 | -0.0011 | [-0.0254, +0.0232] |
+
+Intervals are descriptive uncertainty across 100 independent simulation seeds, using `mean ± 1.984 × seed-level SD/√100` (approximate t interval). The negative interaction in early rounds means increasing exploration probability is **more beneficial when the local search radius is narrow**; by round 100 the corner contrast is effectively zero at this resolution. This does not imply that the main effects or every other possible interaction are zero. Results establish sensitivity and nonadditivity **within the specified ABM**; they do not identify effects in observed firms. The corner contrast is only one predeclared summary of the full 5 × 5 response surface.
