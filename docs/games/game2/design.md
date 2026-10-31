@@ -125,3 +125,54 @@ E. Publish reproducible artifacts and limitations, then consider website visuali
 - `docs/proposals/experimental_design.md`: original three-game framework, before approved 2A/2B split.
 - Option C approved by researcher on 2026-10-31.
 - All 2A and 2B mechanisms beyond inherited Game 1 are **proposals**, not verified facts or executed experiments.
+
+
+## 8. Researcher correction — heterogeneous 100-firm population (2026-10-31)
+
+**Requirement:** 100 firms must not merely consist of 25 identical parameterizations per production family. Firms within each of four families must have distinct, randomly drawn technology coefficients, with controlled coverage of labor-intensive, intermediate, and capital-intensive types. This is a correction to the *research specification*, not a claim that the accepted Game 1 source code already satisfies it. Preserve the original Game 1 results as a historical homogeneous-within-family benchmark; do not silently overwrite its acceptance record.
+
+### 8.1 Proposed reproducible stratified sampling
+
+- Exactly 25 firms per family: Cobb-Douglas, Leontief, Linear, CES.
+- Within each family: 8 labor-oriented, 9 intermediate, 8 capital-oriented.
+- Draw independently within strata using a **uniform distribution conditional on stratum**, with a fixed population seed separate from experimental learning seeds:
+  - labor-oriented: alpha_i ~ Uniform(0.10,0.40);
+  - intermediate: alpha_i ~ Uniform(0.40,0.60);
+  - capital-oriented: alpha_i ~ Uniform(0.60,0.90).
+- Shuffle firm IDs reproducibly after drawing; store firm_id, technology, stratum, alpha_i, A_i, rho_i, population_seed in a canonical population artifact. Enforce alpha_i in (0,1), uniqueness of firm IDs, 25/technology and 8/9/8/technology. Randomly sampled coefficients need not be unique, although continuous draws will almost surely be distinct.
+- This is a **balanced experimental design**, not an empirically estimated population distribution. Thresholds 0.40/0.60 and uniformity are researcher-adjustable assumptions, requiring sensitivity tests (e.g. alternative beta distributions and cutoffs).
+- **Important:** alpha_i is the firm's *technological weighting coefficient*, not its chosen capital share s_it. For CES and Leontief, labeling alpha as an empirically observed capital expenditure share would be incorrect. “Capital/labor-oriented” is a within-model operational classification.
+
+### 8.2 Firm-specific production functions
+
+With A_i=1 for the first controlled heterogeneity experiment and fixed rho=-0.5 for CES:
+
+- Cobb-Douglas: Y_i=A_i K_i^(alpha_i) L_i^(1-alpha_i).
+- Linear: Y_i=A_i [alpha_i K_i+(1-alpha_i)L_i].
+- Leontief: Y_i=A_i min(K_i/alpha_i, L_i/(1-alpha_i)).
+- CES: Y_i=A_i [alpha_i K_i^(rho_i)+(1-alpha_i)L_i^(rho_i)]^(1/rho_i).
+
+CES substitution elasticity sigma_i=1/(1-rho_i). Keeping rho fixed isolates heterogeneity in alpha; a separately controlled extension can draw rho_i from a prespecified distribution. **Do not vary alpha, rho, A, budgets, and behavioral rules all at once**, because that would obscure causal attribution. A_i heterogeneity (e.g., normalized lognormal) and resource-budget heterogeneity are later factorial robustness dimensions, not part of the first parameter-heterogeneity treatment.
+
+For the proposed forms and equal normalized input prices, alpha_i > 0.5 corresponds to a capital-oriented technological optimum, alpha_i < 0.5 to a labor-oriented optimum; for the intermediate stratum both sides of 0.5 are included. Under linear production with alpha_i=0.5 all feasible allocations tie; tests must handle that case.
+
+### 8.3 Comparability and normalization
+
+At initial s_i=0.5, technology families may have different initial output levels; in particular the Leontief form can yield larger levels than the other functions under these parameters. Compare **within-firm output efficiency** Y_i/Y_i^* using each firm's own constrained optimum, not unnormalized cross-family output as evidence of superior learning. For Game 2A, a rival's raw output is not automatically comparable across alpha_i or families. Rank potential comparators by own-optimum-normalized efficiency only if that metric is explicitly public, or by observable output with a caveat about confounding; no omniscient access to private alpha_i.
+
+### 8.4 Research design implications
+
+- Rerun and audit a new heterogeneous-population Game 1 benchmark before Game 2A; the previously accepted 100-firm homogeneous-within-family experiment is not evidence for the new population.
+- Compare Game 2A observational learning to a matched **heterogeneous** independent-learning control with identical sampled firms and random schedules.
+- Prespecify technological distance d(i,j)=|alpha_i-alpha_j| for same-family comparisons; CES extension can add a separate distance in rho. Test same-family near vs far and cross-family transfer separately.
+- Publicly observing a rival's alpha_i or own optimum is **not** automatically allowed. Public allocation and output are a defensible candidate signal but must be researcher-approved.
+- In Game 2B, disentangle technology coefficients, factor prices, and observed input choices; alpha_i is not a firm's choice variable.
+
+### 8.5 Literature grounding and limits
+
+1. Arrow, Chenery, Minhas & Solow (1961), *Capital-Labor Substitution and Economic Efficiency*, Review of Economics and Statistics 43(3). Supports considering different input substitution structures, not the specific proposed 8/9/8 stratification or alpha ranges. https://faculty.econ.ucsb.edu/~tedb/Courses/GraduateTheoryUCSB/ACMS.pdf
+2. Hopenhayn (1992), *Entry, Exit, and Firm Dynamics in Long Run Equilibrium*, Econometrica 60(5), 1127–1150. Supports firm heterogeneity as an economic modeling dimension, not a uniform distribution of input coefficients. https://ideas.repec.org/a/ecm/emetrp/v60y1992i5p1127-50.html
+3. Axtell (2001), *Zipf Distribution of U.S. Firm Sizes*, Science 293(5536), 1818–1820, doi:10.1126/science.1062081. Empirical motivation for heterogeneous firm populations, but its firm-size distribution **does not identify a distribution for alpha_i**. https://pubmed.ncbi.nlm.nih.gov/11546870/
+4. Kondo, Lewis & Stella (2018), *On the U.S. Firm and Establishment Size Distributions*, Federal Reserve FEDS 2018-075. Shows lognormal can fit firm-size and productivity distributions better than Pareto in their data; useful for a **separate future productivity A_i robustness exercise**, not direct evidence for uniform alpha_i. https://www.federalreserve.gov/econres/feds/on-the-us-firm-and-establishment-size-distributions.htm
+
+**Approval boundary:** the researcher has approved random draws from a specified distribution and balanced capital/labor-oriented coverage. Numerical stratum cutoffs, distribution family, A_i=1 first-stage control, and CES rho treatment are explicit *proposals awaiting confirmation*, not already approved calibrations.
