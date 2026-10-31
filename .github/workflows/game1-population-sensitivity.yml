@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       smoke:
-        description: "Run a small smoke test only (true) or full 100 learning seeds (false)"
+        description: "Smoke test: 2 seeds when checked; full: 100 seeds when unchecked"
         type: boolean
-        default: true
+        default: false
         required: true
 jobs:
   sensitivity:
