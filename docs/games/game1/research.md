@@ -119,6 +119,12 @@ The repository history identifies five early validation scripts. **Code existenc
 
 **Verification status:** workflow file committed; a successful workflow run, test log, downloadable artifact, and actual Game 1 numeric results have **not** yet been verified. The workflow's artifact is temporary and should not be confused with permanent research archival. The `.gitignore` excludes generated CSV files, so successful execution will not by itself add numeric outputs to Git history.
 
+### Export contract smoke test
+
+[Export test](../../../tests/test_validation_05_export.py) was added in commit [`3b31c087`](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/3b31c087f21da751cbaa97d77fc0ea19b493e2e7). It constructs a **synthetic two-row fixture** to check the four output files, aggregation arithmetic, and metadata. This fixture is **not** a research result. The test's presence does not establish that it has passed in GitHub Actions.
+
+**GitHub Actions visibility limitation:** the available commit-to-workflow lookup only returns pull-request-triggered runs; an empty response cannot establish whether a push-triggered run happened. Thus the execution status remains **unverified**, not `failed` or `not run`. Inspect the [Actions page](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/workflows/game1-validation.yml) for a completed run, test log, and downloadable artifacts before promoting any result to the run registry.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
