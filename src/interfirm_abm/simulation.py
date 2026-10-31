@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from interfirm_abm.firm import Firm
+from interfirm_abm.population import generate_population
 from interfirm_abm.random_schedule import (
     generate_random_schedule,
 )
@@ -39,6 +40,8 @@ class Simulation:
         matched_randomness=False,
         exploration_probability=0.20,
         search_radius=0.10,
+        heterogeneous_population=False,
+        population_seed=2026,
     ):
         if not isinstance(n_firms, int) or n_firms <= 0:
             raise ValueError("n_firms must be a positive integer.")
@@ -66,11 +69,20 @@ class Simulation:
         self.n_rounds = n_rounds
         self.rng = np.random.default_rng(seed)
 
+        if heterogeneous_population and n_firms != 100:
+            raise ValueError('Heterogeneous population requires n_firms=100.')
+        self.heterogeneous_population = heterogeneous_population
+        self.population_seed = population_seed
+        self.population = generate_population(population_seed) if heterogeneous_population else None
+
         self.firms = [
             Firm(
                 firm_id=i + 1,
-                technology=TECHNOLOGIES[i % 4],
+                technology=str(self.population.iloc[i]['technology']) if heterogeneous_population else TECHNOLOGIES[i % 4],
                 budget=budget,
+                alpha=float(self.population.iloc[i]['alpha']) if heterogeneous_population else 0.70,
+                productivity=float(self.population.iloc[i]['A']) if heterogeneous_population else 1.0,
+                rho=float(self.population.iloc[i]['rho']) if heterogeneous_population and str(self.population.iloc[i]['technology']) == 'CES' else -0.50,
             )
             for i in range(n_firms)
         ]
@@ -160,6 +172,8 @@ class Simulation:
             rows.append({
                 "firm_id": firm.firm_id,
                 "technology": firm.technology,
+                "alpha": firm.alpha,
+                "productivity": firm.productivity,
                 "initial_output": initial_output,
                 "final_output": firm.current_output,
                 "final_capital_share": firm.capital_share,
