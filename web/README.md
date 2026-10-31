@@ -1,44 +1,51 @@
-# Game 1 replay — first vertical slice
+# Game 1 research website
 
-Static replay of verified 200-round data. Public publication was authorized by the researcher on 2026-10-31. No simulation model is executed or modified. The English interface is deployed at https://phuoctri1603.github.io/interfirm-knowledge-sharing-abm/. Researcher authorization subsequently included making the entire research repository public. Pages uses GitHub Actions and permits the active experiment/game1-100-firms branch to deploy, alongside main. No merge into main was performed.
+Live English website: https://phuoctri1603.github.io/interfirm-knowledge-sharing-abm/
 
-From repository root (Python 3.11+, standard library only):
+This is **replay of precomputed simulation data**, not a live simulation. Public website publication and the full repository's public visibility were explicitly authorized by the researcher on 2026-10-31. Economic mechanisms remain unchanged.
+
+## Implemented views
+
+- Simulation Overview: mean output efficiency and threshold attainment across 100 seeds, separately from selected-firm observations.
+- Learning Trajectories: seed, technology, firm, 50/100/200-round horizon, seek, step, play/pause, speed, exact exported records and candidate/accepted states.
+- Production Functions: four fixed-budget analytical curves, feasible optima and selected accepted-state observations; Linear optimum is constrained to share 0.95.
+- Statistical Validation: mean within-seed paired firm relative output advantage, pointwise 95% Student-t intervals across 100 seed means, technology breakdown and attainment differences in percentage points.
+
+Each horizon uses its **original artifact**, not truncated 200-round data. Population summaries are independent of the selected replay seed and are labeled accordingly.
+
+## Reproduce locally
+
+Python 3.11+ and Node.js are sufficient for these website tools. From repository root:
 
 ```bash
-python tools/build_replay_data.py /path/to/game1-horizon-200.zip --output web/data --packed
-python -m unittest discover -s tests -p test_replay_data.py -v
-python tools/check_replay_sample.py /path/to/game1-horizon-200.zip --data web/data
+python -m unittest discover -s tests -p 'test_replay*.py' -v
+node tests/test_production_view.cjs
+node tests/test_replay_selection.cjs
+node tests/test_horizon_requests.cjs
+for horizon in 50 100 200; do
+  python tools/build_replay_data.py verified-horizon${horizon}.zip --horizon $horizon --output web/data/$horizon --packed
+  python tools/check_replay_sample.py verified-horizon${horizon}.zip --data web/data/$horizon
+  python tools/check_replay_statistics.py verified-horizon${horizon}.zip --data web/data/$horizon
+done
 python -m http.server 8000 --bind 127.0.0.1 --directory web
 ```
 
-Open http://127.0.0.1:8000. Do not open index.html directly with file://. Download GitHub Actions artifact 13030944570 from run 41171674224 with your authorized GitHub account. The builder rejects any ZIP with a different SHA-256/source commit. Never place a GitHub token in the frontend.
+Open http://127.0.0.1:8000. Do not use file://.
 
-The builder processes all 4,000,000 original history rows, validates types/domains, per-seed unique keys and technology balance, then writes 100 partitions plus a manifest. JSON preserves parsed binary64 values and booleans; partitions retain every round. Generated data is intentionally excluded from Git. The --packed option writes lossless packed-v1 column arrays, with source optima stored once per technology per seed. The original 14-field row is reconstructed for inspection. All four million rows are retained; no downsampling or rounding. The packed output is approximately 494 MB (472 MiB), with ~5 MB per seed. Legacy object partitions are still readable.
+Original artifacts from run 41171674224 / source 40266bf38b644bb169fcb5d1358f9649ab7085cb: 50 rounds = 13031790079; 100 = 13031585631; 200 = 13030944570. Obtain them through authorized GitHub Actions downloads and save with the names above. The builder pins each ZIP SHA-256 and configuration, validates rows/keys/types and technology consistency, retains all rounds and exact parsed numbers, and writes lossless per-seed partitions plus summary.json. Generated data are excluded from Git. No credentials belong in frontend code.
 
-Available: seed/technology/firm selection, paired policies, round seeking, play/pause, step, speed, exact source-row drawer, candidate/accepted state and implied K/L. Horizon is fixed at 200; no 50/100 option or population statistics is claimed. The full trajectory is visible with a selected-round marker.
+## Statistics and verification
 
-In secure contexts the browser verifies SHA-256 for each partition. Where Web Crypto is unavailable (some HTTP previews), it explicitly reports byte-count/row-count checks only; the original ZIP SHA-256 remains mandatory at build time. This fallback is not cryptographic verification of HTTP transport. Use localhost or HTTPS for Web Crypto.
+Advantage: average the matched firm-level relative percentages within a seed, then average 100 seeds. CI: mean ± t(99, .975) × sample SD / sqrt(100). Threshold attainment is %, while Guided − Random attainment is pp. Intervals are pointwise model-conditional Monte Carlo intervals; not simultaneous bands or empirical-firm inference. Unreached thresholds are censored for first-hit interpretation.
 
-Verification on 2026-10-31: full build completed (4 million rows, 100 partitions); four focused unittest cases passed. Browser smoke checks: initial load, four technology filters (25 firms each), round seek, stepping, play/pause, exact source drawer; source-row sample audit described in canonical research.md. Existing model suite, mobile, corrupt-network scenarios, all controls across all seeds, 50/100 horizons and independent milestone audit remain outstanding. pytest could not run in the execution environment because pytest is not installed; this is not a failed model test.
+Revision dd0262c00a7a2841c1f911cb1874b20308fe35d0 deployed successfully in run 41192077110. Nine Python and three Node checks passed. All 7 million source history rows were processed. Exact partition checks reconciled 96/120/144 source records (all 14 fields) for horizons 50/100/200. A separately written raw-CSV checker independently reconciled 960/1200/1440 aggregate fields over 80k/100k/120k sampled-round rows. Maximum error 1.05084e-10, tolerance 1e-9. Its Student-t critical value is independently integrated/inverted.
 
-## GitHub Pages
+Live browser checks passed: horizon artifact identity; shared round-50 values between 50/100; end-round statistics; seed 2125/firm 6 context; main control Tab order; source drawer; seek, step and play/pause from earlier checks. Desktop rendering was inspected. Selection/horizon error paths and overlapping-request recovery passed deterministic Node tests with minimal DOM/transport doubles.
 
-`.github/workflows/game1-pages.yml` downloads artifact 13030944570 with the workflow token, verifies provenance/digest, runs the converter and 144-row source audit, enforces a 900 MB staging limit and deploys only index.html plus generated data. Audit documents, the original ZIP and tokens are not copied into the website; the research repository itself is now public by explicit researcher authorization. Every served dataset is public after deployment. The artifact expires in January 2027; renew the reproducible input/archival route before that date.
+## Deployment and limitations
 
-GitHub Pages is enabled with GitHub Actions as publishing source. Deployment and repository visibility are separate settings; both public publication and the repository visibility change were explicitly authorized by the researcher.
+Pages source: GitHub Actions, active branch experiment/game1-100-firms. Workflow downloads pinned artifacts, builds all horizons, runs independent checks, stages index.html and data only and enforces 900,000,000 bytes. Verified staged size: 865,048,661 bytes. Each selected seed loads only its horizon partition. Published data are public. Original Actions artifacts expire in January 2027; establish a durable reproducible input archive before expiry.
 
-## Live verification — 2026-10-31
+Independent static/numerical website review conditionally accepts the implemented scope; previously identified stale-data and failed-horizon recovery findings are closed. **Not fully tested:** real mobile/device rendering, assistive technologies, corrupt/offline transport in a real browser and rigorous performance benchmarks. The provided browser API did not expose viewport resizing or resource timing; these are not claimed passed.
 
-Deployed frontend revision: `4d4b311bca46cfd49abce331c0bfa3a449a5b237`; workflow run `41178512443`. Build tests, the 144-row source comparison and the deployment step completed successfully. The public HTTPS page loaded seed 2026 with SHA-256 verification and 40,000 records; English labels, status messages and Step forward were verified after deployment. Earlier deployment smoke checks also exercised seed 2027 and play/pause.
-
-Additional live checks: all four technology filters show 25 eligible firms; Home/End on the round slider select rounds 1/200; the exact-source drawer opens. Seed-2026 firms 1–4 at round 200 reconcile with the previously audited output pairs in the canonical research record. These checks are implementation QA, not an independent raw-artifact re-audit or full milestone sign-off.
-
-**Still not run:** mobile-device rendering, complete keyboard/focus audit, missing/corrupt-network scenarios, performance benchmarks and independent website audit. Overview, production curves, population statistics and 50/100-round products remain unimplemented. The whole Game 1 milestone remains open.
-
-## Production Functions view
-
-Frontend revision `4b1c3aed6118f9f73e9ef7e6d00b0687042bf5e4` adds all four implemented fixed-budget analytical output curves, feasible optima and selected-firm Random/Guided accepted-state markers. Budget is fixed at 100 and the domain at [0.05,0.95]. Formula text, axis units, distinct marker shapes, per-chart numeric descriptions and the source drawer distinguish calculated curves from exported observations. The Linear optimum is explicitly constrained. Seed loading and selection failure clear observed markers while retaining analytical curves.
-
-Executed locally against the actual frontend script: `node tests/test_production_view.cjs` (four optimum benchmarks, feasible grid, selected markers and cleanup), plus the existing selection-error regression. Both passed in a minimal DOM test environment; this is not mobile/browser validation. The grid includes each exact optimum and bounds; the 0.95 endpoint is clamped to avoid floating-point overshoot.
-
-This implements Production Functions alongside the initial Learning Trajectories slice. Earlier lists of unimplemented production curves describe prior revisions. Overview, population statistics and 50/100-round products remain outstanding. Live deployment verification is recorded separately.
+The website is available for research inspection with documented limitations. **Whole Game 1 milestone remains OPEN** pending final acceptance of outstanding checks and broader model/literature review. See canonical docs/games/game1/research.md.
