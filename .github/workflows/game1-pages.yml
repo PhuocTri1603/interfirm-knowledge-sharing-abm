@@ -1,0 +1,81 @@
+name: Publish Game 1 replay to GitHub Pages
+on:
+  push:
+    branches: [experiment/game1-100-firms]
+    paths:
+      - web/**
+      - tools/build_replay_data.py
+      - tools/check_replay_sample.py
+      - tests/test_replay_data.py
+      - .github/workflows/game1-pages.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: game1-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test replay data contract
+        run: python -m unittest discover -s tests -p test_replay_data.py -v
+      - name: Download immutable verified artifact
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const artifact = await github.rest.actions.getArtifact({
+              owner: context.repo.owner, repo: context.repo.repo, artifact_id: 13030944570
+            });
+            if (artifact.data.expired || artifact.data.workflow_run.head_sha !== '40266bf38b644bb169fcb5d1358f9649ab7085cb') {
+              throw new Error('Verified artifact is expired or has unexpected provenance');
+            }
+            const zip = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner, repo: context.repo.repo,
+              artifact_id: 13030944570, archive_format: 'zip'
+            });
+            fs.writeFileSync('verified-horizon200.zip', Buffer.from(zip.data));
+      - name: Build compact exact-value partitions
+        run: python tools/build_replay_data.py verified-horizon200.zip --output web/data --packed
+      - name: Independently check 144 original source rows
+        run: python tools/check_replay_sample.py verified-horizon200.zip --data web/data
+      - name: Stage public website only and enforce size budget
+        run: |
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+          destination = Path('pages-dist')
+          destination.mkdir()
+          shutil.copyfile('web/index.html', destination / 'index.html')
+          shutil.copytree('web/data', destination / 'data')
+          (destination / '.nojekyll').touch()
+          size = sum(p.stat().st_size for p in destination.rglob('*') if p.is_file())
+          assert size < 900_000_000, f'Website too large: {size} bytes'
+          print(f'Public website size: {size:,} bytes; no research source or ZIP staged')
+          PY
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy authorized public replay
+        id: deployment
+        uses: actions/deploy-pages@v4

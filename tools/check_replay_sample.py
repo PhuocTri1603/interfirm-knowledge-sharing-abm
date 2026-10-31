@@ -3,7 +3,13 @@ import argparse,csv,io,json,zipfile
 from pathlib import Path
 parser=argparse.ArgumentParser();parser.add_argument('archive');parser.add_argument('--data',default='web/data');args=parser.parse_args()
 seeds={2026,2075,2125};firms={1,2,3,4};rounds={1,11,20,50,100,200}
-partitions={s:json.loads((Path(args.data)/f'seed-{s}.json').read_text()) for s in seeds}
+def unpack(document):
+ if isinstance(document,list):return document
+ result=[]
+ for values in document['records']:
+  r=dict(zip(document['columns'],values));r['technology']=document['technologies'][r['technology']];r['policy']=document['policies'][r['policy']];r['seed']=document['seed'];r['optimal_share'],r['optimal_output']=document['optima'][r['technology']];result.append(r)
+ return result
+partitions={s:unpack(json.loads((Path(args.data)/f'seed-{s}.json').read_text())) for s in seeds}
 lookup={(r['seed'],r['policy'],r['firm_id'],r['round']):r for rows in partitions.values() for r in rows if r['firm_id'] in firms and r['round'] in rounds}
 n=0
 with zipfile.ZipFile(args.archive) as z, z.open('firm_round_trajectories.csv') as f:
