@@ -1,6 +1,6 @@
 # Game 1 replay — first vertical slice
 
-Static replay of verified 200-round data. Public publication was authorized by the researcher on 2026-10-31. No simulation model is executed or modified. GitHub Pages workflow is prepared; hosting must be enabled in repository Settings → Pages → Source: GitHub Actions. Deployment is not confirmed until the workflow and live URL are verified.
+Static replay of verified 200-round data. Public publication was authorized by the researcher on 2026-10-31. No simulation model is executed or modified. The English interface is deployed at https://phuoctri1603.github.io/interfirm-knowledge-sharing-abm/. Researcher authorization subsequently included making the entire research repository public. Pages uses GitHub Actions and permits the active experiment/game1-100-firms branch to deploy, alongside main. No merge into main was performed.
 
 From repository root (Python 3.11+, standard library only):
 
@@ -11,7 +11,7 @@ python tools/check_replay_sample.py /path/to/game1-horizon-200.zip --data web/da
 python -m http.server 8000 --bind 127.0.0.1 --directory web
 ```
 
-Open http://127.0.0.1:8000. Do not open index.html directly with file://. Download private GitHub Actions artifact 13030944570 from run 41171674224 with your authorized GitHub account. The builder rejects any ZIP with a different SHA-256/source commit. Never place a GitHub token in the frontend.
+Open http://127.0.0.1:8000. Do not open index.html directly with file://. Download GitHub Actions artifact 13030944570 from run 41171674224 with your authorized GitHub account. The builder rejects any ZIP with a different SHA-256/source commit. Never place a GitHub token in the frontend.
 
 The builder processes all 4,000,000 original history rows, validates types/domains, per-seed unique keys and technology balance, then writes 100 partitions plus a manifest. JSON preserves parsed binary64 values and booleans; partitions retain every round. Generated data is intentionally excluded from Git. The --packed option writes lossless packed-v1 column arrays, with source optima stored once per technology per seed. The original 14-field row is reconstructed for inspection. All four million rows are retained; no downsampling or rounding. The packed output is approximately 494 MB (472 MiB), with ~5 MB per seed. Legacy object partitions are still readable.
 
@@ -23,6 +23,14 @@ Verification on 2026-10-31: full build completed (4 million rows, 100 partitions
 
 ## GitHub Pages
 
-`.github/workflows/game1-pages.yml` downloads artifact 13030944570 with the workflow token, verifies provenance/digest, runs the converter and 144-row source audit, enforces a 900 MB staging limit and deploys only index.html plus generated data. The private research repository, audit documents, original ZIP and tokens are not copied into the website. Every served dataset is public after deployment. The artifact expires in January 2027; renew the reproducible input/archival route before that date.
+`.github/workflows/game1-pages.yml` downloads artifact 13030944570 with the workflow token, verifies provenance/digest, runs the converter and 144-row source audit, enforces a 900 MB staging limit and deploys only index.html plus generated data. Audit documents, the original ZIP and tokens are not copied into the website; the research repository itself is now public by explicit researcher authorization. Every served dataset is public after deployment. The artifact expires in January 2027; renew the reproducible input/archival route before that date.
 
-GitHub Pages must already be enabled with GitHub Actions as publishing source. The GitHub account plan must support Pages from a private repository; otherwise use a separate public website repository, without changing the research repository visibility. Do not make the whole research repository public merely to resolve a Pages limitation.
+GitHub Pages is enabled with GitHub Actions as publishing source. Deployment and repository visibility are separate settings; both public publication and the repository visibility change were explicitly authorized by the researcher.
+
+## Live verification — 2026-10-31
+
+Deployed frontend revision: `4d4b311bca46cfd49abce331c0bfa3a449a5b237`; workflow run `41178512443`. Build tests, the 144-row source comparison and the deployment step completed successfully. The public HTTPS page loaded seed 2026 with SHA-256 verification and 40,000 records; English labels, status messages and Step forward were verified after deployment. Earlier deployment smoke checks also exercised seed 2027 and play/pause.
+
+Additional live checks: all four technology filters show 25 eligible firms; Home/End on the round slider select rounds 1/200; the exact-source drawer opens. Seed-2026 firms 1–4 at round 200 reconcile with the previously audited output pairs in the canonical research record. These checks are implementation QA, not an independent raw-artifact re-audit or full milestone sign-off.
+
+**Still not run:** mobile-device rendering, complete keyboard/focus audit, missing/corrupt-network scenarios, performance benchmarks and independent website audit. Overview, production curves, population statistics and 50/100-round products remain unimplemented. The whole Game 1 milestone remains open.
