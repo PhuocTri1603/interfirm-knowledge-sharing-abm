@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/game1-heterogeneous-horizons.yml"
       - "experiments/game1_heterogeneous.py"
+      - "experiments/analyze_game1_heterogeneous.py"
   workflow_dispatch:
 jobs:
   horizons:
