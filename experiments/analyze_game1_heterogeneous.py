@@ -89,7 +89,8 @@ def main():
     for dimension, rows in results.items():
         for row in rows:
             if dimension == "within_technology_strength_contrast":
-                print(f"{dimension}: {row['technology']}: {row['strong_minus_moderate_pp']:+.6f} pp")
+                lo, hi = row["normal_approx_95_ci_pp"]
+                print(f"{dimension}: {row['technology']}: {row['strong_minus_moderate_pp']:+.6f} pp; 95% CI [{lo:+.6f}, {hi:+.6f}] pp; n_seeds={row['seeds']}")
             else:
                 print(f"{dimension}: {row['group']}: {row['mean_effect_pp']:+.6f} pp")
 
