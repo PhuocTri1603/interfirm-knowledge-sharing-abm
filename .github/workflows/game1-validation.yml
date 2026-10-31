@@ -8,6 +8,7 @@ on:
       - ".github/workflows/game1-validation.yml"
       - "src/interfirm_abm/**"
       - "experiments/validation_05.py"
+      - "experiments/game1_mechanism_trajectories.py"
       - "tests/**"
       - "pyproject.toml"
   workflow_dispatch:
@@ -47,6 +48,8 @@ jobs:
           assert (paired["random"] > 0).all()
           print("Validation 05 export checks passed:", len(paired), "matched rows")
           PY
+      - name: Export Game 1 learning trajectories
+        run: python -m experiments.game1_mechanism_trajectories --export-dir results/game1_mechanism
       - name: Record exact source revision
         run: |
           printf '%s\n' "$GITHUB_SHA" > results/validation_05/source_commit.txt
@@ -55,6 +58,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: game1-validation-05-${{ github.sha }}
-          path: results/validation_05/
+          path: |
+            results/validation_05/
+            results/game1_mechanism/
           if-no-files-found: error
           retention-days: 90
