@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();
-function element(id){if(!elements.has(id))elements.set(id,{value:id==='firm'?'1':'2026',textContent:'stale',disabled:false,options:[],setAttribute(k,v){this[k]=v},replaceChildren(){this.textContent='';this.options=[]},add(v){this.options.push(v)}});return elements.get(id)}
-const context=vm.createContext({document:{getElementById:element},setInterval,clearInterval,fetch:()=>new Promise(()=>{}),Option:function(text,value){this.text=text;this.value=String(value)}});
+function element(id){if(!elements.has(id))elements.set(id,{value:id==='firm'?'1':'2026',textContent:'stale',disabled:false,options:[],setAttribute(k,v){this[k]=v},replaceChildren(){this.textContent='';this.options=[]},append(){},add(v){this.options.push(v)}});return elements.get(id)}
+const context=vm.createContext({document:{getElementById:element,createElementNS:()=>({setAttribute(){}})},setInterval,clearInterval,fetch:()=>new Promise(()=>{}),Option:function(text,value){this.text=text;this.value=String(value)}});
 vm.runInContext(fs.readFileSync('web/index.html','utf8').match(/<script>([\s\S]*)<\/script>/)[1],context);
 // A previously rendered selection followed by a malformed later firm.
 vm.runInContext("records=[{firm_id:2,technology:'CES',policy:'random',round:1}];pair={random:[{round:200}],guided:[{round:200}]}",context);
