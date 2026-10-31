@@ -5,6 +5,10 @@ Compare Random and Experience-Guided Exploration
 using common random numbers across 100 seeds.
 """
 
+import argparse
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -61,8 +65,75 @@ def run_experiment():
     return paired
 
 
+def export_results(paired, output_dir):
+    """Persist the exact matched observations and reproducibility metadata."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    paired.to_csv(output_dir / "paired_observations.csv", index=False)
+
+    seed_round = (
+        paired.groupby(["seed", "round"], as_index=False)
+        .agg(mean_advantage_pct=("advantage_pct", "mean"))
+    )
+    seed_round.to_csv(output_dir / "seed_round_summary.csv", index=False)
+
+    by_round = (
+        seed_round.groupby("round", as_index=False)
+        .agg(
+            mean_advantage_pct=("mean_advantage_pct", "mean"),
+            std_across_seeds=("mean_advantage_pct", "std"),
+            guided_better_seed_pct=(
+                "mean_advantage_pct",
+                lambda x: 100 * (x > 0).mean(),
+            ),
+        )
+    )
+    by_round.to_json(
+        output_dir / "summary_by_round.json",
+        orient="records",
+        indent=2,
+    )
+
+    metadata = {
+        "experiment": "validation_05",
+        "game": "Game 1",
+        "n_replications": N_REPLICATIONS,
+        "seed_start": 2026,
+        "seed_end_inclusive": 2026 + N_REPLICATIONS - 1,
+        "n_firms": 20,
+        "n_rounds": 50,
+        "budget_per_firm": 100.0,
+        "checkpoints": CHECKPOINTS,
+        "policies": POLICIES,
+        "matched_randomness": True,
+        "expected_paired_rows": N_REPLICATIONS * 20 * len(CHECKPOINTS),
+        "observed_paired_rows": len(paired),
+        "metric": "100 * (guided - random) / random",
+        "numpy_version": np.__version__,
+        "pandas_version": pd.__version__,
+        "note": "Record the Git commit SHA separately with the run registry.",
+    }
+    (output_dir / "metadata.json").write_text(
+        json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Game 1 matched learning validation."
+    )
+    parser.add_argument(
+        "--export-dir",
+        type=Path,
+        default=None,
+        help="Write matched CSVs and JSON summaries to this directory.",
+    )
+    args = parser.parse_args()
+
     paired = run_experiment()
+    if args.export_dir is not None:
+        export_results(paired, args.export_dir)
 
     run_level = (
         paired.groupby(["seed", "round"])
