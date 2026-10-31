@@ -55,5 +55,24 @@ def test_export_results_writes_expected_files(tmp_path):
 
     metadata = json.loads((tmp_path / "metadata.json").read_text())
     assert metadata["observed_paired_rows"] == 2
-    assert metadata["expected_paired_rows"] == 8000
+    assert metadata["expected_paired_rows"] == 40000
     assert metadata["matched_randomness"] is True
+
+
+def test_100_firm_baseline_smoke():
+    from interfirm_abm.simulation import Simulation
+
+    for policy in ("random", "guided"):
+        sim = Simulation(n_firms=100, n_rounds=1, seed=2026,
+                         learning_policy=policy, matched_randomness=True)
+        assert len(sim.firms) == 100
+        assert all(f.capital_share == 0.50 and f.budget == 100.0
+                   for f in sim.firms)
+        technologies = pd.Series([f.technology for f in sim.firms]).value_counts()
+        assert len(technologies) == 4
+        assert (technologies == 25).all()
+        history = sim.run()
+        assert len(history) == 100
+        assert history["firm_id"].nunique() == 100
+        assert (history["round"] == 1).all()
+        assert history["current_output"].notna().all()
