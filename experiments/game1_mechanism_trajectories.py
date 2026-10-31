@@ -78,7 +78,7 @@ def export_results(history, output_dir, n_firms=100, n_replications=100, n_round
         "optimum_definition": "Technology-specific optimum under feasible capital share [0.05, 0.95]; Linear constrained optimum 0.95, unconstrained maximum at 1.0.",
         "expected_history_rows": n_replications * n_firms * n_rounds * 2,
         "observed_history_rows": len(history),
-        "expected_paired_rows": n_replications * n_firms * 50,
+        "expected_paired_rows": n_replications * n_firms * n_rounds,
         "observed_paired_rows": len(paired),
     }
     (folder / "metadata.json").write_text(
