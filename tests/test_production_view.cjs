@@ -10,7 +10,7 @@ for(const [t,s,y] of [['Cobb-Douglas',.7,54.28814526898254],['Leontief',.7,100],
 vm.runInContext("drawProduction({seed:2026,firm_id:3,technology:'Linear',round:200,capital_share:.9396700129004708,current_output:67.58680051601883},{capital_share:.95,current_output:68})",ctx);
 assert.match(node('productionDetail2').textContent,/Random: s = 0.939670, Y = 67.586801/);
 assert.match(node('productionContext').textContent,/firm 3.*round 200/);
-vm.runInContext('clearProductionObservations()',ctx);
+vm.runInContext("selectionFailed(new Error('malformed trajectory'))",ctx);
 assert.doesNotMatch(node('productionDetail2').textContent,/Random:/);
 assert.match(node('productionContext').textContent,/no selected observations/);
 console.log('PASS: four fixed production optima, feasible grid bounds, observed markers and stale-marker clearing');
