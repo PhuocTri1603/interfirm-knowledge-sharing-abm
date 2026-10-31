@@ -141,3 +141,21 @@ Contrast per family and learning seed: mean(Guided minus Random efficiency in pe
 3. Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940
 
 **Open validation gates:** Extract and independently recompute CSV-derived contrasts and seed-level intervals; distinguish effects of strength from absolute alpha and distance-to-optimum; vary population seeds; avoid simultaneous or empirical-firm inference from model-conditional intervals.
+
+
+### F7 nominal 95% confidence intervals — verified run 41209602330
+
+**Source:** [GitHub Actions 41209602330](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41209602330), source commit `689398eae79de03f8740f29b1b81889f48414156`; job logs and subgroup artifact JSON (`within_technology_strength_contrast`). All three jobs succeeded with 241 passed tests per job. Artifact IDs: 50=`13045383255`, 100=`13046090992`, 200=`13045896634`. CIs are nominal normal-approximation 95% intervals using 100 paired learning-seed contrasts; fixed population seed=2026, not across-population uncertainty and no multiple-comparison adjustment.
+
+| Technology | 50 rounds contrast [95% CI] pp | 100 rounds contrast [95% CI] pp | 200 rounds contrast [95% CI] pp |
+|---|---|---|---|
+| CES | +0.019874 [+0.012564, +0.027185] | +0.002336 [+0.000239, +0.004434] | +0.000857 [+0.000266, +0.001448] |
+| Cobb-Douglas | +0.015543 [+0.008790, +0.022296] | +0.002694 [+0.001347, +0.004040] | +0.000673 [+0.000310, +0.001036] |
+| Leontief | +0.070384 [-0.069812, +0.210580] | +0.024164 [-0.037592, +0.085921] | +0.043135 [+0.007365, +0.078904] |
+| Linear | +0.987419 [+0.909657, +1.065180] | +0.497421 [+0.459952, +0.534890] | +0.245131 [+0.226854, +0.263409] |
+
+**Interpretation:** All mean contrasts are positive. Nominal 95% intervals exclude zero for Linear, CES and Cobb-Douglas at all three horizons, and for Leontief only at 200 rounds. Thus the earlier F7 wording should be understood as a descriptive sign pattern rather than universal statistically distinguishable effects. CES and Cobb-Douglas magnitudes at 200 rounds are especially small in economic terms. This is exploratory analysis; inference is conditional on the single fixed population, and intervals do not account for simultaneous tests or alternative population seeds.
+
+**Literature support (indirect only):** March (1991) explains exploration/exploitation in organizational learning; Levinthal (1997) studies adaptation on rugged fitness landscapes; Rivkin (2000) examines imitation of complex strategies. These motivate examining heterogeneous search performance; none directly confirms the observed family-specific alpha-strength contrasts. Full bibliographic entries and DOI links are given in the F7 Literature section above.
+
+**Next validation:** Independently recompute CIs from artifact CSVs; vary population seed and report across-population uncertainty; assess whether the strong-minus-moderate contrast reflects distance to the feasible optimum and family-specific search geometry.
