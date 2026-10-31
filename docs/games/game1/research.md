@@ -107,6 +107,18 @@ The repository history identifies five early validation scripts. **Code existenc
 
 **Provenance:** [initial ABM commit](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/26bdefac00e0be696965b2f11f9ffd9a11979d2c) added validations 01–04 and Validation 04 config; [matched-learning commit](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/5703d173a5a54035587ec0788ef453548afa8628) added Validation 05. This is a **traceable experiment inventory**, not a verified results inventory.
 
+### Automated reproducibility workflow
+
+[Game 1 validation workflow](../../../.github/workflows/game1-validation.yml) was added on branch `docs/research-consolidation` in commit [`b4daf048`](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/b4daf0485e3868304b6143df868dca122768603c). It is configured to:
+
+1. Install Python 3.11 and project dependencies.
+2. Execute the existing pytest suite.
+3. Run `python -m experiments.validation_05 --export-dir results/validation_05`.
+4. Check 8,000 expected matched rows, no missing values, 100 seeds, 20 firms, four checkpoints, and positive random-policy outputs.
+5. Capture the exact source SHA and installed environment; upload the CSV/JSON outputs as a GitHub Actions artifact (90-day retention).
+
+**Verification status:** workflow file committed; a successful workflow run, test log, downloadable artifact, and actual Game 1 numeric results have **not** yet been verified. The workflow's artifact is temporary and should not be confused with permanent research archival. The `.gitignore` excludes generated CSV files, so successful execution will not by itself add numeric outputs to Git history.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
