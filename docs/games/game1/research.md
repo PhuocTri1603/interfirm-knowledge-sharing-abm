@@ -125,6 +125,44 @@ The repository history identifies five early validation scripts. **Code existenc
 
 **GitHub Actions visibility limitation:** the available commit-to-workflow lookup only returns pull-request-triggered runs; an empty response cannot establish whether a push-triggered run happened. Thus the execution status remains **unverified**, not `failed` or `not run`. Inspect the [Actions page](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/workflows/game1-validation.yml) for a completed run, test log, and downloadable artifacts before promoting any result to the run registry.
 
+### Verified Simulation Run Registry — Validation 05
+
+| Field | Verified value |
+|---|---|
+| GitHub Actions run | [41161569703](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41161569703) |
+| Run conclusion | **Success**; GitHub job and all test, experiment, export-validation, upload steps successful |
+| Source commit | `3b31c087f21da751cbaa97d77fc0ea19b493e2e7` |
+| Branch | `docs/research-consolidation` |
+| Artifact | `game1-validation-05-3b31c087f21da751cbaa97d77fc0ea19b493e2e7`, ID `13027112148` |
+| Artifact digest | `sha256:c927eb7f2929b9662a395c0fcec4039cc42df6a00731e0f467f5d80ce53c0c52` |
+| Artifact availability at inspection | Not expired; GitHub expiration set to **2027-01-29** |
+| Input design | 100 seeds (2026–2125), 20 firms, 50 rounds, policies random/guided, common random numbers |
+| Verified paired observations | **8,000**; four checkpoints × 100 seeds × 20 firms |
+| Files inspected | `paired_observations.csv`, `seed_round_summary.csv`, `summary_by_round.json`, `metadata.json`, `source_commit.txt`, `environment.txt` |
+| Measurement | `100 × (guided_output − random_output) / random_output` per firm/seed/checkpoint |
+
+#### Numeric results reproduced directly from downloaded paired observations
+
+| Checkpoint | Mean firm-level advantage (%) | Seeds with positive mean advantage (of 100) |
+|---|---:|---:|
+| 5 | -1.8556 | 19 |
+| 10 | -0.0032 | 49 |
+| 20 | +1.1697 | 97 |
+| 50 | +0.5893 | 100 |
+
+**Round 50, by technology** (mean firm-level advantage; 500 matched firm-seed observations per technology):
+
+| Technology | Guided advantage (%) |
+|---|---:|
+| CES | +0.0472 |
+| Cobb-Douglas | +0.0332 |
+| Leontief | +1.1568 |
+| Linear | +1.1199 |
+
+**Interpretation:** Guided exploration is initially weaker on average than random exploration; by round 20 and round 50 the average advantage is positive. All 100 *seed-level averages* are positive at round 50; **this does not imply every individual firm benefited**. Technology-level advantages differ substantially. These are model-internal Monte Carlo outcomes, **not empirical evidence of real-world firms**, and not estimates of the effect of inter-firm knowledge sharing: both policies use only their own histories.
+
+**Cautions:** Seed-level performance correlation is controlled by common random numbers; uncertainty quantification and robustness to firm counts, search-radius, exploration probability, production-function parameters, and longer horizons are still outstanding. In particular, a positive average at a checkpoint alone is not a formal hypothesis test. Store/archive the downloaded artifact before its expiry if long-term traceability is required.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
