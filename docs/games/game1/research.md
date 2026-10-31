@@ -122,6 +122,30 @@ A *candidate contribution* is to examine how **production-technology heterogenei
 
 **Review status:** Foundational source identities and relevance checked; parameter calibration **not supported**; exhaustive prior-art/novelty review **pending**; full-text scrutiny of every chapter **pending**. This update is documentation-only: no Python tests or new simulations were run.
 
+### Focused adjacent-literature comparison — scope-limited Game 1 review (2026-10-31)
+
+**Purpose and boundary.** This review is strictly for understanding and accurately documenting **existing** Game 1 independent-learning mechanisms. It does **not** propose a new mechanism, hypothesis, research gap, contribution, or paper claim. Sources were selected by targeted searches for exploration–exploitation, organizational adaptation, experiential search, and computational knowledge replication; publisher article pages and available abstracts were checked on 2026-10-31. The table is **not** an exhaustive systematic review.
+
+| Source and verified bibliographic record | Claim supported by publisher abstract | Relevance to existing Game 1 | Material difference / what cannot be claimed | Evidence depth |
+|---|---|---|---|---|
+| March (1991), *Exploration and Exploitation in Organizational Learning*, *Organization Science* **2**(1), 71–87, DOI [10.1287/orsc.2.1.71](https://doi.org/10.1287/orsc.2.1.71) | Organizational learning involves tension between exploring new possibilities and exploiting existing knowledge, with different time horizons and trade-offs. | Conceptual background for Guided's mixture of global exploration and history-based local search. | March's paper models organizational learning and ecological/competitive processes, not this code's exact `0.20` exploration probability, Gaussian kernel, or output acceptance rule. | Publisher abstract and metadata verified; not a full replication |
+| Levinthal (1997), *Adaptation on Rugged Landscapes*, *Management Science* **43**(7), 934–950, DOI [10.1287/mnsc.43.7.934](https://doi.org/10.1287/mnsc.43.7.934) | Organizational adaptation can be path-dependent when interactive attributes generate multiple local peaks. | Useful **contrast** with local adaptive search and the significance of initial conditions. | Game 1 uses a one-dimensional allocation share and fixed, standard production functions, **not** Levinthal's multi-attribute rugged landscape. Do not claim its landscape has multiple local optima or use his results as direct predictions. | Publisher abstract and metadata verified |
+| Gavetti & Levinthal (2000), *Looking Forward and Looking Backward: Cognitive and Experiential Search*, *Administrative Science Quarterly* **45**(1), 113–137, DOI [10.2307/2666981](https://doi.org/10.2307/2666981) | Computer simulations compare forward-looking cognitive maps with backward-looking experiential search; representations guide search. | Context for learning from prior observed action–outcome pairs. | Guided in Game 1 is **experience-guided local search**, not a forward-looking cognitive model or mental representation of the production function. | Publisher abstract, metadata and institutional author-hosted paper located |
+| Rivkin (2001), *Reproducing Knowledge: Replication Without Imitation at Moderate Complexity*, *Organization Science* **12**(3), 274–293, DOI [10.1287/orsc.12.3.274.10106](https://doi.org/10.1287/orsc.12.3.274.10106) | Agent-based simulation examines strategy complexity, replication versus imitation, and information advantages. | Background for **future** interfirm knowledge-related work; relevant mainly as a boundary for Game 1. | Game 1 includes **neither imitation nor knowledge replication nor interfirm information exchange**; this is not direct support for the Game 1 algorithm. | Publisher abstract and metadata verified |
+
+**Code-to-literature interpretation (without new assumptions).**
+- **Random:** independent uniform search over the candidate capital-share interval. It is a project-defined benchmark, not a reproduction of March's model.
+- **Guided:** project-defined combination of uniform global proposals and normal local proposals centered on the best previously evaluated candidate; the candidate can have been rejected. This is **experience-guided**, not a modeled cognitive map.
+- **Strict improvement:** candidate allocation is accepted only if its output strictly exceeds current output; this mechanically guarantees nondecreasing accepted output. The cited organizational-learning works do not validate this specific rule.
+- **Production landscape:** a fixed, one-dimensional share-to-output mapping under the four specified production functions. Do not import multi-peak NK-landscape dynamics from Levinthal or Rivkin.
+- **Interfirm knowledge:** absent from Game 1. Literature on imitation and transfer should be reserved for the separately approved scope of later games/paper work.
+
+**Source and assumption status.** General organizational learning and adaptive search: **literature-backed conceptual context**. Exact Random/Guided algorithms, `exploration_probability=.20`, `search_radius=.10`, acceptance rule, 100-firm balanced sample, and 50/100/200-round horizons: **implemented researcher choices**, not externally calibrated. Empirical realism of parameters and cross-industry representativeness: **unverified**.
+
+**Explicitly deferred.** Novelty assessment, new research questions, theoretical extensions, alternative algorithms, knowledge-sharing mechanisms, and manuscript-level contributions are **outside this Game 1 documentation task**. Do not silently promote this review into a paper proposal.
+
+**Verification status.** Four publisher records checked; abstract-level interpretation used unless noted; no Python code or experiment changed, no tests or simulations run for this documentation-only review.
+
 ## 5. Experiments, results, and reproducibility
 
 | Item | Current status | Next evidence needed |
