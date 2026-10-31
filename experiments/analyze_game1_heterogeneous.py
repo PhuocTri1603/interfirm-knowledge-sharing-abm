@@ -30,12 +30,14 @@ def analyze(paired: pd.DataFrame) -> dict:
     if not paired.groupby("seed").apply(lambda x: (x.alpha < .5).sum(), include_groups=False).eq(50).all():
         raise ValueError("Capital/labor orientation not balanced")
     out = {}
-    for dimension in ("overall", "technology", "stratum", "orientation"):
+    for dimension in ("overall", "technology", "stratum", "orientation", "technology_stratum"):
         data = paired.copy()
         if dimension == "overall":
             data["group"] = "all"
         elif dimension == "orientation":
             data["group"] = np.where(data.alpha < .5, "labor", "capital")
+        elif dimension == "technology_stratum":
+            data["group"] = data["technology"] + " / " + data["stratum"]
         else:
             data["group"] = data[dimension]
         seed_groups = data.groupby(["group", "seed"], as_index=False).agg(
@@ -56,6 +58,23 @@ def analyze(paired: pd.DataFrame) -> dict:
                          "mean_effect_pp": mean, "seed_level_se_pp": se,
                          "normal_approx_95_ci_pp": [mean-1.96*se, mean+1.96*se] if se is not None else None})
         out[dimension] = sorted(rows, key=lambda x: x["group"])
+    # Paired seed-level contrast within each production-function family.
+    data = paired.copy()
+    data["strength"] = np.where(data["stratum"].str.startswith("strong_"), "strong", "moderate")
+    grouped = data.groupby(["seed", "technology", "strength"], as_index=False)["guided_minus_random_efficiency_pp"].mean()
+    wide = grouped.pivot(index=["seed", "technology"], columns="strength", values="guided_minus_random_efficiency_pp")
+    if wide.isna().any().any():
+        raise ValueError("Missing strength group within technology/seed")
+    wide["contrast"] = wide["strong"] - wide["moderate"]
+    rows = []
+    for family, frame in wide.reset_index().groupby("technology"):
+        values = frame["contrast"].to_numpy()
+        se = float(values.std(ddof=1) / np.sqrt(len(values)))
+        mean = float(values.mean())
+        rows.append({"technology": str(family), "seeds": len(values),
+                     "strong_minus_moderate_pp": mean, "seed_level_se_pp": se,
+                     "normal_approx_95_ci_pp": [mean - 1.96 * se, mean + 1.96 * se]})
+    out["within_technology_strength_contrast"] = sorted(rows, key=lambda row: row["technology"])
     return out
 
 
@@ -69,7 +88,10 @@ def main():
     args.output.write_text(json.dumps(results, indent=2) + "\n")
     for dimension, rows in results.items():
         for row in rows:
-            print(f"{dimension}: {row['group']}: {row['mean_effect_pp']:+.6f} pp")
+            if dimension == "within_technology_strength_contrast":
+                print(f"{dimension}: {row['technology']}: {row['strong_minus_moderate_pp']:+.6f} pp")
+            else:
+                print(f"{dimension}: {row['group']}: {row['mean_effect_pp']:+.6f} pp")
 
 
 if __name__ == "__main__":
