@@ -13,7 +13,7 @@ vm.runInContext(fs.readFileSync('web/index.html','utf8').match(/<script>([\s\S]*
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(node('status').textContent,'Loading horizon…');assert.equal(node('horizon').disabled,true);
  pending[2].reject(new Error('current 50 manifest failure'));pending[3].reject(new Error('current 50 summary failure'));await latest;
- assert.match(node('status').textContent,/current 50/);assert.equal(node('horizon').disabled,false);assert.equal(node('play').disabled,true);
+ assert.match(node('status').textContent,/current 50/);assert.equal(node('seed').disabled,true);assert.equal(node('retry').disabled,false);assert.equal(vm.runInContext('manifest',ctx),null);assert.equal(node('horizon').disabled,false);assert.equal(node('play').disabled,true);
  // Seed rejection from the old generation must not replace a newer horizon status.
  vm.runInContext("manifest={partitions:{2026:{file:'seed-2026.json'}}};activeHorizon=200",ctx);
  const oldSeed=vm.runInContext('loadSeed()',ctx);node('horizon').value='100';const newer=vm.runInContext('loadHorizon()',ctx);
