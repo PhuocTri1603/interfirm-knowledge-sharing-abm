@@ -34,3 +34,11 @@ Deployed frontend revision: `4d4b311bca46cfd49abce331c0bfa3a449a5b237`; workflow
 Additional live checks: all four technology filters show 25 eligible firms; Home/End on the round slider select rounds 1/200; the exact-source drawer opens. Seed-2026 firms 1–4 at round 200 reconcile with the previously audited output pairs in the canonical research record. These checks are implementation QA, not an independent raw-artifact re-audit or full milestone sign-off.
 
 **Still not run:** mobile-device rendering, complete keyboard/focus audit, missing/corrupt-network scenarios, performance benchmarks and independent website audit. Overview, production curves, population statistics and 50/100-round products remain unimplemented. The whole Game 1 milestone remains open.
+
+## Production Functions view
+
+Frontend revision `4b1c3aed6118f9f73e9ef7e6d00b0687042bf5e4` adds all four implemented fixed-budget analytical output curves, feasible optima and selected-firm Random/Guided accepted-state markers. Budget is fixed at 100 and the domain at [0.05,0.95]. Formula text, axis units, distinct marker shapes, per-chart numeric descriptions and the source drawer distinguish calculated curves from exported observations. The Linear optimum is explicitly constrained. Seed loading and selection failure clear observed markers while retaining analytical curves.
+
+Executed locally against the actual frontend script: `node tests/test_production_view.cjs` (four optimum benchmarks, feasible grid, selected markers and cleanup), plus the existing selection-error regression. Both passed in a minimal DOM test environment; this is not mobile/browser validation. The grid includes each exact optimum and bounds; the 0.95 endpoint is clamped to avoid floating-point overshoot.
+
+This implements Production Functions alongside the initial Learning Trajectories slice. Earlier lists of unimplemented production curves describe prior revisions. Overview, population statistics and 50/100-round products remain outstanding. Live deployment verification is recorded separately.
