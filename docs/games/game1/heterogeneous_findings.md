@@ -178,3 +178,59 @@ Contrast per family and learning seed: mean(Guided minus Random efficiency in pe
 **Literature and interpretation:** March (1991) and Levinthal (1997) motivate heterogeneity in adaptive search; Nelson & Winter (1982) motivates firm-level evolutionary heterogeneity. None directly establishes population-seed invariance. Bibliography and DOI for March/Levinthal are listed above; Nelson, R. R., & Winter, S. G. (1982). *An Evolutionary Theory of Economic Change*. Harvard University Press. This protocol is methodological, not a new finding.
 
 **Status:** protocol registered, experiment not yet executed. Because the expanded experiment uses 5 populations × 3 horizons × 100 learning seeds, it should be implemented as a separate, manually dispatched workflow with a smoke-test gate and no automatic execution on documentation commits.
+
+
+## 8. Population-seed sensitivity — full Monte Carlo results (2026-10-31)
+
+**Provenance:** [GitHub Actions run 41210955389](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41210955389); workflow definition commit on main `99b1a89f9a5894c22b966a5fa6216efb0290efeb`; checkout branch `experiment/game1-heterogeneous-firms`. Each of 15 matrix jobs completed successfully, reported **241 passed tests** and `learning_seeds=100`, and uploaded a separate artifact (see run's artifacts tab). Five population seeds `2026,2027,2028,2029,2030`, horizons `50,100,200`; policies Random/Guided matched within learning seed; no economic mechanism change. **Source of numeric estimates: CI job logs; they have not yet been independently recomputed from downloaded CSVs.**
+
+### F5: technology-family Guided minus Random advantage across populations
+
+All entries in percentage points (pp), each an average over 100 matched learning seeds in the given population.
+
+| Population seed | Horizon | Leontief | Linear | CES | Cobb-Douglas |
+|---|---:|---:|---:|---:|---:|
+| 2026 | 50 | 1.065522 | 0.794978 | 0.038901 | 0.029134 |
+| 2027 | 50 | 1.084781 | 0.747117 | 0.033941 | 0.036045 |
+| 2028 | 50 | 1.038166 | 0.796234 | 0.040531 | 0.025848 |
+| 2029 | 50 | 1.060544 | 0.776572 | 0.042786 | 0.029170 |
+| 2030 | 50 | 0.980919 | 0.725821 | 0.037831 | 0.031414 |
+| 2026 | 100 | 0.546084 | 0.403008 | 0.010860 | 0.007204 |
+| 2027 | 100 | 0.600572 | 0.382583 | 0.010081 | 0.008713 |
+| 2028 | 100 | 0.551906 | 0.404219 | 0.010948 | 0.007282 |
+| 2029 | 100 | 0.578986 | 0.393120 | 0.011554 | 0.007519 |
+| 2030 | 100 | 0.546681 | 0.366493 | 0.010977 | 0.009739 |
+| 2026 | 200 | 0.281898 | 0.198807 | 0.002806 | 0.002069 |
+| 2027 | 200 | 0.298658 | 0.189096 | 0.002651 | 0.002190 |
+| 2028 | 200 | 0.294370 | 0.200971 | 0.002660 | 0.001851 |
+| 2029 | 200 | 0.292757 | 0.192325 | 0.002838 | 0.002016 |
+| 2030 | 200 | 0.285503 | 0.177439 | 0.002778 | 0.002425 |
+
+**F5 sensitivity conclusion:** Leontief > Linear > both CES and Cobb-Douglas is preserved in all 15 cells; CES versus Cobb-Douglas may reverse and must not be described as stable. All family effects are positive in the tested cells; magnitudes shrink with longer horizons. These are model-conditional, descriptive across only five independently drawn populations.
+
+### F7: within-family Strong minus Moderate Guided advantage
+
+Values (pp), one estimate per population seed; selected table at the 200-round horizon:
+
+| Technology | pop=2026 | pop=2027 | pop=2028 | pop=2029 | pop=2030 |
+|---|---:|---:|---:|---:|---:|
+| Linear | +0.245131 | +0.218565 | +0.212059 | +0.229574 | +0.155182 |
+| Leontief | +0.043135 | +0.075178 | +0.023144 | +0.007525 | +0.053706 |
+| Cobb-Douglas | +0.000673 | +0.000845 | +0.000601 | +0.000926 | +0.000922 |
+| CES | +0.000857 | +0.000673 | +0.000676 | +0.001030 | **-0.000199** |
+
+**F7 sensitivity conclusion:** Linear has positive contrasts at all 15 population-by-horizon combinations, with nominal learning-seed 95% CIs excluding zero in all 15. Cobb-Douglas point estimates are also positive in all 15 but often economically tiny; nominal CI exclusions are not multiple-comparison adjusted. Leontief point contrasts are positive across all 15 but its conditional learning-seed CIs include zero in many cells. CES turns negative at population 2030/horizon 200, with nominal CI [-0.000774, +0.000375] including zero. **Thus strong-orientation superiority must not be stated as universal** across technology, horizon, and population draw.
+
+**F6 status:** Earlier pooled-stratum findings do not by themselves isolate production technology; interpret alongside the within-family F7 results rather than as a broad causal effect of alpha.
+
+### Inference and literature support
+
+Each population has the same fixed quotas and the same learning-seed IDs, giving a controlled sensitivity design but not empirical sampling of real firms. Across-population uncertainty is based on only **five population draws**; learning-seed 95% CIs are **conditional on each population**. Do not treat 500 population×learning-seed combinations as 500 independent population replicates, infer population-level significance from these CIs, or ignore multiple comparisons. This is exploratory computational robustness evidence, not identification or proof of universal behavioral laws.
+
+**Indirect theoretical support (not replication of numerical findings):**
+- March, J. G. (1991). Exploration and exploitation in organizational learning. *Organization Science*, 2(1), 71–87. https://doi.org/10.1287/orsc.2.1.71 — exploration/exploitation motivates alternative adaptive search policies but does not predict our specific signs or magnitudes.
+- Levinthal, D. A. (1997). Adaptation on rugged landscapes. *Management Science*, 43(7), 934–950. https://doi.org/10.1287/mnsc.43.7.934 — landscape geometry supports studying production-function differences, without validating our ranking.
+- Nelson, R. R., & Winter, S. G. (1982). *An Evolutionary Theory of Economic Change*. Harvard University Press — theoretical rationale for heterogeneous firm behavior and evolutionary adaptation, not numerical evidence for F5/F7.
+- Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940 — computational study relevant to learning complexity, but does not directly test these within-production-family alpha contrasts.
+
+**Outstanding audit gates:** Independent recomputation of effect estimates and intervals from underlying CSV artifacts; reporting actual across-population variability/ranges and reference comparisons with documented tolerances; assess search-geometry/initial-distance mechanisms and multiple-testing implications; website provenance remains separately pending. Game 1 heterogeneous extension **not signed off**.
