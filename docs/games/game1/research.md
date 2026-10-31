@@ -197,6 +197,39 @@ Added [`experiments/game1_mechanism_trajectories.py`](../../../experiments/game1
 
 **Status:** code and workflow changes committed; **no successful run or numerical findings from this new experiment have yet been verified**. The prior Validation 05 findings remain unchanged. Full histories are descriptive; they do not by themselves identify the causal mechanism.
 
+### Verified mechanism run — full firm-round trajectories
+
+**Provenance:** [GitHub Actions run 41162166751](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41162166751), **completed successfully**, source commit `dc8184c91ec5c9bd5eee116520875285b7e3b190`. Artifact `game1-validation-05-dc8184c91ec5c9bd5eee116520875285b7e3b190`, ID `13028125423`. Downloaded ZIP was inspected directly. The experiment generated **200,000 firm-round-policy records** (10 columns) and **100,000 matched firm-round pairs** (9 columns), with 100 seeds, 50 rounds, and **zero missing cells** in both datasets. **Zero decreases** in within-firm output trajectories (expected because improvements alone are accepted). This is a simulation, not external firm data.
+
+#### Dynamic comparison
+
+| Round | Mean firm-level Guided advantage (%) | Firm-seed pairs with Guided advantage > 0 (%) | Mean Guided-minus-Random capital share |
+|---|---:|---:|---:|
+| 1 | 0.0000 | 0.00 | 0.00000 |
+| 5 | -1.8556 | 36.80 | -0.03539 |
+| 10 | -0.0032 | 54.35 | -0.01235 |
+| 20 | +1.1697 | 72.10 | +0.00907 |
+| 30 | +0.9200 | 77.20 | +0.00875 |
+| 40 | +0.7011 | 78.15 | +0.00745 |
+| 50 | +0.5893 | 79.80 | +0.00597 |
+
+The reduction from **+1.1697% at round 20** to **+0.5893% at round 50** coexists with an *increase* in the fraction of matched firms benefiting from Guided (72.1% to 79.8%). Thus, mean advantage and breadth of benefit move differently: a smaller mean gap does not imply fewer benefiting firms.
+
+#### Round 50 — production technology and allocation
+
+| Technology | Guided mean output | Random mean output | Guided mean capital share | Random mean capital share | Guided acceptance rate in round 50 | Random acceptance rate in round 50 |
+|---|---:|---:|---:|---:|---:|---:|
+| CES | 52.89011 | 52.86523 | 0.63750 | 0.63684 | 2.8% | 2.8% |
+| Cobb-Douglas | 54.28547 | 54.26750 | 0.69960 | 0.69913 | 2.4% | 1.4% |
+| Leontief | 99.32890 | 98.22514 | 0.69723 | 0.69311 | 2.4% | 2.0% |
+| Linear | 68.00000 | 67.25442 | 0.95000 | 0.93136 | 0.0% | 2.8% |
+
+Across **all 50 rounds**, accepted experiments account for **9.532%** of Guided trials and **7.101%** of Random trials. This is a descriptive comparison, not a randomized intervention on an isolated mechanism.
+
+**Mechanism interpretation (supported descriptively, not causally identified):** At round 50, Guided Linear firms have reached the allowed upper allocation bound `capital_share = 0.95` on average (indeed mean output is exactly 68), and their round-50 acceptance rate is 0%; Random Linear firms still accept improvements (2.8% at round 50) and are closer to catching up. This is consistent with **convergence/catch-up** as a contributor to the declining advantage. Leontief also exhibits a larger remaining output gap than smooth interior-optimum Cobb-Douglas/CES. Formal mechanism identification would require counterfactual variations of exploration probability, step size, bounds, and production technology while holding other factors fixed.
+
+**Important distinction:** `capital_share` is the actual accepted allocation, not the trial `candidate_share`; these must not be conflated. The Linear optimum under the **constrained search interval** is `0.95`; the unconstrained theoretical maximum is at share `1.0`. No unverified optimum-distance claim is made for CES here.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
