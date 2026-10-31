@@ -694,3 +694,58 @@ Live normal-path verification: four SVG curves rendered; selected technology/fir
 **Retained limits, not reopened completion gates:** synthetic fixed model without real-firm calibration/external validity; no proof of universal convergence; no simultaneous inference; no attribution of technology differences solely to substitution elasticity. Guided clipping/boundary behavior is part of the specified algorithm and must not be interpreted as a separately identified learning mechanism. Existing 20-firm search-parameter grid is supplementary and not claimed independently re-audited in full here. Exhaustive novelty/full-text literature work belongs to paper development. Mobile, assistive-technology, exhaustive real-browser transport/error and rigorous performance checks remain unverified, not falsely marked passed. Artifact archiving before January 2027 expiry is follow-up maintenance.
 
 Completion does **not** mean that AI shock, endogenous market competition, profit/welfare analysis or interfirm sharing have been implemented or validated. No automatic Game 2/3 transition, merge into main, or economic mechanism change is authorized by this acceptance. The current baseline is ready to support the next researcher-approved stage.
+
+
+---
+
+## Research redesign — heterogeneous firm population (2026-10-31)
+
+**Status: SPECIFICATION DRAFT, NOT IMPLEMENTED OR VALIDATED.** This section supersedes the homogeneous-within-technology population assumption **for the proposed new experiment only**. Earlier accepted Game 1 results remain valid only for the original implementation and must not be represented as validation of this redesign.
+
+### Researcher-confirmed requirements
+
+1. Use 100 firms, four production-function families (Cobb-Douglas, Leontief, Linear, CES).
+2. Within each family, firms must differ in production coefficients, rather than all using alpha=0.7.
+3. Sample coefficients randomly from an explicit, reproducible distribution.
+4. Ensure balanced coverage of labor-oriented, intermediate, and capital-oriented technological configurations; simple unconstrained random sampling is insufficient.
+5. Establish literature-based economic specification before changing code or rerunning experiments.
+6. Return to Game 1 before implementing Game 2.
+
+### Proposed population protocol (requires approval of numerical choices)
+
+- Allocate 25 firms to each family.
+- For each family draw 8 coefficients from Uniform(0.10,0.40), 9 from Uniform(0.40,0.60), and 8 from Uniform(0.60,0.90). Randomize IDs within each family using a fixed **population seed** that is independent of learning-run seeds.
+- These strata are **design-based quotas**, not empirically estimated prevalence. Alpha below 0.5 denotes a labor-oriented technology and alpha above 0.5 a capital-oriented technology **under equal normalized input prices**. The intermediate band includes both orientations; avoid claiming it denotes equal technological input usage for every draw.
+- Record the exact seed, sampled alpha_i, family, stratum, firm ID, and versioned experiment configuration. Sample one population once and reuse the identical population across matched learning policies and seeds; vary population seeds in a separate robustness experiment.
+- Baseline control: A_i=1 for all firms; CES rho_i=-0.5 for all CES firms; budget B_i=100, initial capital allocation s_i=0.5. Only alpha_i varies in the first identification exercise.
+- Each firm i: K_it=B_i*s_it; L_it=B_i*(1-s_it); its alpha_i is fixed across rounds and is not a decision variable.
+- Cobb-Douglas: Y_it=A_i*K_it^(alpha_i)*L_it^(1-alpha_i).
+- Linear: Y_it=A_i*(alpha_i*K_it+(1-alpha_i)*L_it).
+- Leontief: Y_it=A_i*min(K_it/alpha_i,L_it/(1-alpha_i)).
+- CES: Y_it=A_i*(alpha_i*K_it^(rho_i)+(1-alpha_i)*L_it^(rho_i))^(1/rho_i), rho_i=-0.5 initially. Elasticity of substitution sigma=1/(1-rho).
+- Candidate allocation bounds [0.05,0.95] and strict-improvement output acceptance remain the initial learning protocol; do not modify these without a separately documented decision.
+- Technology coefficient alpha_i and chosen capital allocation s_it are distinct concepts. Firm-specific optimum Y_i^* must be computed on the same constrained feasible domain, and efficiency e_it=Y_it/Y_i^*. For Leontief and Cobb-Douglas, with this normalization and equal factor unit costs, unconstrained optimal share is alpha_i; Linear optimum is a boundary for alpha_i != 0.5. For CES, compute and test the constrained optimum; it is not generally alpha_i.
+- Do not use raw output to rank learning performance across families without explicit normalization and economic interpretation.
+
+### Proposed validation and experimental plan
+
+1. Population tests: exactly 100 IDs; 25/family; 8/9/8 stratum quotas within each family; all coefficients in specified intervals; deterministic reproduction from population seed; independence from learning seed.
+2. Production tests: recover old output when alpha=0.7 and A=1; nonnegative finite output; constant returns to scale; boundary behavior; firm-specific optimum vs numerical optimizer; CES rho-to-zero limit.
+3. Learning tests: one candidate per firm-round, strict-improvement acceptance, no cross-firm observation in Game 1, matched schedules across Random/Guided, no change to original accepted implementation unless explicitly necessary.
+4. Run 50/100/200-round horizons with paired learning seeds and fixed population; aggregate differences at seed level, with confidence intervals and stratified heterogeneity diagnostics. Audit prefix consistency and source provenance.
+5. Robustness: alternative coefficient distributions (e.g. stratified beta), stratum thresholds, population seeds; only after main experiment, vary A_i, CES rho_i, or budgets one dimension at a time.
+6. Label all redesigned runs distinctly; never combine their results with the original homogeneous-within-family results as though generated by the same population.
+
+### Literature and what it does not establish
+
+- Cobb & Douglas (1928), *A Theory of Production*, American Economic Review 18(1), 139–165: production-function tradition, not a calibration of alpha_i.
+- Arrow, Chenery, Minhas & Solow (1961), *Capital-Labor Substitution and Economic Efficiency*, Review of Economics and Statistics 43(3), 225–250: substitution and CES family, not support for specific stratification cutoffs.
+- Hopenhayn (1992), *Entry, Exit, and Firm Dynamics in Long Run Equilibrium*, Econometrica 60(5), 1127–1150: economic importance of heterogeneous firms, not a distribution of capital weights.
+- Axtell (2001), *Zipf Distribution of U.S. Firm Sizes*, Science 293(5536), 1818–1820: heterogeneity of firm sizes; does **not** identify alpha_i.
+- Nelson & Winter (1982), *An Evolutionary Theory of Economic Change*: theoretical foundation for heterogeneous routines and learning; not a calibration of this model's random sampling scheme.
+
+**Evidence boundary:** The uniform distribution, 8/9/8 quotas, alpha bounds, and constant A_i/rho_i are proposed design decisions. The cited literature motivates heterogeneity and production technologies but does not establish those numerical choices. These bibliographic references are carried as foundational candidates and should be checked for exact bibliographic metadata and interpretation during the literature audit.
+
+### Next gate
+
+Approve or revise the numerical strata and the decision to hold A_i=1 and CES rho_i=-0.5 in the primary experiment. Only then implement a population generator and rerun Game 1.
