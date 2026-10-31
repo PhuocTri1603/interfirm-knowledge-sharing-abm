@@ -110,3 +110,34 @@ The aggregate findings are **compatible with established learning and adaptive-s
 3. Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940
 
 **Documentation policy:** Every future simulation finding should include (a) quantitative observation and provenance, (b) mechanism hypothesis, (c) direct/indirect/absent literature support, (d) limitations and falsification tests, and (e) verifiable full references. Never equate theoretical consistency with direct replication.
+
+
+## 6. F7 — Within-production-family alpha-strength contrasts (2026-10-31)
+
+**Artifact and CI provenance:** GitHub Actions run [41209080758](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41209080758), source commit `f4faf8e78dce70d6384710f10cf79931be3cf131`, workflow `game1-heterogeneous-horizons.yml`. All horizon jobs (50, 100, 200 rounds) passed 241 tests and subgroup-analysis and export steps. Artifacts: 50 rounds `13045623552`, 100 rounds `13045442487`, 200 rounds `13046030465`. Source: `experiments/analyze_game1_heterogeneous.py`; `subgroup_summary.json` (section `within_technology_strength_contrast`). Listed point estimates independently checked against job logs, **not yet independently recalculated from underlying CSVs**.
+
+Contrast per family and learning seed: mean(Guided minus Random efficiency in percentage points | strong alpha stratum) minus mean(Guided minus Random efficiency in percentage points | moderate alpha stratum). Averages and nominal normal-approximation intervals use the 100 matched learning-seed contrasts. The population is fixed at seed 2026; uncertainty across population draws is not represented.
+
+| Production function | 50 rounds (pp) | 100 rounds (pp) | 200 rounds (pp) |
+|---|---:|---:|---:|
+| CES | +0.019874 | +0.002336 | +0.000857 |
+| Cobb-Douglas | +0.015543 | +0.002694 | +0.000673 |
+| Leontief | +0.070384 | +0.024164 | +0.043135 |
+| Linear | +0.987419 | +0.497421 | +0.245131 |
+
+**F7 (descriptive):** Within all four production-function families, strong alpha strata have a greater *mean* Guided advantage than moderate strata at every analyzed horizon. The magnitude is concentrated in Linear firms, suggesting an important interaction between production technology and alpha orientation. This is not a claim of statistical significance or causal identification; subgroup confidence interval endpoints are stored in the artifacts and remain to be independently inspected. In particular the smaller CES/Cobb-Douglas differences must not be described as significant without uncertainty checks. The contrast can also reflect distance from optima, the geometry of the feasible share interval, and the specified random/guided algorithms.
+
+### Literature support and boundaries
+
+- **Theoretical / indirect:** Levinthal (1997) argues that adaptation depends on the structure of the fitness landscape; this motivates comparing search rules across different production-function geometries.
+- **Theoretical / indirect:** March (1991) examines exploration and exploitation in organizational learning, supporting the study of heterogeneous learning outcomes across decision environments.
+- **Related computational mechanism:** Rivkin (2000) studies imitation of complex strategies; it speaks to the importance of problem complexity for learning but **does not directly test** our strong-versus-moderate alpha contrasts.
+- **Direct verification:** No cited paper establishes the numerical ordering in this simulation. Do not claim direct literature replication or originality without targeted systematic review.
+
+**Full references**
+
+1. March, J. G. (1991). Exploration and exploitation in organizational learning. *Organization Science*, 2(1), 71–87. https://doi.org/10.1287/orsc.2.1.71
+2. Levinthal, D. A. (1997). Adaptation on rugged landscapes. *Management Science*, 43(7), 934–950. https://doi.org/10.1287/mnsc.43.7.934
+3. Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940
+
+**Open validation gates:** Extract and independently recompute CSV-derived contrasts and seed-level intervals; distinguish effects of strength from absolute alpha and distance-to-optimum; vary population seeds; avoid simultaneous or empirical-firm inference from model-conditional intervals.
