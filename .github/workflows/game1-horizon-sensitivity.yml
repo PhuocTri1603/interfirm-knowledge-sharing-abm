@@ -6,6 +6,7 @@ on:
       - experiment/game1-100-firms
     paths:
       - ".github/workflows/game1-horizon-sensitivity.yml"
+      - "experiments/game1_mechanism_trajectories.py"
   workflow_dispatch:
 
 jobs:
