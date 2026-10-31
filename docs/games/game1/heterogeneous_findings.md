@@ -159,3 +159,22 @@ Contrast per family and learning seed: mean(Guided minus Random efficiency in pe
 **Literature support (indirect only):** March (1991) explains exploration/exploitation in organizational learning; Levinthal (1997) studies adaptation on rugged fitness landscapes; Rivkin (2000) examines imitation of complex strategies. These motivate examining heterogeneous search performance; none directly confirms the observed family-specific alpha-strength contrasts. Full bibliographic entries and DOI links are given in the F7 Literature section above.
 
 **Next validation:** Independently recompute CIs from artifact CSVs; vary population seed and report across-population uncertainty; assess whether the strong-minus-moderate contrast reflects distance to the feasible optimum and family-specific search geometry.
+
+
+## 7. Pre-registered population-seed sensitivity protocol (pending execution)
+
+**Question:** Are F5 (technology ranking) and F6/F7 (strong-minus-moderate alpha effects within technology) robust to independently generated heterogeneous firm populations, rather than just the fixed population seed 2026?
+
+**Scope and governance:** Exploratory robustness replication of the existing Game 1 experiment. No change to firm production functions, budgets, candidate search, acceptance rule, Random/Guided policies, learning-seed matching, technology quotas or horizons. Changing the population seed changes only the population draw. Do not describe a successful pipeline as independent statistical validation.
+
+**Design:** Keep 100 firms, 25 per production technology, four alpha strata with existing quota rules, 100 matched learning seeds 2026–2125, 50/100/200 rounds. Population seeds: `2026, 2027, 2028, 2029, 2030` (five pre-specified draws). Each population is evaluated with identical learning-seed IDs and matched policies. Preserve outputs separately under `results/population_sensitivity/population_<seed>/horizon_<rounds>/`; do not overwrite historical artifacts. Original population 2026 serves as the reference.
+
+**Primary outcomes:** (1) family-specific mean Guided-minus-Random efficiency in percentage points, (2) within-family Strong-minus-Moderate contrasts in percentage points, (3) ranking stability of family effects, especially Linear/Leontief versus CES/Cobb-Douglas. Secondary: overall mean advantage, absolute Guided and Random efficiency levels, and sign stability across horizons.
+
+**Uncertainty and independence:** Compute per-learning-seed paired differences within each population first. Summarize per-population effects separately, then report dispersion and range **across five population draws**. Reusing learning seeds across populations may induce correlation; do not treat 500 population×learning-seed observations as 500 independent populations. Five draws give exploratory sensitivity, not a precise population-level confidence interval. Existing 95% CIs conditional on one population remain separate.
+
+**Validation gates:** Run smoke tests on small seed counts; verify 100 firms/25 per technology, quotas, 20,000 final and 10,000 paired rows per full population×horizon, unique seed/firm keys, correct alpha strata, and matched Random/Guided comparisons. Preserve source SHA, dependency versions, seeds, raw CSVs, subgroup summaries, and CI artifact IDs. Compare population=2026 to previously published results within numeric tolerance. Do not claim robustness if ranking/sign reverses; report all reversals.
+
+**Literature and interpretation:** March (1991) and Levinthal (1997) motivate heterogeneity in adaptive search; Nelson & Winter (1982) motivates firm-level evolutionary heterogeneity. None directly establishes population-seed invariance. Bibliography and DOI for March/Levinthal are listed above; Nelson, R. R., & Winter, S. G. (1982). *An Evolutionary Theory of Economic Change*. Harvard University Press. This protocol is methodological, not a new finding.
+
+**Status:** protocol registered, experiment not yet executed. Because the expanded experiment uses 5 populations × 3 horizons × 100 learning seeds, it should be implemented as a separate, manually dispatched workflow with a smoke-test gate and no automatic execution on documentation commits.
