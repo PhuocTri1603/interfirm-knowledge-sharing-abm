@@ -746,6 +746,28 @@ Completion does **not** mean that AI shock, endogenous market competition, profi
 
 **Evidence boundary:** The uniform distribution, 8/9/8 quotas, alpha bounds, and constant A_i/rho_i are proposed design decisions. The cited literature motivates heterogeneity and production technologies but does not establish those numerical choices. These bibliographic references are carried as foundational candidates and should be checked for exact bibliographic metadata and interpretation during the literature audit.
 
-### Next gate
+### Next gate (updated 2026-10-31)
 
-Approve or revise the numerical strata and the decision to hold A_i=1 and CES rho_i=-0.5 in the primary experiment. Only then implement a population generator and rerun Game 1.
+The researcher **approved A_i=1 in the primary experiment**, with productivity heterogeneity reserved for a later robustness experiment. Numerical alpha strata and CES rho=-0.5 remain explicitly proposed pending separate confirmation. Before coding, finalize those parameters and the normalization/optimal-allocation tests. Do not imply the new population has been generated or verified.
+
+
+### Confirmed identification choice: constant productivity in the primary experiment
+
+**Researcher decision (2026-10-31):** A_i=1 for all 100 firms in the primary heterogeneous-coefficient Game 1. Vary alpha_i by stratified random sampling only. Test heterogeneous A_i in a separate subsequent experiment. This is a *controlled design choice*, not an empirical statement that firms have equal productivity in reality.
+
+**Rationale:** Changing alpha_i and A_i simultaneously would make it harder to attribute changes in learning efficiency to production-structure heterogeneity. Keep fixed the firm-specific alpha draw, initial share, budget, CES rho and random schedule when comparing Random vs Guided learning. The technology family itself remains a between-firm factor; report family-specific estimates rather than attributing all cross-family differences to alpha alone.
+
+**Exact optima to implement and test:** for feasible share s in [0.05,0.95], equal normalized input prices and fixed B,
+- Cobb-Douglas: s_i^*=clip(alpha_i,0.05,0.95).
+- Leontief: s_i^*=clip(alpha_i,0.05,0.95).
+- Linear: s_i^*=0.95 if alpha_i>0.5, s_i^*=0.05 if alpha_i<0.5, and every feasible share is optimal if alpha_i=0.5.
+- CES (rho != 0, rho<1): let r_i=(alpha_i/(1-alpha_i))^(1/(1-rho_i)); then s_i^*=clip(r_i/(1+r_i),0.05,0.95). At rho -> 0 this converges to the Cobb-Douglas optimum.
+- Compute each Y_i^*=F_i(B*s_i^*,B*(1-s_i^*)) and efficiency e_it=Y_it/Y_i^*. Unit tests must verify s_i^* against bounded numerical maximization for random alpha values.
+
+**Sampling distinction:** equal numbers of firms in the three *alpha strata* (8/9/8 per technology) does not mean equal numbers with alpha below and above 0.5 in each realized sample, because the middle stratum spans both. If exact capital-vs-labor orientation balance is required, subdivide the intermediate stratum or enforce orientation quotas; do not claim a balance that the generator does not guarantee.
+
+**Population artifacts and provenance:** create a single deterministic population manifest with columns firm_id, technology, alpha, A, rho (CES only), stratum, population_seed and configuration hash. All 100 learning seeds must reference the same population manifest for the primary experiment. Distinguish population seed from learning seed and retain independent population draws for robustness.
+
+**Current implementation gaps (source inspected):** `Firm.produce` calls production functions without firm-specific alpha; `Simulation.__init__` assigns technology cyclically with default parameters; `production_optimum.py` hard-codes alpha=0.70. These need new implementation and tests **after** design approval. Existing 233 passing tests (from the original acceptance) do not validate the redesigned model.
+
+**Literature interpretation:** Constant A_i is an experimental control; none of the cited works is evidence that productivity is identical across real firms. Heterogeneous-productivity sensitivity is motivated by the broader firm-heterogeneity literature but needs a separately prespecified distribution and robustness protocol.
