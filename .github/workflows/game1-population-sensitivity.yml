@@ -20,6 +20,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: experiment/game1-heterogeneous-firms
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
