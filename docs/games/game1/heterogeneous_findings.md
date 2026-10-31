@@ -64,3 +64,33 @@ Ratios of observed mean gaps are close to one-half at 50→100 and 100→200. Th
 The aggregate findings are **compatible with established learning and adaptive-search literature**, rather than independently demonstrating a novel economic mechanism. The potential contribution of the broader project remains in whether **heterogeneous production structures change the benefits of independent learning, competitive observation and voluntary inter-firm knowledge sharing**. Those later claims require separate Game 1 subgroup analysis and Games 2–3 experiments.
 
 **Next validation:** analyze artifact-level outcomes by production family and alpha stratum; test multiple population seeds and additional horizons before claiming a scaling law or generalizable heterogeneity effect.
+
+
+## 5. Additional verified subgroup findings — run 41208233687
+
+**Provenance:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41208233687 ; source commit `6d35db1d2648f48c97649dd20a9d39ea99d8477c`; 241 passing tests per horizon and successful `Analyze heterogeneity by technology and alpha strata` step. Log output from `experiments/analyze_game1_heterogeneous.py`; archived `subgroup_summary.json` in each artifact (50: `13045251660`, 100: `13045641439`, 200: `13045171930`). These are **seed-aggregated descriptive point estimates**; subgroup uncertainty, contrast tests and independent recalculation from raw files remain pending.
+
+| Family (Guided − Random, efficiency pp) | 50 | 100 | 200 |
+|---|---:|---:|---:|
+| Leontief | 1.065522 | 0.546084 | 0.281898 |
+| Linear | 0.794978 | 0.403008 | 0.198807 |
+| CES | 0.038901 | 0.010860 | 0.002806 |
+| Cobb-Douglas | 0.029134 | 0.007204 | 0.002069 |
+
+**F5:** The Guided advantage is strongly associated with production-function family in the simulated fixed population, largest for Leontief and Linear. Do not attribute the difference solely to substitution elasticity without controlled counterfactuals. These results differ from the historical homogeneous-parameter report and should not be pooled across experiments.
+
+| Alpha stratum (Guided − Random, efficiency pp) | 50 | 100 | 200 |
+|---|---:|---:|---:|
+| strong_labor | 0.631088 | 0.314019 | 0.168610 |
+| strong_capital | 0.595552 | 0.295946 | 0.143731 |
+| moderate_labor | 0.334795 | 0.182395 | 0.085785 |
+| moderate_capital | 0.345235 | 0.164263 | 0.081658 |
+
+**F6:** Strongly labor-/capital-oriented alpha strata have greater average Guided advantage than moderate strata at each observed horizon. The comparisons can be confounded by technology-family composition and the chosen alpha distributions. No formal cross-group contrasts or multi-population robustness yet.
+
+### New evidence and next tests
+- Verify exact subgroup CIs and arithmetic directly from artifact CSV/JSON, not just CI text.
+- Estimate within-family effects of alpha orientation/strength (family × stratum) to disentangle composition.
+- Repeat independent population seeds; then test fixed-alpha-controlled, family-specific search landscapes.
+- The literature statements in §2 remain conceptual; F5/F6 currently are not independently matched against a direct empirical study.
+
