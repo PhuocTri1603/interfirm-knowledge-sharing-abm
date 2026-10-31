@@ -91,6 +91,22 @@ Every actual run will receive a row below; do not enter hypothetical values as f
 - **No verified run registry entry yet:** no Game 1 artifact has been individually inspected and tied to its parameters, seed, and commit. Accordingly, no numeric Game 1 result is reported here.
 - **Source links:** [Simulation entry point](../../../src/interfirm_abm/simulation.py), [Firm record schema](../../../src/interfirm_abm/firm.py), [Matched random schedule](../../../src/interfirm_abm/random_schedule.py).
 
+### Experiment inventory — traced to Git history
+
+The repository history identifies five early validation scripts. **Code existence and configured repetitions are not evidence that a particular run completed or that output files were retained.**
+
+| Experiment | Purpose and design | Code | Evidence status |
+|---|---|---|---|
+| Validation 01 | Compare relative production responses at capital shares 0.25, 0.50, 0.70, 0.75; compute pairwise response-distance | [validation_01.py](../../../experiments/validation_01.py) | Executable source verified; numeric outputs not archived/verified |
+| Validation 02 | Copy donor's grid-optimal capital allocation into another technology; 12 directed cross-technology pairs | [validation_02.py](../../../experiments/validation_02.py) | Executable source verified; mechanism check, **not** independent-learning outcome |
+| Validation 03 | Deterministic donor-guided vs fixed independent candidate order, three trials per recipient | [validation_03.py](../../../experiments/validation_03.py) | Executable source verified; **not** a causal estimate or pure Game 1 comparison |
+| Validation 04 | Donor-guided vs random candidate order; 1,000 random repetitions per donor–recipient pair; seed 2026 | [validation_04.py](../../../experiments/validation_04.py) | Source and [config](../../../results/validation_04/config.json) verified; numeric results not yet verified |
+| **Validation 05** | **Game 1 matched Random vs Experience-Guided learning**; 100 seeds (2026–2125), 20 firms, 50 rounds; checkpoints 5, 10, 20, 50 | [validation_05.py](../../../experiments/validation_05.py) | Experiment design verified; executed result artifact not yet verified |
+
+**Validation 05 output definitions:** `advantage_pct = 100 × (guided_output − random_output) / random_output` per matched firm–seed–checkpoint. The script aggregates mean advantages by seed and round, then by technology at round 50. It prints summaries when run directly; the inspected code does not persist a result file. The expected matched comparison size from the design is `100 seeds × 20 firms × 4 checkpoints = 8,000` paired rows, **conditional on successful execution**, not an observed count.
+
+**Provenance:** [initial ABM commit](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/26bdefac00e0be696965b2f11f9ffd9a11979d2c) added validations 01–04 and Validation 04 config; [matched-learning commit](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/commit/5703d173a5a54035587ec0788ef453548afa8628) added Validation 05. This is a **traceable experiment inventory**, not a verified results inventory.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
