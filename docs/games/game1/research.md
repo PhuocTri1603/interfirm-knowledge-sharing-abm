@@ -230,6 +230,16 @@ Across **all 50 rounds**, accepted experiments account for **9.532%** of Guided 
 
 **Important distinction:** `capital_share` is the actual accepted allocation, not the trial `candidate_share`; these must not be conflated. The Linear optimum under the **constrained search interval** is `0.95`; the unconstrained theoretical maximum is at share `1.0`. No unverified optimum-distance claim is made for CES here.
 
+### Mechanism audit extension — distance to constrained optimum (pending run)
+
+The trajectory experiment was extended in commit `e9625bbe` to export, for each firm–round, `optimal_share`, `optimal_output`, absolute `share_distance_to_optimum`, and `output_efficiency_pct = 100 × current_output / optimal_output`. Its technology–round summary now includes mean allocation distance and mean output efficiency; paired observations include Guided-minus-Random differences in both measures. The optimum is defined **within the search interval [0.05, 0.95]**, so Linear uses 0.95, whereas the unconstrained optimum of the increasing Linear technology lies at 1.0. For CES, the analytical formula is implemented in [`production_optimum.py`](../../../src/interfirm_abm/production_optimum.py).
+
+An independent numerical audit was added in commit `521715cc`: [`tests/test_game1_optimum_audit.py`](../../../tests/test_game1_optimum_audit.py) compares each technology's analytical optimum against a dense 9,001-point feasible grid, with a tolerance for discretization.
+
+**Verification status:** changes committed, but **the new tests and updated trajectory output have not yet been verified in a completed Actions run**. Previously reported results from run 41162166751 refer to the earlier experiment version and remain separate.
+
+**Planned interpretation:** evaluate whether Guided's early advantage corresponds to faster reduction in distance-to-optimum, and whether Random catches up later. An association between allocation distance and output does not independently establish a causal mechanism because both derive from the same production function.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
