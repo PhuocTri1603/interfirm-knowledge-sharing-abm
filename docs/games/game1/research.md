@@ -189,6 +189,14 @@ At round 50, the **firm-level** distribution shows important heterogeneity. Each
 
 **Next analysis:** retain full firm-round histories for both policies in a future run; compare allocation convergence and the rate of accepted improvements. Investigate the decline in mean advantage from round 20 to 50 and whether random exploration catches up. Avoid interpreting this Game 1 policy comparison as a test of inter-firm knowledge sharing.
 
+### Follow-up experiment: firm-level learning trajectories (pending verification)
+
+Added [`experiments/game1_mechanism_trajectories.py`](../../../experiments/game1_mechanism_trajectories.py) in commit `cd3ce5f6`, and integrated it into the existing [GitHub Actions workflow](../../../.github/workflows/game1-validation.yml) in commit `dc8184c9`. This **new** experiment records all firm-round observations for both learning policies with common random numbers (100 seeds × 20 firms × 50 rounds × 2 policies = **200,000 expected rows**, yielding **100,000 expected matched pairs**). It exports `firm_round_trajectories.csv`, `paired_firm_round.csv`, `mechanism_by_technology_round.csv`, and `metadata.json` to `results/game1_mechanism/` as a GitHub Actions artifact.
+
+**Research objective:** compare the dynamics of accepted candidate allocations, actual capital shares, and output paths, with particular attention to the round-20-to-round-50 decline in Guided advantage and heterogeneity across technologies. The file does **not** compute distance to an optimal capital share; that requires a separately audited technology-specific optimum definition and careful handling of Linear's boundary optimum.
+
+**Status:** code and workflow changes committed; **no successful run or numerical findings from this new experiment have yet been verified**. The prior Validation 05 findings remain unchanged. Full histories are descriptive; they do not by themselves identify the causal mechanism.
+
 ## 6. Open issues for review
 
 1. Identify all existing Game 1 experiment scripts and retained run artifacts before making claims about results.
