@@ -37,6 +37,8 @@ class Simulation:
         seed=2026,
         learning_policy="random",
         matched_randomness=False,
+        exploration_probability=0.20,
+        search_radius=0.10,
     ):
         if not isinstance(n_firms, int) or n_firms <= 0:
             raise ValueError("n_firms must be a positive integer.")
@@ -47,6 +49,13 @@ class Simulation:
         if learning_policy not in ("random", "guided", "guided_initial"):
             raise ValueError("Unknown learning policy.")
 
+        if not np.isfinite(exploration_probability) or not 0 <= exploration_probability <= 1:
+            raise ValueError("exploration_probability must be finite and in [0, 1].")
+        if not np.isfinite(search_radius) or search_radius <= 0:
+            raise ValueError("search_radius must be positive and finite.")
+
+        self.exploration_probability = float(exploration_probability)
+        self.search_radius = float(search_radius)
         self.learning_policy = learning_policy
         self.matched_randomness = matched_randomness
         self.random_schedule = (
@@ -89,7 +98,7 @@ class Simulation:
                         )
                     elif (
                         not firm.history
-                        or draw["exploration_draw"] < 0.20
+                        or draw["exploration_draw"] < self.exploration_probability
                     ):
                         candidate_share = (
                             0.05 + 0.90 * draw["uniform_draw"]
@@ -108,7 +117,7 @@ class Simulation:
                                 center = 0.50
 
                         candidate_share = float(np.clip(
-                            center + 0.10 * draw["normal_draw"],
+                            center + self.search_radius * draw["normal_draw"],
                             0.05,
                             0.95,
                         ))
@@ -120,6 +129,8 @@ class Simulation:
                     candidate_share = experience_guided_exploration(
                         firm.history,
                         self.rng,
+                        exploration_probability=self.exploration_probability,
+                        search_radius=self.search_radius,
                     )
                 else:
                     raise ValueError(
