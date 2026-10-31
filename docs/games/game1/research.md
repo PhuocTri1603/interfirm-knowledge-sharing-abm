@@ -509,3 +509,28 @@ Maximum absolute error between recomputed and exported output: `4.2633e-14`; out
 - The previously verified 50-vs-100 and 50-vs-200 history checks, plus all three pairwise comparisons of paired firm-round records, remain unchanged.
 
 **Audit boundaries:** This establishes cross-horizon consistency of exported trajectories; it is not evidence of real-world calibration, external validity, or publication readiness. Further methodological/statistical audit may be required before closing Game 1. No code, model parameters, or learning mechanism changed in this audit.
+
+### Statistical-method audit of existing Game 1 results (2026-10-31)
+
+**Scope:** Independent recalculation from the downloaded 200-round paired artifact `13030944570`, source commit `40266bf3`, with no code or model changes. The goal is to audit **existing descriptive results and their interpretation**, not to propose a paper contribution. There are 100 simulation seeds, each containing 100 firms (25 per technology), evaluated at 200 rounds. All reported 95% intervals below use a two-sided Student-t interval across **100 seed means**; they quantify seed-to-seed Monte Carlo variability conditional on fixed model parameters, not real-world uncertainty. When all seed means are identical, report the degenerate descriptive interval [0,0] rather than an undefined t interval.
+
+| Round | Mean Guided advantage (% relative to Random) | 95% seed-level t interval | Seeds with positive advantage |
+|---|---:|---:|---:|
+| 1 | 0.0000 | [0.0000, 0.0000] | 0/100 |
+| 5 | -1.8472 | [-2.0197, -1.6747] | 3/100 |
+| 10 | -0.1833 | [-0.3214, -0.0451] | 42/100 |
+| 11 | +0.0599 | [-0.0767, +0.1964] | 54/100 |
+| 20 | +1.0386 | [+0.9724, +1.1048] | 100/100 |
+| 50 | +0.6019 | [+0.5816, +0.6221] | 100/100 |
+| 100 | +0.2939 | [+0.2822, +0.3055] | 100/100 |
+| 200 | +0.1439 | [+0.1396, +0.1482] | 100/100 |
+
+**Critical interpretation:** Round 11 is only the **first positive aggregate point estimate**, not a confidently established crossover: its 95% interval includes zero. At round 20 the mean is positive across all 100 seeds. The first positive *per-seed* round varies from 2 to 18 (median 11), so a single exact crossover time is not an invariant. These pointwise intervals do **not** adjust for selecting rounds post hoc or for simultaneous inference across 200 rounds.
+
+**Technology heterogeneity at round 200** (mean relative advantage, 95% seed-level t interval): CES +0.003024% [0.002720,0.003327]; Cobb-Douglas +0.002029% [0.001861,0.002197]; Leontief +0.299476% [0.283629,0.315322]; Linear +0.270979% [0.260492,0.281466]. All 100 seed-level technology averages are positive in each group. Technology differences are descriptive for the four chosen functions and parameters; **do not** attribute them solely to elasticity of substitution.
+
+**Threshold attainment at round 200:** The Guided minus Random percentage-point difference in firms attaining at least 95% efficiency is 0.00 pp [0.00,0.00]; at least 99% is +3.31 pp [2.99,3.63]; at least 99.9% is +24.32 pp [23.62,25.02]. These are **paired seed-level differences**, not differences in mean efficiency. The exact [0,0] at 95% is a degenerate observed simulation result, not proof of general equality under other configurations.
+
+**Limitations and boundary of the completed audit:** (1) Firms within a seed are not treated as independent Monte Carlo replications; (2) policy comparison is paired on common seed/firm identifiers and matched random schedules, but different conditional branches may consume the same draws differently; (3) no adjustment for multiple rounds/technologies was made, so intervals are descriptive pointwise intervals; (4) the 100 seeds do not vary structural production parameters, firm composition, or learning hyperparameters; (5) no observed firm data are used, so empirical validity and generalizability remain unverified; (6) deterministic nondecreasing accepted output is imposed by the strict-improvement acceptance rule and is **not** an independently discovered economic finding; (7) reaching an efficiency threshold by round 200 is not universal convergence, and time-to-threshold observations may be right-censored. No additional algorithm or hypothesis is introduced.
+
+**Status:** Statistical interpretation and seed-level interval arithmetic for the listed outcomes: **PASS**. Robustness to alternate structural assumptions and external validity: **NOT TESTED**; these are limits of the fixed baseline, not automatic prerequisites for extending Game 1. Full history and cross-horizon audit are separately recorded above. The audit script and machine-readable results are available in the conversation artifacts; this GitHub commit is documentation-only.
