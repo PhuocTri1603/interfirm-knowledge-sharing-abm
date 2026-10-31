@@ -1,6 +1,11 @@
 name: Game 1 horizon sensitivity (100 firms)
 
 on:
+  push:
+    branches:
+      - experiment/game1-100-firms
+    paths:
+      - ".github/workflows/game1-horizon-sensitivity.yml"
   workflow_dispatch:
 
 jobs:
