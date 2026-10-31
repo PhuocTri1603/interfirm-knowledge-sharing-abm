@@ -20,14 +20,16 @@ CHECKPOINTS = [5, 10, 20, 50]
 POLICIES = ["random", "guided"]
 
 
-def run_experiment(n_firms=100, n_replications=N_REPLICATIONS):
+def run_experiment(n_firms=100, n_replications=N_REPLICATIONS, n_rounds=50):
+    if n_rounds < max(CHECKPOINTS):
+        raise ValueError('n_rounds must be at least 50 for the established checkpoints')
     records = []
 
     for seed in range(2026, 2026 + n_replications):
         for policy in POLICIES:
             sim = Simulation(
                 n_firms=n_firms,
-                n_rounds=50,
+                n_rounds=n_rounds,
                 seed=seed,
                 learning_policy=policy,
                 matched_randomness=True,
@@ -65,7 +67,7 @@ def run_experiment(n_firms=100, n_replications=N_REPLICATIONS):
     return paired
 
 
-def export_results(paired, output_dir, n_firms=100, n_replications=N_REPLICATIONS):
+def export_results(paired, output_dir, n_firms=100, n_replications=N_REPLICATIONS, n_rounds=50):
     """Persist the exact matched observations and reproducibility metadata."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -102,7 +104,7 @@ def export_results(paired, output_dir, n_firms=100, n_replications=N_REPLICATION
         "seed_start": 2026,
         "seed_end_inclusive": 2026 + n_replications - 1,
         "n_firms": n_firms,
-        "n_rounds": 50,
+        "n_rounds": n_rounds,
         "budget_per_firm": 100.0,
         "checkpoints": CHECKPOINTS,
         "policies": POLICIES,
@@ -131,15 +133,16 @@ if __name__ == "__main__":
     )
     parser.add_argument("--firms", type=int, default=100)
     parser.add_argument("--seeds", type=int, default=N_REPLICATIONS)
+    parser.add_argument("--rounds", type=int, choices=[50, 100, 200], default=50)
     args = parser.parse_args()
     if args.firms <= 0 or args.firms % 4:
         parser.error("--firms must be a positive multiple of four")
     if args.seeds <= 0:
         parser.error("--seeds must be positive")
 
-    paired = run_experiment(n_firms=args.firms, n_replications=args.seeds)
+    paired = run_experiment(n_firms=args.firms, n_replications=args.seeds, n_rounds=args.rounds)
     if args.export_dir is not None:
-        export_results(paired, args.export_dir, n_firms=args.firms, n_replications=args.seeds)
+        export_results(paired, args.export_dir, n_firms=args.firms, n_replications=args.seeds, n_rounds=args.rounds)
 
     run_level = (
         paired.groupby(["seed", "round"])
