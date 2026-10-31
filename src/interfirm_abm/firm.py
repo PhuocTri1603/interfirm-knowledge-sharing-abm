@@ -32,6 +32,9 @@ class Firm:
     budget: float = 100.0
     capital_share: float = 0.50
     history: list = field(default_factory=list)
+    alpha: float = 0.70
+    productivity: float = 1.0
+    rho: float = -0.50
 
     def __post_init__(self):
         if self.technology not in PRODUCTION_FUNCTIONS:
@@ -43,6 +46,13 @@ class Firm:
         if not 0 < self.capital_share < 1:
             raise ValueError("Capital share must be between 0 and 1.")
 
+        if not np.isfinite(self.alpha) or not 0 < self.alpha < 1:
+            raise ValueError('alpha must be in (0,1).')
+        if not np.isfinite(self.productivity) or self.productivity <= 0:
+            raise ValueError('productivity must be positive and finite.')
+        if not np.isfinite(self.rho) or self.rho > 1:
+            raise ValueError('rho must be finite and <= 1.')
+
         self.production_function = PRODUCTION_FUNCTIONS[
             self.technology
         ]
@@ -53,7 +63,13 @@ class Firm:
         K = self.budget * capital_share
         L = self.budget * (1 - capital_share)
 
-        return float(self.production_function(K, L))
+        if self.technology == 'Leontief':
+            output = self.production_function(K, L, kappa=self.alpha)
+        elif self.technology == 'CES':
+            output = self.production_function(K, L, alpha=self.alpha, rho=self.rho)
+        else:
+            output = self.production_function(K, L, alpha=self.alpha)
+        return float(self.productivity * output)
 
     def experiment(self, candidate_share, round_number):
         if not 0 < candidate_share < 1:
