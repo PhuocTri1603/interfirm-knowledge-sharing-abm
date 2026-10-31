@@ -1,0 +1,35 @@
+name: Independent Game 1 artifact audit
+on:
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/game1-heterogeneous-firms
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download original 15 full-run artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 41210955389 --repo "${{ github.repository }}" --dir results/audit_original
+      - name: Independently recompute from raw CSVs
+        run: python -m experiments.audit_game1_population_artifacts --artifacts results/audit_original --output results/audit_report.json
+      - name: Preserve audit provenance
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > results/audit_workflow_commit.txt
+          printf '%s\n' '41210955389' > results/audit_source_run.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: independent-game1-audit-${{ github.sha }}
+          path: |
+            results/audit_report.json
+            results/audit_workflow_commit.txt
+            results/audit_source_run.txt
+          retention-days: 90
