@@ -101,5 +101,5 @@ if __name__ == "__main__":
     history = run_experiment(n_firms=args.firms, n_replications=args.seeds, n_rounds=args.rounds)
     paired = export_results(history, args.export_dir, n_firms=args.firms, n_replications=args.seeds, n_rounds=args.rounds)
     assert len(history) == args.seeds * args.firms * args.rounds * 2
-    assert len(paired) == args.seeds * args.firms * 50
+    assert len(paired) == args.seeds * args.firms * args.rounds
     print("History rows:", len(history), "Paired rows:", len(paired))
