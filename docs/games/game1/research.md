@@ -496,3 +496,16 @@ Intervals are descriptive uncertainty across 100 independent simulation seeds, u
 Maximum absolute error between recomputed and exported output: `4.2633e-14`; output efficiency percentage: `8.5265e-14`; distance to optimum share: `2.1077e-16`. Across both policies: **zero** allocation shares outside `[0.05,0.95]`, **zero** efficiencies above 100% (tolerance 1e-8), **zero** negative outputs.
 
 **Interpretation:** The 200-round output and efficiency fields are arithmetically consistent with the approved production functions and constrained optima. This is a model-internal consistency check, **not** external empirical validation or proof of a novel mechanism. The 100-vs-200 full-history check remains open. No website work or Game 2 mechanism was introduced.
+
+### Resolution: complete 100-vs-200 history audit (2026-10-31)
+
+**Status: PASS.** Independent re-comparison of the original GitHub Actions artifacts `13031585631` (100 rounds) and `13030944570` (200 rounds) from source commit `40266bf3`. For each seed–policy block, the first 100 rounds of the 200-round artifact were compared with all 100 rounds of the 100-round artifact. This checked **2,000,000 firm-history rows, all 14 CSV columns**, preserving and checking firm, round, seed and policy identities.
+
+- Zero mismatches in IDs, technology labels, policy labels, acceptance booleans, candidate shares, accepted shares, optimal shares, and share distances.
+- Maximum absolute candidate/current output difference: `4.973799150320701e-14`.
+- Maximum absolute efficiency difference: `9.947598300641403e-14`.
+- **Zero mismatches at absolute tolerance `1e-10` (relative tolerance 0) across all 14 columns.**
+- The earlier raw fingerprint mismatch was sensitive to floating-point representation; it is **resolved** by exhaustive numeric and categorical comparisons. Do not interpret a nonidentical byte hash as a simulation discrepancy.
+- The previously verified 50-vs-100 and 50-vs-200 history checks, plus all three pairwise comparisons of paired firm-round records, remain unchanged.
+
+**Audit boundaries:** This establishes cross-horizon consistency of exported trajectories; it is not evidence of real-world calibration, external validity, or publication readiness. Further methodological/statistical audit may be required before closing Game 1. No code, model parameters, or learning mechanism changed in this audit.
