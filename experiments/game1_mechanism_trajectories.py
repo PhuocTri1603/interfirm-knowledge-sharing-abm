@@ -10,12 +10,12 @@ from interfirm_abm.simulation import Simulation
 from interfirm_abm.production_optimum import optimal_capital_share, optimal_output
 
 
-def run_experiment():
+def run_experiment(n_firms=100, n_replications=100):
     frames = []
-    for seed in range(2026, 2126):
+    for seed in range(2026, 2026 + n_replications):
         for policy in ("random", "guided"):
             sim = Simulation(
-                n_firms=20,
+                n_firms=n_firms,
                 n_rounds=50,
                 seed=seed,
                 learning_policy=policy,
@@ -28,7 +28,7 @@ def run_experiment():
     return pd.concat(frames, ignore_index=True)
 
 
-def export_results(history, output_dir):
+def export_results(history, output_dir, n_firms=100, n_replications=100):
     folder = Path(output_dir)
     folder.mkdir(parents=True, exist_ok=True)
     history = history.copy()
@@ -70,15 +70,15 @@ def export_results(history, output_dir):
         "experiment": "game1_mechanism_trajectories",
         "source": "follow-up to Validation 05",
         "seed_start": 2026,
-        "seed_end_inclusive": 2125,
-        "n_firms": 20,
+        "seed_end_inclusive": 2026 + n_replications - 1,
+        "n_firms": n_firms,
         "n_rounds": 50,
         "policies": ["random", "guided"],
         "matched_randomness": True,
         "optimum_definition": "Technology-specific optimum under feasible capital share [0.05, 0.95]; Linear constrained optimum 0.95, unconstrained maximum at 1.0.",
-        "expected_history_rows": 200000,
+        "expected_history_rows": n_replications * n_firms * 50 * 2,
         "observed_history_rows": len(history),
-        "expected_paired_rows": 100000,
+        "expected_paired_rows": n_replications * n_firms * 50,
         "observed_paired_rows": len(paired),
     }
     (folder / "metadata.json").write_text(
@@ -90,9 +90,15 @@ def export_results(history, output_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--export-dir", type=Path, required=True)
+    parser.add_argument("--firms", type=int, default=100)
+    parser.add_argument("--seeds", type=int, default=100)
     args = parser.parse_args()
-    history = run_experiment()
-    paired = export_results(history, args.export_dir)
-    assert len(history) == 200000
-    assert len(paired) == 100000
+    if args.firms <= 0 or args.firms % 4:
+        parser.error("--firms must be a positive multiple of four")
+    if args.seeds <= 0:
+        parser.error("--seeds must be positive")
+    history = run_experiment(n_firms=args.firms, n_replications=args.seeds)
+    paired = export_results(history, args.export_dir, n_firms=args.firms, n_replications=args.seeds)
+    assert len(history) == args.seeds * args.firms * 50 * 2
+    assert len(paired) == args.seeds * args.firms * 50
     print("History rows:", len(history), "Paired rows:", len(paired))
