@@ -2,6 +2,7 @@
 import argparse,csv,io,json,zipfile
 from pathlib import Path
 parser=argparse.ArgumentParser();parser.add_argument('archive');parser.add_argument('--data',default='web/data');args=parser.parse_args()
+horizon=json.loads((Path(args.data)/'manifest.json').read_text())['horizon']
 seeds={2026,2075,2125};firms={1,2,3,4};rounds={1,11,20,50,100,200}
 def unpack(document):
  if isinstance(document,list):return document
@@ -21,5 +22,7 @@ with zipfile.ZipFile(args.archive) as z, z.open('firm_round_trajectories.csv') a
    expected=(v=='True') if k=='accepted' else v if k in ('policy','technology') else float(v)
    assert actual[k]==expected,(key,k)
   n+=1
-assert n==144,n
-print('PASS: 144 exact source rows, 3 seeds, 4 technologies, 6 rounds, 2 policies; all 14 fields')
+expected=3*4*2*sum(r<=horizon for r in rounds)
+assert n==expected,(n,expected)
+print(f'PASS: {n} exact source rows for horizon {horizon}; all 14 fields')
+

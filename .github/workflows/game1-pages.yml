@@ -6,6 +6,10 @@ on:
       - web/**
       - tools/build_replay_data.py
       - tools/check_replay_sample.py
+      - tools/replay_statistics.py
+      - tests/test_replay_statistics.py
+      - tests/test_*view.cjs
+      - tests/test_replay_selection.cjs
       - tests/test_replay_data.py
       - .github/workflows/game1-pages.yml
   workflow_dispatch:
@@ -26,28 +30,35 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Test replay data contract
-        run: python -m unittest discover -s tests -p test_replay_data.py -v
+      - name: Test replay data contract and statistics
+        run: |
+          python -m unittest discover -s tests -p 'test_replay*.py' -v
+          node tests/test_production_view.cjs
+          node tests/test_replay_selection.cjs
       - name: Download immutable verified artifact
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            for (const [horizon, artifactId] of [[50,13031790079],[100,13031585631],[200,13030944570]]) {
             const artifact = await github.rest.actions.getArtifact({
-              owner: context.repo.owner, repo: context.repo.repo, artifact_id: 13030944570
+              owner: context.repo.owner, repo: context.repo.repo, artifact_id: artifactId
             });
             if (artifact.data.expired || artifact.data.workflow_run.head_sha !== '40266bf38b644bb169fcb5d1358f9649ab7085cb') {
               throw new Error('Verified artifact is expired or has unexpected provenance');
             }
             const zip = await github.rest.actions.downloadArtifact({
               owner: context.repo.owner, repo: context.repo.repo,
-              artifact_id: 13030944570, archive_format: 'zip'
+              artifact_id: artifactId, archive_format: 'zip'
             });
-            fs.writeFileSync('verified-horizon200.zip', Buffer.from(zip.data));
-      - name: Build compact exact-value partitions
-        run: python tools/build_replay_data.py verified-horizon200.zip --output web/data --packed
-      - name: Independently check 144 original source rows
-        run: python tools/check_replay_sample.py verified-horizon200.zip --data web/data
+            fs.writeFileSync('verified-horizon'+horizon+'.zip', Buffer.from(zip.data));
+            }
+      - name: Build and independently sample-check all original horizons
+        run: |
+          for horizon in 50 100 200; do
+            python tools/build_replay_data.py verified-horizon${horizon}.zip --horizon $horizon --output web/data/$horizon --packed
+            python tools/check_replay_sample.py verified-horizon${horizon}.zip --data web/data/$horizon
+          done
       - name: Stage public website only and enforce size budget
         run: |
           python - <<'PY'
@@ -79,3 +90,4 @@ jobs:
       - name: Deploy authorized public replay
         id: deployment
         uses: actions/deploy-pages@v4
+

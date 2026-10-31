@@ -1,7 +1,11 @@
 """Build exact, per-seed replay partitions from the verified private artifact."""
 import argparse,csv,hashlib,io,json,math,zipfile
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).parent))
+from replay_statistics import seed_statistics, summarize
 DIGEST='5b2438e1bc5cddc297e325357bce729c690f4765bea64dcfa93d4bda13982d44'
+ARTIFACTS={50:(13031790079,'3c9e2a773f18f9e546ee2a6c3f5d061f81beb92dd356b47ab1691f564330cd8e'),100:(13031585631,'fa8318b4bb8a0143c2de6605e3f3c21fc206a9ab0689ab8f8f24cb69d555e955'),200:(13030944570,DIGEST)}
 SOURCE='40266bf38b644bb169fcb5d1358f9649ab7085cb'
 FIELDS=['firm_id','round','technology','candidate_share','candidate_output','accepted','capital_share','current_output','seed','policy','optimal_share','optimal_output','share_distance_to_optimum','output_efficiency_pct']
 def convert(row):
@@ -21,20 +25,28 @@ def convert(row):
     if not (.05<=result['capital_share']<=.95 and .05<=result['candidate_share']<=.95): raise ValueError('Invalid share')
     return result
 
-def build(archive,output,packed=False):
+def build(archive,output,packed=False,horizon=200):
+    artifact,expected_digest=ARTIFACTS[horizon]
+    seed_summaries=[]
     digest=hashlib.file_digest(open(archive,'rb'),'sha256').hexdigest()
-    if digest!=DIGEST: raise ValueError('Artifact digest mismatch')
+    if digest!=expected_digest: raise ValueError('Artifact digest mismatch')
     output=Path(output); output.mkdir(parents=True,exist_ok=True)
-    manifest={'source_commit':SOURCE,'run':41171674224,'artifact_id':13030944570,'artifact_sha256':digest,'horizon':200,'budget':100,'seeds':[],'partitions':{},'columns':FIELDS,'rows':0}
+    manifest={'source_commit':SOURCE,'run':41171674224,'artifact_id':artifact,'artifact_sha256':digest,'horizon':horizon,'budget':100,'seeds':[],'partitions':{},'columns':FIELDS,'rows':0}
     with zipfile.ZipFile(archive) as z:
         if z.read('source_commit.txt').decode().strip()!=SOURCE: raise ValueError('Source mismatch')
         metadata=json.loads(z.read('metadata.json'))
-        if (metadata['n_firms'],metadata['n_rounds'],metadata['expected_history_rows'])!=(100,200,4000000): raise ValueError('Configuration mismatch')
+        if (metadata['n_firms'],metadata['n_rounds'],metadata['expected_history_rows'])!=(100,horizon,20000*horizon): raise ValueError('Configuration mismatch')
         current=None; records=[]; completed=set()
         def flush(seed,records):
             keys={(r['policy'],r['firm_id'],r['round']) for r in records}
-            if len(records)!=40000 or len(keys)!=40000: raise ValueError('Incomplete/duplicate seed partition')
+            if len(records)!=200*horizon or len(keys)!=200*horizon: raise ValueError('Incomplete/duplicate seed partition')
             if any(sum(r['technology']==tech and r['round']==1 and r['policy']=='random' for r in records)!=25 for tech in ('CES','Linear','Leontief','Cobb-Douglas')): raise ValueError('Unbalanced technology')
+            if any(r['round']>horizon for r in records): raise ValueError('Round outside horizon')
+            types={}
+            for r in records:
+                if r['firm_id'] in types and types[r['firm_id']]!=r['technology']: raise ValueError('Firm technology changed')
+                types[r['firm_id']]=r['technology']
+            seed_summaries.append(seed_statistics(records,horizon))
             document=records
             if packed:
                 technologies=['Cobb-Douglas','Leontief','Linear','CES']
@@ -60,8 +72,10 @@ def build(archive,output,packed=False):
                 if current in completed: raise ValueError('Noncontiguous seed')
                 records.append(r)
             flush(current,records)
-    if manifest['seeds']!=list(range(2026,2126)) or manifest['rows']!=4000000: raise ValueError('Incomplete dataset')
+    if manifest['seeds']!=list(range(2026,2126)) or manifest['rows']!=20000*horizon: raise ValueError('Incomplete dataset')
+    (output/'summary.json').write_text(json.dumps({'horizon':horizon,'source_commit':SOURCE,'artifact_id':artifact,'groups':summarize(seed_summaries,horizon)},separators=(',',':'),allow_nan=False))
     (output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     print('Verified and partitioned',manifest['rows'],'rows across',len(manifest['seeds']),'seeds')
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('archive',type=Path);p.add_argument('--output',type=Path,default=Path('web/data'));p.add_argument('--packed',action='store_true');a=p.parse_args();build(a.archive,a.output,a.packed)
+    p=argparse.ArgumentParser();p.add_argument('archive',type=Path);p.add_argument('--output',type=Path,default=Path('web/data'));p.add_argument('--packed',action='store_true');p.add_argument('--horizon',type=int,choices=[50,100,200],default=200);a=p.parse_args();build(a.archive,a.output,a.packed,a.horizon)
+
