@@ -2,6 +2,9 @@
 
 > **Canonical research record.** Update this file in place as the research develops. Git commits record revisions; do not create parallel draft/final versions. Status checked against source files on 2026-10-31. **Not a claim that simulation runs or tests were executed during this documentation review.**
 
+
+> **Current acceptance — 2026-10-31: COMPLETE WITH DOCUMENTED LIMITATIONS for Game 1 — Independent Learning baseline.** The researcher explicitly excludes production-grade web performance/device optimization as acceptance blockers. Final independent audit found no unresolved scientific blocker within this scoped baseline. Earlier OPEN/pending/not-deployed statements are chronological records superseded by this acceptance and later verification sections. This is not completion of the original AI-shock/competition/knowledge-sharing vision, empirical validation, a novelty claim or manuscript readiness.
+
 ## 1. Research question and scope
 
 **Question:** How do heterogeneous firms improve capital–labor allocations through independent experimentation, and how do alternative exploration policies affect their learning trajectories?
@@ -55,11 +58,11 @@ These are implemented equations, not independently validated empirical estimates
 
 | Statement | Classification | Source / review status |
 |---|---|---|
-| Trial-and-error can be represented as repeated candidate allocation and output feedback | **Our modeling choice** | Implemented in `firm.py` and `simulation.py`; academic theoretical citation **needed** |
-| Four technologies have different capital–labor substitution structures | **Mathematical implication of chosen functions** | `production.py`; textbook citation and exact edition/page **needed** |
+| Trial-and-error can be represented as repeated candidate allocation and output feedback | **Our modeling choice** | Project-defined mechanism; conceptual support and distinctions documented in the foundational and adjacent-literature reviews below |
+| Four technologies have different capital–labor substitution structures | **Mathematical implication of chosen functions** | `production.py`; production literature reviewed below; no unverified page-specific attribution |
 | Independent learning is a baseline for evaluating knowledge transfer | **Research design decision** | `docs/proposals/experimental_design.md`; not itself a simulation finding |
-| Linear optimum reported by `production_optimum.py` is 0.95 | **Implementation convention requiring review** | Under the implemented increasing linear function, the unconstrained share optimum is at the upper boundary; clarify feasible domain and benchmark interpretation before treating 0.95 as a theoretical optimum |
-| Learning policies may have different convergence speeds | **Hypothesis to test** | No verified Game 1 result linked in this record yet |
+| Linear optimum reported by `production_optimum.py` is 0.95 | **Verified constrained benchmark** | Verified feasible domain [.05,.95]; .95 is the constrained optimum, not the unrestricted share optimum |
+| Learning policies may have different convergence speeds | **Hypothesis to test** | Verified 100-firm horizon report and subsequent independent audits below; policy differences are conditional on the fixed model |
 
 No academic source has been assigned a DOI, quotation, or page number without independent verification. Citations should be added as they are reviewed, rather than inferred.
 
@@ -671,3 +674,23 @@ Live normal-path verification: four SVG curves rendered; selected technology/fir
 **Independent review:** static estimands, interval units, production formulas, artifact provenance and error guards accepted. Identified old-data async races and failed-horizon recovery mismatch were fixed and independently closed at dd0262c. Deterministic Node tests cover overlapping metadata/seed failures, cleared observations, disabled Seed and Reload recovery. These test doubles are not real-browser corrupt-network tests.
 
 **Disposition:** implemented website conditionally accepted for research inspection with documented limitations. Real mobile/device rendering, assistive-technology coverage, real-browser offline/corrupt transport scenarios and rigorous performance benchmarks remain NOT VERIFIED. Provided browser controls did not expose viewport resizing/resource timing; attempted UI shortcuts did not change CSS viewport. Do not claim mobile/performance PASS. Full Game 1 remains OPEN; this review does not establish external validity or paper readiness. Earlier entries stating Overview/statistics/shorter horizons were unimplemented describe historical revisions and are superseded here.
+
+
+### Final scoped Game 1 acceptance — 2026-10-31
+
+**Decision: COMPLETE WITH DOCUMENTED LIMITATIONS — Game 1: Independent Learning baseline.** Researcher clarification removes production-grade performance, device optimization and exhaustive web hardening as acceptance gates; numerical correctness, faithful research scope, provenance and main interactions remain mandatory. This supersedes prior OPEN dispositions whose outstanding requirement was website verification.
+
+| Required component | Final evidence | Disposition |
+|---|---|---|
+| Model specification and governance | Four production equations, budgets, initialization, strict-improvement acceptance, policy information sets and fixed assumptions documented; no unauthorized economic changes | PASS for specified baseline |
+| Experimental execution | 100 firms, 100 seeds, 50/100/200 rounds; immutable source 40266bf3 and original artifacts | PASS |
+| Integrity, equations and transitions | Full prior numeric audits and cross-horizon keyed checks, feasible optima and acceptance checks | PASS |
+| Statistics and interpretation | Paired firm ratios aggregated within seeds; 100 independent replications; pointwise t intervals; threshold censoring | PASS within model |
+| Literature grounding | Focused foundational and adjacent reviews; project-defined policies and researcher parameters separated from literature support | Adequate for baseline; not exhaustive novelty review |
+| Research website | Four live views; original three horizons; raw-source sample and independent aggregate comparisons; main interactions verified | PASS for research presentation |
+| Latest automated verification | Smoke run 41192077121, job 124510733101: python -m pytest -q reports **233 passed**; smoke exports/counts passed. Pages run 41192077110 build and deploy passed, including 9 Python/3 Node website checks | PASS, independently read logs; not newly rerun in this document change |
+| Independent review | Final read-only review of canonical record, horizon report and previously reviewed source/numerical/live evidence found no remaining scoped scientific blocker | Accept completion with limitations |
+
+**Retained limits, not reopened completion gates:** synthetic fixed model without real-firm calibration/external validity; no proof of universal convergence; no simultaneous inference; no attribution of technology differences solely to substitution elasticity. Guided clipping/boundary behavior is part of the specified algorithm and must not be interpreted as a separately identified learning mechanism. Existing 20-firm search-parameter grid is supplementary and not claimed independently re-audited in full here. Exhaustive novelty/full-text literature work belongs to paper development. Mobile, assistive-technology, exhaustive real-browser transport/error and rigorous performance checks remain unverified, not falsely marked passed. Artifact archiving before January 2027 expiry is follow-up maintenance.
+
+Completion does **not** mean that AI shock, endogenous market competition, profit/welfare analysis or interfirm sharing have been implemented or validated. No automatic Game 2/3 transition, merge into main, or economic mechanism change is authorized by this acceptance. The current baseline is ready to support the next researcher-approved stage.
