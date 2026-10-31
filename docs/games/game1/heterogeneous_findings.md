@@ -94,3 +94,19 @@ The aggregate findings are **compatible with established learning and adaptive-s
 - Repeat independent population seeds; then test fixed-alpha-controlled, family-specific search landscapes.
 - The literature statements in §2 remain conceptual; F5/F6 currently are not independently matched against a direct empirical study.
 
+
+
+### Literature support for F5 and F6
+
+**Evidence standard:** The following sources support theoretical mechanisms or adjacent research questions; they do **not** directly reproduce the four-family ranking or the strong-versus-moderate alpha differences. These are interpretive connections, not empirical validation or established novelty.
+
+- **F5 — production-function heterogeneity and learning advantage.** Levinthal (1997) studies adaptation on rugged landscapes and explains why search performance depends on the structure of the problem. March (1991) discusses exploration/exploitation trade-offs in organizational learning. Neither paper directly compares Guided and Random search across Cobb–Douglas, CES, Leontief and Linear production functions. Production-function curvature, kinks and feasible optima are plausible mechanisms to test, not established causes from these runs.
+- **F6 — alpha orientation/strength and learning advantage.** The same adaptive-search framework provides indirect motivation for the importance of starting positions and opportunity landscapes. It does **not** predict the observed strong-alpha > moderate-alpha ordering in this experiment. Family composition and baseline distance to the optimum require within-family controls.
+- **Novelty boundary:** Existing learning/search literature is consistent with heterogeneous performance; the precise simulated rankings remain conditional findings, pending multi-population robustness and independent literature comparison.
+
+**References**
+1. March, J. G. (1991). Exploration and exploitation in organizational learning. *Organization Science*, 2(1), 71–87. https://doi.org/10.1287/orsc.2.1.71
+2. Levinthal, D. A. (1997). Adaptation on rugged landscapes. *Management Science*, 43(7), 934–950. https://doi.org/10.1287/mnsc.43.7.934
+3. Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940
+
+**Documentation policy:** Every future simulation finding should include (a) quantitative observation and provenance, (b) mechanism hypothesis, (c) direct/indirect/absent literature support, (d) limitations and falsification tests, and (e) verifiable full references. Never equate theoretical consistency with direct replication.
