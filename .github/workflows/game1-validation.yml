@@ -10,6 +10,7 @@ on:
       - "experiments/validation_05.py"
       - "experiments/game1_mechanism_trajectories.py"
       - "experiments/game1_sensitivity.py"
+      - "experiments/game1_factorial_sensitivity.py"
       - "tests/**"
       - "pyproject.toml"
   workflow_dispatch:
@@ -88,5 +89,46 @@ jobs:
         with:
           name: game1-sensitivity-${{ github.sha }}
           path: results/game1_sensitivity/
+          if-no-files-found: error
+          retention-days: 90
+
+  factorial-sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install research package
+        run: python -m pip install -e ".[dev]"
+      - name: Run matched factorial sensitivity
+        run: python -m experiments.game1_factorial_sensitivity --seeds 100 --export-dir results/game1_factorial
+      - name: Record source revision
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > results/game1_factorial/source_commit.txt
+          python -m pip freeze > results/game1_factorial/environment.txt
+      - name: Validate factorial exports
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          folder = Path("results/game1_factorial")
+          metadata = json.loads((folder / "metadata.json").read_text())
+          paired = pd.read_csv(folder / "paired_factorial.csv")
+          assert len(paired) == metadata["expected_paired_rows"] == 250000
+          assert not paired.isna().any().any()
+          assert paired["seed"].nunique() == 100
+          assert paired.groupby(["seed", "round", "firm_id"])["random_output"].nunique().eq(1).all()
+          print("Verified factorial paired rows:", len(paired))
+          PY
+      - name: Upload private factorial artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: game1-factorial-${{ github.sha }}
+          path: results/game1_factorial/
           if-no-files-found: error
           retention-days: 90
