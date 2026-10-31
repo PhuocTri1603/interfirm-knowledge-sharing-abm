@@ -301,3 +301,25 @@ The sensitivity experiment is implemented in [`experiments/game1_sensitivity.py`
 The predeclared design uses 100 seeds (2026–2125), 20 firms, 100 rounds, matched Random and Guided schedules, and checkpoints 5, 10, 20, 50, 100. The nine one-factor-at-a-time settings are baseline (exploration probability 0.20, search radius 0.10), exploration probabilities 0.05/0.10/0.40/0.60 at radius 0.10, and search radii 0.03/0.05/0.20/0.30 at probability 0.20. Expected matched observations: 90,000. Outputs are `paired_sensitivity.csv`, `seed_sensitivity.csv`, `summary_sensitivity.csv`, and `metadata.json`.
 
 The planned checks are whether the Guided advantage at rounds 20 and 50 persists across parameter settings, whether the gap narrows at round 100, and how the magnitude and seed-level variability respond to exploration versus local search width. These parameter sweeps test **robustness of this simulated model**, not external validity or causal identification of real firms' learning.
+
+### Verified sensitivity results — GitHub Actions run 41162810655
+
+**Evidence:** [successful run 41162810655](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41162810655), commit `28b9630103d3efe2fb49f3d02966fd04a1adf7bc`, artifact `game1-sensitivity-28b9630103d3efe2fb49f3d02966fd04a1adf7bc` (ID `13027758627`). Direct ZIP/CSV inspection confirmed 90,000 matched firm–seed–checkpoint–scenario observations, 100 distinct seeds, nine scenarios, and zero missing values. The original baseline at checkpoints 5–50 reproduces the earlier Validation 05 mean advantages.
+
+**Mean firm-level output advantage of Guided over Random (%)**, averaging matched firm-level percentage differences first within seed and then across 100 seeds:
+
+| Scenario | Round 5 | Round 10 | Round 20 | Round 50 | Round 100 |
+|---|---:|---:|---:|---:|---:|
+| Baseline (p=.20, radius=.10) | -1.8556 | -0.0032 | +1.1697 | +0.5893 | +0.2915 |
+| Exploration p=.05 | -2.4708 | -0.9485 | +0.9168 | +0.6157 | +0.3062 |
+| Exploration p=.10 | -2.2917 | -0.5550 | +1.0733 | +0.6214 | +0.3060 |
+| Exploration p=.40 | -1.0348 | +0.4707 | +1.1499 | +0.5689 | +0.2833 |
+| Exploration p=.60 | -0.4805 | +0.5185 | +0.9760 | +0.5092 | +0.2596 |
+| Search radius=.03 | -4.0792 | -3.3587 | -0.7504 | +0.6228 | +0.3478 |
+| Search radius=.05 | -3.2879 | -2.0799 | +0.3612 | +0.6626 | +0.3308 |
+| Search radius=.20 | -0.2362 | +1.2703 | +1.1841 | +0.4667 | +0.2318 |
+| Search radius=.30 | +0.1550 | +1.0254 | +0.8458 | +0.3547 | +0.1675 |
+
+At round 50, the seed-mean advantage is positive in **92–100 of 100 seeds** depending on configuration (baseline: 100/100). At round 100, **92–100 of 100 seeds** are positive (baseline: 100/100). These are **seed-aggregated** outcomes, not counts of individual firms. At round 100, baseline seed-level standard deviation of the advantage is approximately **0.132 percentage points**.
+
+**Interpretation and limits:** The Guided advantage at round 50 is positive under all nine prespecified parameter scenarios, but at round 20 it is negative with search radius .03. This indicates robustness of the *sign* at round 50 within the tested parameter grid, but not parameter-invariant speed of learning. Baseline mean advantage shrinks from +.5893% at round 50 to +.2915% at round 100, consistent with catch-up but not proof of equal asymptotic outcomes. This is one-factor-at-a-time sensitivity within a fixed model, not empirical validation, independent causal identification, or exhaustive robustness across parameter interactions.
