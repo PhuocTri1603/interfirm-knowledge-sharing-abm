@@ -10,7 +10,7 @@ Firms make repeated investment decisions involving capital, labor, and artificia
 
 The research examines when external knowledge improves learning, when firms choose to cooperate, and how cooperation affects firm profitability and market welfare.
 
-**Status:** Early-stage independent research. Theoretical validation and model development are ongoing. No empirical findings or hypothesis-testing results are claimed.
+**Status (repository snapshot, 2026-10-31):** Independent simulation research in progress. The `docs/research/game3b_h2_findings.md` file records exploratory Game 3B simulation results (100 matched seeds); these are model-based findings, not empirical evidence about real firms. Game 3C implementation modules and tests are present on `docs/research-consolidation`, but their current execution status has not been reverified here. Game 3D design consolidation remains pending. The roadmap below is an original planning snapshot and has not yet been audited against the current code.
 
 ## 2. Central Research Question
 
