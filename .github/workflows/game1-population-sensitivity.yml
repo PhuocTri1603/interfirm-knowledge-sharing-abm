@@ -1,0 +1,74 @@
+name: Game 1 population-seed sensitivity
+on:
+  workflow_dispatch:
+    inputs:
+      smoke:
+        description: "Run a small smoke test only (true) or full 100 learning seeds (false)"
+        type: boolean
+        default: true
+        required: true
+jobs:
+  sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        population_seed: [2026, 2027, 2028, 2029, 2030]
+        rounds: [50, 100, 200]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - name: Run paired heterogeneous experiment
+        env:
+          SMOKE: ${{ inputs.smoke }}
+          POPULATION_SEED: ${{ matrix.population_seed }}
+          ROUNDS: ${{ matrix.rounds }}
+        run: |
+          SEEDS=100
+          if [ "$SMOKE" = "true" ]; then SEEDS=2; fi
+          python -m experiments.game1_heterogeneous --rounds "$ROUNDS" --seeds "$SEEDS" --population-seed "$POPULATION_SEED" --export-dir "results/population_sensitivity/population_${POPULATION_SEED}/horizon_${ROUNDS}"
+      - name: Analyze family and alpha contrasts
+        env:
+          POPULATION_SEED: ${{ matrix.population_seed }}
+          ROUNDS: ${{ matrix.rounds }}
+        run: |
+          DIR="results/population_sensitivity/population_${POPULATION_SEED}/horizon_${ROUNDS}"
+          python -m experiments.analyze_game1_heterogeneous --input "$DIR/paired_firm_outcomes.csv" --output "$DIR/subgroup_summary.json"
+      - name: Verify row counts and export provenance
+        env:
+          SMOKE: ${{ inputs.smoke }}
+          POPULATION_SEED: ${{ matrix.population_seed }}
+          ROUNDS: ${{ matrix.rounds }}
+        run: |
+          DIR="results/population_sensitivity/population_${POPULATION_SEED}/horizon_${ROUNDS}"
+          export DIR
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+          p=Path(os.environ["DIR"])
+          n=2 if os.environ["SMOKE"] == "true" else 100
+          a=pd.read_csv(p/"final_firm_outcomes.csv")
+          b=pd.read_csv(p/"paired_firm_outcomes.csv")
+          s=json.loads((p/"summary.json").read_text())
+          assert len(a)==n*200 and len(b)==n*100
+          assert s["population_seed"]==int(os.environ["POPULATION_SEED"])
+          assert s["learning_seeds"]==n
+          assert not b.duplicated(["seed","firm_id"]).any()
+          assert a.groupby(["seed","policy","technology"]).size().eq(25).all()
+          assert b.groupby("seed").size().eq(100).all()
+          PY
+          printf '%s\n' "$GITHUB_SHA" > "$DIR/source_commit.txt"
+          python -m pip freeze > "$DIR/environment.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: population-${{ matrix.population_seed }}-rounds-${{ matrix.rounds }}-${{ github.sha }}
+          path: results/population_sensitivity/population_${{ matrix.population_seed }}/horizon_${{ matrix.rounds }}/
+          retention-days: 90
