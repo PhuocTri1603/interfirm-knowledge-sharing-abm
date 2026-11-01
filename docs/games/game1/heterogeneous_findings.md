@@ -372,3 +372,38 @@ Values are **percentage points**, aggregated across five populations, with terti
 **Hypothesis T3 (complexity-dependent transfer):** If subsequent Games introduce imitation or knowledge sharing, production/decision complexity could affect the value of information transferred between firms. **Conceptual literature, not a direct Game 1 test:** Rivkin, J. W. (2000), “Imitation of Complex Strategies,” *Management Science*, 46(6), 824–844, https://doi.org/10.1287/mnsc.46.6.824.11940.
 
 **Inference boundaries:** Search trajectories can document policy-specific dynamics and plausible mechanisms, but they cannot independently identify causal mediation by initial gap, alpha, or curvature: these are tied by model construction. No confirmatory claims, multiple-testing-adjusted inference, or out-of-model generalization is authorized by this protocol. Every future reported finding must be paired with an accurate literature relationship (direct, theoretical, or indirect), DOI/URL, and explicit limitations.
+
+
+### Results of search-trajectory diagnostic (2026-11-01; exploratory)
+
+**Verified execution:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41264284133, successful `trajectory` job, output artifact ID `13066881752`. 5 population draws (2026–2030), 20 matched learning seeds per population (2026–2045), 100 firms (25 per technology), 100 rounds. This is a **new matched-seed trajectory rerun**, rather than extracted original trajectories from the archived full-run artifacts. It uses unmodified Game 1 simulation code. Workflow completed successfully; numerical values below were read from GitHub Actions logs.
+
+| Technology | Final Guided–Random efficiency (pp) | Time-averaged Guided–Random efficiency (pp) | Difference in mean candidate distance (share units) | Difference in mean realized-share distance |
+|---|---:|---:|---:|---:|
+| CES | +0.011240 | -0.010914 | -0.125297 | -0.003861 |
+| Cobb-Douglas | +0.008020 | -0.078024 | -0.139826 | -0.003102 |
+| Leontief | +0.554904 | +0.800429 | -0.141095 | -0.004127 |
+| Linear | +0.391971 | +0.436563 | -0.304349 | -0.010292 |
+
+`Guided - Random` candidate-distance differences are negative in all four families: Guided proposes candidate allocations closer to the feasible optimum on average. However, **this does not guarantee greater time-averaged efficiency**: CES and Cobb-Douglas show small positive final efficiency effects but negative time-averaged efficiency effects. A proposal can be close to the optimum without having been accepted, and mean allocation distance and mean efficiency are distinct outcomes. A mechanistic claim about why this sign reversal occurs requires more detailed round-by-round diagnostics. The new rerun used 20 learning seeds per population; the earlier full sensitivity analysis used 100.
+
+**99% efficiency threshold hit rate at or before 100 rounds:**
+
+| Technology | Guided | Random |
+|---|---:|---:|
+| CES | 100% | 100% |
+| Cobb-Douglas | 100% | 100% |
+| Leontief | 96.96% | 68.04% |
+| Linear | 100% | 89.96% |
+
+Rates denote proportions of firm–population–learning-seed observations hitting the threshold by round 100, *not* population-level independent replicates. The threshold is saturated for both policies in smooth CES and Cobb-Douglas, preventing discrimination at the 99% level. All policies/families reached 95% at least 99.8% of the time (Leontief Random = 99.8%; all others = 100%).
+
+**Literature and interpretation (required for every recorded result):**
+- **March, J. G. (1991).** Exploration and exploitation in organizational learning. *Organization Science*, 2(1), 71–87. https://doi.org/10.1287/orsc.2.1.71. **Theoretical support:** exploration/exploitation tension may generate trade-offs between search performance over time and eventual outcomes. **Not direct confirmation** of our negative time-average effects.
+- **Levinthal, D. A. (1997).** Adaptation on rugged landscapes. *Management Science*, 43(7), 934–950. https://doi.org/10.1287/mnsc.43.7.934. **Conceptual support:** adaptive search depends on landscape and trajectory; our current one-dimensional production landscapes are **not** rugged in the multi-peak sense.
+- **Kauffman, S., & Levin, S. (1987).** Towards a general theory of adaptive walks on rugged landscapes. *Journal of Theoretical Biology*, 128(1), 11–45. https://doi.org/10.1016/S0022-5193(87)80029-2. **Indirect conceptual support:** trajectories and access to optima; this study does not establish our observed ranking or measured threshold hit rates.
+- **Production theory:** the specific feasible optima are determined algebraically from each family and the constrained capital-share interval. Hence some contrasts are mathematical properties of the experiment's search geometry, not independent literature claims.
+
+**Limitations:** Exploration-stage results (5 independent population draws and 20 matched learning seeds per population); no multiplicity correction; no independent rerun of per-round metric code; no time-to-hit survival analysis; no population-level uncertainty estimates. The sign reversal of time-averaged efficiency is a descriptive result and must not be asserted to have a known causal mechanism. Negative candidate-distance differences could partly be expected by the definition of local Guided search, so they do not alone establish a novel empirical contribution.
+
+**Next check:** Investigate time-path efficiency per round and threshold first-passage times by production family, including differences between early and late rounds, and confirm whether negative time-average effects are robust to 100 learning seeds before elevating them to a main result.
