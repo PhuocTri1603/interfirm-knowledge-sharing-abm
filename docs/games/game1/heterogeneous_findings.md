@@ -430,3 +430,24 @@ Rates denote proportions of firm–population–learning-seed observations hitti
 - Kauffman, S. & Levin, S. (1987), Towards a General Theory of Adaptive Walks on Rugged Landscapes, Journal of Theoretical Biology 128(1), 11–45. DOI: https://doi.org/10.1016/S0022-5193(87)80029-2. Indirect conceptual basis for adaptive walks; does not directly establish the numerical result.
 
 **Limits:** Five population draws, 100 matched learning seeds per population (seeds are not independent populations). No population-level causal generalization, no multiple-testing adjustment, no independent algorithm audit, no mediation identification. Workflow success establishes execution, not independent research validation. This analysis does not modify economic or learning mechanisms.
+
+
+## 14. Independent raw-artifact recalculation — verified (2026-11-01)
+
+**Status: PASSED (CSV-level arithmetic and exported-summary reconciliation only).** [Audit run 41302627999](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41302627999), job audit, completed successfully. The workflow downloaded the 15 original full-population-sensitivity artifacts from [run 41210955389](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41210955389), corresponding to population seeds 2026–2030 × 50, 100, 200 rounds. Python standard-library script experiments/audit_game1_population_artifacts.py independently read 150,000 paired firm/seed rows and 300,000 final firm/policy/seed rows, checked unique keys, bounds, row counts, and recomputed paired effects and seed-level normal-approximation 95% intervals against exported summary JSON. It also checked per-family effects and within-family strong-minus-moderate contrasts against subgroup summaries. The workflow uploaded audit artifact ID 13082122304 with report and separately recorded checkout and dispatch provenance.
+
+**Independently recomputed mean Guided minus Random final efficiency, pp (five-population mean):**
+
+| Family | Round 50 | Round 100 | Round 200 |
+|---|---:|---:|---:|
+| CES | +0.038798 | +0.010884 | +0.002747 |
+| Cobb–Douglas | +0.030322 | +0.008091 | +0.002110 |
+| Leontief | +1.045986 | +0.564846 | +0.290637 |
+| Linear | +0.768144 | +0.389885 | +0.191728 |
+| Overall | +0.470813 | +0.243426 | +0.121806 |
+
+All four families have positive mean final effects in all five populations at all three horizons. Across-population ranges for overall effects: horizon 50 [0.443996, 0.482134], horizon 100 [0.233473, 0.250487], horizon 200 [0.117037, 0.124963] pp. These are min–max population ranges, **not** confidence intervals. F7 strong-minus-moderate subgroup effects were also recalculated: only CES at 200 rounds had one negative population contrast (four of five positive).
+
+**Evidence classification:** These numerical findings are directly supported by the simulation artifacts and independently reconstructed arithmetic, **not** by outside literature. March (1991), https://doi.org/10.1287/orsc.2.1.71, provides conceptual context for adaptive learning; Levinthal (1997), https://doi.org/10.1287/mnsc.43.7.934, offers indirect conceptual context for heterogeneous search behavior. Neither source validates this model's parameter values or numeric output.
+
+**Remaining limitations:** The audit is not independent verification of production-function implementation, endogenous firm behavior, identification of the early-phase reversal mechanism, population-level inferential intervals, or heterogeneous website replay accuracy. Five population draws remain the top-level replication count. Do not describe this as comprehensive scientific sign-off.
