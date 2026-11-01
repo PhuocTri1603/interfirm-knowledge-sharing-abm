@@ -407,3 +407,26 @@ Rates denote proportions of firm–population–learning-seed observations hitti
 **Limitations:** Exploration-stage results (5 independent population draws and 20 matched learning seeds per population); no multiplicity correction; no independent rerun of per-round metric code; no time-to-hit survival analysis; no population-level uncertainty estimates. The sign reversal of time-averaged efficiency is a descriptive result and must not be asserted to have a known causal mechanism. Negative candidate-distance differences could partly be expected by the definition of local Guided search, so they do not alone establish a novel empirical contribution.
 
 **Next check:** Investigate time-path efficiency per round and threshold first-passage times by production family, including differences between early and late rounds, and confirm whether negative time-average effects are robust to 100 learning seeds before elevating them to a main result.
+
+
+## 13. Robustness of phase-specific search performance — 100 learning seeds (2026-11-01)
+
+**Execution verified:** [GitHub Actions run 41265773022](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41265773022). All five jobs succeeded, population-specific JSON artifacts uploaded for seeds 2026–2030. Script: experiments/diagnose_game1_trajectory_phases.py. The existing unmodified simulation was rerun with 100 matched learning seeds (2026–2125) per population, both policies, 100 rounds, 25 firms per production family. Each cell below is an equally weighted mean across five population estimates, in Guided minus Random efficiency percentage points.
+
+| Technology | Rounds 1–25 | Rounds 26–50 | Rounds 51–75 | Rounds 76–100 | Round 100 |
+|---|---:|---:|---:|---:|---:|
+| CES | -0.1306 | +0.0666 | +0.0264 | +0.0140 | +0.0109 |
+| Cobb–Douglas | -0.3701 | +0.0516 | +0.0207 | +0.0107 | +0.0081 |
+| Leontief | +0.4601 | +1.3130 | +0.8712 | +0.6405 | +0.5648 |
+| Linear | -0.4016 | +1.0076 | +0.6233 | +0.4469 | +0.3891 |
+
+**Finding A — initial losses followed by later gains.** CES, Cobb–Douglas and Linear exhibit negative mean Guided minus Random effects in rounds 1–25 but positive mean differences in each later quarter, separately in every population. Leontief exhibits positive means in all four quarters in every population. Full-path Guided minus Random averages remain negative for CES and Cobb–Douglas, showing that a positive terminal effect does not ensure a positive cumulative path effect. These are descriptive, not causally identified mechanisms.
+
+**Finding B — broad family heterogeneity replicates.** At round 100 the broad ordering Leontief, Linear, then CES and Cobb–Douglas persists. The latter two effects are tiny; their fine ranking is not claimed to generalize.
+
+**Literature support — conceptual, not direct confirmation:**
+- March, J. G. (1991), Exploration and Exploitation in Organizational Learning, Organization Science 2(1), 71–87. DOI: https://doi.org/10.1287/orsc.2.1.71. Motivates evaluating search performance over time and exploration–exploitation tensions, but does not predict this particular initial-loss pattern.
+- Levinthal, D. A. (1997), Adaptation on Rugged Landscapes, Management Science 43(7), 934–950. DOI: https://doi.org/10.1287/mnsc.43.7.934. Motivates studying search trajectories and landscape structure, but the one-dimensional Game 1 functions are not rugged multi-peak landscapes.
+- Kauffman, S. & Levin, S. (1987), Towards a General Theory of Adaptive Walks on Rugged Landscapes, Journal of Theoretical Biology 128(1), 11–45. DOI: https://doi.org/10.1016/S0022-5193(87)80029-2. Indirect conceptual basis for adaptive walks; does not directly establish the numerical result.
+
+**Limits:** Five population draws, 100 matched learning seeds per population (seeds are not independent populations). No population-level causal generalization, no multiple-testing adjustment, no independent algorithm audit, no mediation identification. Workflow success establishes execution, not independent research validation. This analysis does not modify economic or learning mechanisms.
