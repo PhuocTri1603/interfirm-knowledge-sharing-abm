@@ -281,3 +281,34 @@ For 200 rounds, F7 point estimate is positive in 5/5 populations for Linear, Leo
 **Audit status change:** The original independent raw-CSV recalculation and across-population range reporting gates have now **passed**. Remaining issues are mechanism / search geometry interpretation, multiple testing / substantive materiality, and independent website provenance and visualization checks. **Heterogeneous Game 1 remains conditionally validated, not globally signed off.**
 
 **Literature support and interpretation:** This audit is a computational consistency check, not a new literature claim. March (1991, doi:10.1287/orsc.2.1.71), Levinthal (1997, doi:10.1287/mnsc.43.7.934), Rivkin (2000, doi:10.1287/mnsc.46.6.824.11940), and Nelson & Winter (1982) remain conceptual support only; they do not empirically validate numerical effects or establish causal mechanisms in this simulation.
+
+
+## 10. Alpha-extremity diagnostic — descriptive association (2026-11-01)
+
+**Run:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41261382309
+**Source:** independently audited full experiment artifacts from run 41210955389. The diagnostic groups firms by absolute distance `|alpha - 0.5|` into **near** [0,0.1], **intermediate** (0.1,0.2], and **extreme** (0.2,0.4]. Reported numbers are means of per-population effects, across five population draws and 100 matched learning seeds per draw; min–max ranges in log refer to population point estimates, *not confidence intervals*. The diagnostic workflow succeeded and uploaded artifact `game1-alpha-geometry-diagnostic-6d642d963dc866385b24fe0d1f8afc17d7330933` (artifact ID 13065671080).
+
+### Guided minus Random efficiency advantage by alpha-extremity band
+
+Each table entry is in percentage points; column order is near / intermediate / extreme.
+
+| Horizon | Technology | Near | Intermediate | Extreme |
+|---|---|---:|---:|---:|
+| 50 | CES | 0.030567 | 0.044777 | 0.047338 |
+| 50 | Cobb-Douglas | 0.021445 | 0.028434 | 0.043686 |
+| 50 | Leontief | 0.980150 | 1.106245 | 1.101820 |
+| 50 | Linear | 0.320948 | 0.817764 | 1.381076 |
+| 100 | CES | 0.009210 | 0.011258 | 0.012957 |
+| 100 | Cobb-Douglas | 0.006193 | 0.007280 | 0.011271 |
+| 100 | Leontief | 0.538032 | 0.561798 | 0.606505 |
+| 100 | Linear | 0.163129 | 0.418118 | 0.695670 |
+| 200 | CES | 0.002431 | 0.002588 | 0.003303 |
+| 200 | Cobb-Douglas | 0.001698 | 0.001809 | 0.002845 |
+| 200 | Leontief | 0.269558 | 0.297693 | 0.318543 |
+| 200 | Linear | 0.081435 | 0.198853 | 0.344897 |
+
+**Interpretation:** Absolute alpha-extremity is positively associated with Guided-minus-Random efficiency in Linear, CES, and Cobb-Douglas, and generally in Leontief; Leontief at 50 rounds has an intermediate estimate (1.106245 pp) slightly above extreme (1.101820 pp). The pronounced Linear difference at 100 rounds is 0.695670 / 0.163129 ≈ 4.26 in relative magnitude, but all effects are descriptive, model-conditional and should be interpreted in absolute percentage points rather than ratios alone.
+
+**Mechanism NOT identified:** Alpha-extremity is not the measured initial distance-to-optimum, not a measure of landscape curvature or Leontief kink proximity, and not a randomized causal treatment. The same five fixed-quota population seeds were analyzed, and unequal band sizes can matter. No baseline-distance matching, geometric derivative decomposition, multiplicity correction, or out-of-sample firm distribution has been established. **Do not conclude alpha extremity causes the learning-policy advantage or explains the family ranking.** The appropriate next test is to calculate firm-level initial optimality gap and feasible optimum allocation from the **existing production functions without changing the simulation**, then examine whether alpha-extremity still predicts the policy gap after stratifying on initial optimality gap; report where those terms overlap mechanically and avoid causal language.
+
+**Literature support (conceptual only):** March (1991), *Organization Science* 2(1), 71–87, doi:10.1287/orsc.2.1.71, and Levinthal (1997), *Management Science* 43(7), 934–950, doi:10.1287/mnsc.43.7.934, motivate adaptive search and landscape sensitivity, but do not predict these band-specific numbers or identify the mechanism.
