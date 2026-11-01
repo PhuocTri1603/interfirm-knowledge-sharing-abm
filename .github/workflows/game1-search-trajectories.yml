@@ -1,0 +1,31 @@
+name: Game 1 search trajectory diagnostic
+on:
+  workflow_dispatch:
+    inputs:
+      learning_seeds:
+        description: "Matched learning seeds per population"
+        required: true
+        default: "20"
+        type: choice
+        options: ["20", "100"]
+jobs:
+  trajectory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/game1-heterogeneous-firms
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]"
+      - name: Run paired trajectory experiment
+        run: python -m experiments.diagnose_game1_search_trajectories --rounds 100 --seeds "${{ inputs.learning_seeds }}" --output results/search_trajectory_diagnostic.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-search-trajectories-${{ github.run_id }}
+          path: results/search_trajectory_diagnostic.json
+          retention-days: 90
