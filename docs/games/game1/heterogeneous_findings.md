@@ -464,3 +464,31 @@ All four families have positive mean final effects in all five populations at al
 **Literature, conceptual not numerical verification:** March (1991), Exploration and Exploitation in Organizational Learning, https://doi.org/10.1287/orsc.2.1.71, provides conceptual context for temporal exploration/exploitation tradeoffs. Levinthal (1997), Adaptation on Rugged Landscapes, https://doi.org/10.1287/mnsc.43.7.934, provides indirect context for adaptive search; our one-dimensional production objectives are not claimed to be rugged landscapes. Neither establishes the proposed mechanism in this simulation.
 
 **Status:** Protocol and CI implemented; no result or test pass is claimed before workflow execution and log review. Five population draws, exploratory multiple comparisons, and absence of causal identification remain limitations.
+
+
+## 16. Early search mechanism accounting — results (2026-11-01)
+
+**Verified execution:** [GitHub Actions run 41303435066](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41303435066): all five population jobs passed, each reported 241 passing tests, `EARLY MECHANISM ACCOUNTING PASSED`, and an uploaded population-specific JSON artifact. Population seeds 2026–2030, learning seeds 2026–2125, 100 firms, paired policies and 100 rounds. Reported values below average the five population-specific means with equal weight. This is descriptive accounting using the existing economic/learning mechanisms.
+
+**Phase 1–25, across-population means:**
+
+| Family | Guided−Random average efficiency (pp) | Guided acceptance (%) | Random acceptance (%) | Guided−Random realized efficiency improvement per trial (pp) | Guided−Random share of candidates below initial output (pp) |
+|---|---:|---:|---:|---:|---:|
+| CES | −0.130589 | 11.3363 | 7.7661 | +0.004309 | −20.0214 |
+| Cobb–Douglas | −0.370105 | 12.9258 | 8.9283 | +0.003123 | −22.5536 |
+| Leontief | +0.460072 | 12.3738 | 8.3619 | +0.064638 | −19.6022 |
+| Linear | −0.401632 | 19.4205 | 12.4483 | +0.051618 | −30.3693 |
+
+**Reconciliation to phase robustness:** For all four production families, first-phase mean Guided-minus-Random efficiency aligns with the previously independently run 100-seed quarter-phase summary (see §13). Although Guided lags in **average stock of efficiency** over rounds 1–25 for CES, Cobb–Douglas and Linear, its **average flow of realized improvement per trial** is larger in that phase, and it has a greater acceptance rate. A stock-versus-flow distinction is essential: the phase-averaged efficiency level depends on the timing of gains inside the phase, not only the total change over the phase. This is compatible with, but does not identify, a later within-phase catch-up.
+
+**Additional observations:**
+- Guided proposes fewer candidates below initial output than Random in all four families. Such candidates are measured against initial output, not the current incumbent; being above initial output does not guarantee acceptance.
+- Guided candidates lie closer to the initial allocation than Random for CES (delta −0.058813 in absolute share distance), Cobb–Douglas (−0.040084) and Leontief (−0.042376), but farther away for Linear (+0.086789). These are distances from 0.5, **not** distances from feasible optima.
+- In Linear, the phase-26–50 mean efficiency advantage is +1.007616 pp while Guided's acceptance rate is 0.4400% vs Random 2.7760%; by phases 51–75 and 76–100 Guided mean efficiency is 100% and acceptance approximately zero, consistent with reaching a constrained optimum early and then having no strict improvements available.
+- In CES and Cobb–Douglas both policies are near optimum by the end, so differences are very small. Do not infer practical significance from numerical positivity alone.
+
+**What is not identified:** This accounting does not isolate the contribution of early random draws, the exploration probability, local search radius, best-*candidate*-rather-than-initial-incumbent center, or the scheduling of successful updates. The first-phase negative *mean level* and positive *mean change per trial* can coexist arithmetically; interpreting the exact transition timing requires round-specific and cumulative path diagnostics. We should not report that this study has causally explained early disadvantage.
+
+**Literature relationship:** March, J. G. (1991), *Exploration and Exploitation in Organizational Learning*, Organization Science 2(1), 71–87, https://doi.org/10.1287/orsc.2.1.71, provides conceptual context for dynamic exploration/exploitation but neither predicts nor directly verifies these simulation outcomes. Levinthal, D. A. (1997), *Adaptation on Rugged Landscapes*, Management Science 43(7), 934–950, https://doi.org/10.1287/mnsc.43.7.934, is indirectly relevant to adaptive search; Game 1's one-dimensional objective should not be called a rugged landscape.
+
+**Next falsifiable diagnostic:** Within-round (especially 1–25) paired Guided−Random efficiency, cumulative accepted-improvement curves, first-crossing round, and population variability. No model modification is necessary to analyze these trajectories.
