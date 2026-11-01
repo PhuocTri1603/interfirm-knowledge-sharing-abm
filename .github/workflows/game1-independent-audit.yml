@@ -23,6 +23,7 @@ jobs:
         run: python -m experiments.audit_game1_population_artifacts --artifacts results/audit_original --output results/audit_report.json
       - name: Preserve audit provenance
         run: |
+          git rev-parse HEAD > results/audit_source_code_commit.txt
           printf '%s\n' "$GITHUB_SHA" > results/audit_workflow_commit.txt
           printf '%s\n' '41210955389' > results/audit_source_run.txt
       - uses: actions/upload-artifact@v4
@@ -30,6 +31,7 @@ jobs:
           name: independent-game1-audit-${{ github.sha }}
           path: |
             results/audit_report.json
+            results/audit_source_code_commit.txt
             results/audit_workflow_commit.txt
             results/audit_source_run.txt
           retention-days: 90
