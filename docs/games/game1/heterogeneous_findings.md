@@ -233,4 +233,51 @@ Each population has the same fixed quotas and the same learning-seed IDs, giving
 - Nelson, R. R., & Winter, S. G. (1982). *An Evolutionary Theory of Economic Change*. Harvard University Press — theoretical rationale for heterogeneous firm behavior and evolutionary adaptation, not numerical evidence for F5/F7.
 - Rivkin, J. W. (2000). Imitation of complex strategies. *Management Science*, 46(6), 824–844. https://doi.org/10.1287/mnsc.46.6.824.11940 — computational study relevant to learning complexity, but does not directly test these within-production-family alpha contrasts.
 
-**Outstanding audit gates:** Independent recomputation of effect estimates and intervals from underlying CSV artifacts; reporting actual across-population variability/ranges and reference comparisons with documented tolerances; assess search-geometry/initial-distance mechanisms and multiple-testing implications; website provenance remains separately pending. Game 1 heterogeneous extension **not signed off**.
+**Outstanding audit gates (updated after Section 9):** Independent raw-CSV recomputation and population-range reporting are completed in Section 9. Search-geometry mechanisms, multiplicity implications and website provenance are still pending. Game 1 heterogeneous extension **not signed off**.
+
+
+## 9. Independent raw-artifact audit — PASSED (2026-10-31)
+
+**Audit run:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41212931829
+**Original simulation run:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41210955389
+**Audit method:** `experiments/audit_game1_population_artifacts.py` independently recomputes matched Guided-minus-Random effects and normal-approximation 95% seed-level intervals using the Python standard library, and checks original subgroup summaries. Workflow downloaded 15 original artifacts, validated 150,000 paired rows / 300,000 final rows and unique keys, and uploaded `audit_report.json`. The audit job completed successfully with the marker `INDEPENDENT AUDIT PASSED`. The numeric results below are taken from its recomputation logs, not copied from the earlier subgroup-analysis logs.
+
+### Overall mean efficiency advantage, across five population seeds
+
+Unit: **percentage points** (Guided minus Random). Range is the minimum-to-maximum *population-level point estimate*, **not** a 95% confidence interval.
+
+| Horizon | Cross-population mean | Minimum | Maximum |
+|---|---:|---:|---:|
+| 50 | +0.470812735 | +0.443996250 | +0.482133625 |
+| 100 | +0.243426467 | +0.233472502 | +0.250487330 |
+| 200 | +0.121805504 | +0.117036540 | +0.124962992 |
+
+### F5 independently verified mean/range across populations
+
+Each cell is `mean [minimum, maximum]` in pp.
+
+| Family | 50 rounds | 100 rounds | 200 rounds |
+|---|---|---|---|
+| Leontief | 1.045986 [0.980919, 1.084781] | 0.564846 [0.546084, 0.600572] | 0.290637 [0.281898, 0.298658] |
+| Linear | 0.768144 [0.725821, 0.796234] | 0.389885 [0.366493, 0.404219] | 0.191728 [0.177439, 0.200971] |
+| CES | 0.038798 [0.033941, 0.042786] | 0.010884 [0.010081, 0.011554] | 0.002747 [0.002651, 0.002838] |
+| Cobb-Douglas | 0.030322 [0.025848, 0.036045] | 0.008091 [0.007204, 0.009739] | 0.002110 [0.001851, 0.002425] |
+
+The F5 hierarchy **Leontief > Linear > CES and Cobb-Douglas** holds across all 15 population×horizon combinations, but CES vs Cobb-Douglas is not invariant.
+
+### F7 independently verified population variation
+
+Strong-minus-Moderate within-family contrasts; each cell is `mean [minimum, maximum]` across population seeds in pp.
+
+| Family | 50 rounds | 100 rounds | 200 rounds |
+|---|---|---|---|
+| Linear | 0.859993 [0.690723, 0.987419] | 0.436069 [0.345948, 0.497421] | 0.212102 [0.155182, 0.245131] |
+| Leontief | 0.126608 [0.069159, 0.264867] | 0.051565 [0.011585, 0.088919] | 0.040537 [0.007525, 0.075178] |
+| CES | 0.015830 [0.006469, 0.026549] | 0.003219 [0.002336, 0.005902] | 0.000607 [-0.000199, 0.001030] |
+| Cobb-Douglas | 0.017071 [0.012611, 0.023932] | 0.003650 [0.002694, 0.004898] | 0.000794 [0.000601, 0.000926] |
+
+For 200 rounds, F7 point estimate is positive in 5/5 populations for Linear, Leontief and Cobb-Douglas, but 4/5 for CES. The 2030-CES point estimate is -0.000199 pp, with its within-population nominal CI covering zero. These are **descriptive sensitivity results** over five population draws, not population-level inference. The audit reproduces conditional learning-seed CIs; it does not implement a new five-population confidence interval, multiplicity correction, or a mechanism-identification test.
+
+**Audit status change:** The original independent raw-CSV recalculation and across-population range reporting gates have now **passed**. Remaining issues are mechanism / search geometry interpretation, multiple testing / substantive materiality, and independent website provenance and visualization checks. **Heterogeneous Game 1 remains conditionally validated, not globally signed off.**
+
+**Literature support and interpretation:** This audit is a computational consistency check, not a new literature claim. March (1991, doi:10.1287/orsc.2.1.71), Levinthal (1997, doi:10.1287/mnsc.43.7.934), Rivkin (2000, doi:10.1287/mnsc.46.6.824.11940), and Nelson & Winter (1982) remain conceptual support only; they do not empirically validate numerical effects or establish causal mechanisms in this simulation.
