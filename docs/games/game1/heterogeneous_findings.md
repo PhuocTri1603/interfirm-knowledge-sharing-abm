@@ -312,3 +312,48 @@ Each table entry is in percentage points; column order is near / intermediate / 
 **Mechanism NOT identified:** Alpha-extremity is not the measured initial distance-to-optimum, not a measure of landscape curvature or Leontief kink proximity, and not a randomized causal treatment. The same five fixed-quota population seeds were analyzed, and unequal band sizes can matter. No baseline-distance matching, geometric derivative decomposition, multiplicity correction, or out-of-sample firm distribution has been established. **Do not conclude alpha extremity causes the learning-policy advantage or explains the family ranking.** The appropriate next test is to calculate firm-level initial optimality gap and feasible optimum allocation from the **existing production functions without changing the simulation**, then examine whether alpha-extremity still predicts the policy gap after stratifying on initial optimality gap; report where those terms overlap mechanically and avoid causal language.
 
 **Literature support (conceptual only):** March (1991), *Organization Science* 2(1), 71–87, doi:10.1287/orsc.2.1.71, and Levinthal (1997), *Management Science* 43(7), 934–950, doi:10.1287/mnsc.43.7.934, motivate adaptive search and landscape sensitivity, but do not predict these band-specific numbers or identify the mechanism.
+
+
+## 11. Initial optimality gap diagnostic — PASSED (2026-11-01)
+
+**Run:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41262695753. Original paired data: run 41210955389. Analytical script: `experiments/diagnose_game1_initial_gap.py`. GitHub Actions successfully processed 5 population seeds × 3 horizons × 4 production functions = 60 diagnostic cells and uploaded artifact ID `13064954927`. No production function, behavioral rule, or random seed was changed.
+
+The starting capital share is `s0=0.5`. The optimum `s*` is determined by `optimal_capital_share`, and `Y*` by `optimal_output`. Define `initial_gap_pp = 100 * (1 - Y(s0)/Y*)`. The measure reflects *remaining initial efficiency potential*, not distance in capital-share units. Alpha extremity, share-distance and this output-efficiency gap are distinct descriptors; all are mathematically tied to technology and alpha, so they must not be interpreted as causally independent covariates.
+
+### Association between initial efficiency gap and learning advantage
+
+Table reports **mean within-population firm-level Pearson r** between initial gap and firm's across-learning-seed mean `Guided - Random` efficiency advantage. Each population has 25 firms per technology; values are averaged across five populations. These are **not** pooled-firm correlations or inferential confidence intervals.
+
+| Production family | 50 rounds | 100 rounds | 200 rounds |
+|---|---:|---:|---:|
+| Linear | 0.989938 | 0.987281 | 0.982209 |
+| Cobb-Douglas | 0.771042 | 0.796574 | 0.772178 |
+| CES | 0.469291 | 0.470527 | 0.435426 |
+| Leontief | 0.292394 | 0.274866 | 0.372533 |
+
+### Mean Guided-minus-Random advantage by initial-gap tertile
+
+Values are **percentage points**, aggregated across five populations, with tertiles defined *within each technology and population*. They are descriptive comparisons, not controlled interventions.
+
+| Horizon | Technology | Low gap | Medium gap | High gap |
+|---|---|---:|---:|---:|
+| 50 | CES | 0.024677 | 0.044423 | 0.047285 |
+| 50 | Cobb-Douglas | 0.018748 | 0.029046 | 0.043157 |
+| 50 | Leontief | 0.939778 | 1.089180 | 1.108925 |
+| 50 | Linear | 0.247431 | 0.691694 | 1.364592 |
+| 100 | CES | 0.008542 | 0.011120 | 0.012988 |
+| 100 | Cobb-Douglas | 0.005944 | 0.007085 | 0.011242 |
+| 100 | Leontief | 0.525893 | 0.564881 | 0.603716 |
+| 100 | Linear | 0.127124 | 0.348971 | 0.693194 |
+| 200 | CES | 0.002386 | 0.002578 | 0.003275 |
+| 200 | Cobb-Douglas | 0.001673 | 0.001852 | 0.002806 |
+| 200 | Leontief | 0.266863 | 0.288004 | 0.317013 |
+| 200 | Linear | 0.062364 | 0.171310 | 0.341330 |
+
+**Interpretation:** Higher initial efficiency gap is associated with a greater Guided advantage across all four production technologies, with especially strong near-monotone relationship in Linear; strong but smaller relationship in Cobb-Douglas, weaker in CES, and weakest in Leontief at the 100-round horizon. The coefficients and gaps represent within-model descriptive patterns only. They neither establish a causal mediation claim nor identify a general law of firm adaptation.
+
+**Important mechanical constraint:** Under this specific allocation model with `s0=0.5`, Linear has `s*=0.05` or `0.95` for every `alpha != 0.5`. Thus share-distance has zero within-family variation, and its Pearson correlation is correctly undefined (`null` in the diagnostic); the substantial Linear gap variation arises from variation in output loss due to alpha, *not* variation in share distance. Likewise, `s*=alpha` for Cobb-Douglas and Leontief, so share distance mechanically coincides with alpha extremity. This distinction limits causal interpretation of regression controls.
+
+**Next mechanism test:** Under the existing models, derive/simulate policy-specific search paths and candidate distributions by production function and initial gap. For Linear, test whether the location of the boundary optimum interacts with Guided's local search radius and 20% uniform exploration; for Leontief, assess kink proximity; for smooth CES and Cobb-Douglas, assess diminishing marginal gains near smooth optima. Record hypotheses and estimates without changing Game 1's economic rules. Because 15 population/horizon cells and many subgroup contrasts were inspected, document exploratory status and multiplicity risks; avoid population-level inference from only five population draws.
+
+**Literature framing (conceptual, not numerical replication):** March (1991), *Organization Science* 2(1), 71–87, https://doi.org/10.1287/orsc.2.1.71; Levinthal (1997), *Management Science* 43(7), 934–950, https://doi.org/10.1287/mnsc.43.7.934; Rivkin (2000), *Management Science* 46(6), 824–844, https://doi.org/10.1287/mnsc.46.6.824.11940. These works motivate adaptive search and search-geometry dependence; none directly verifies this simulation's correlations or technological ranking.
