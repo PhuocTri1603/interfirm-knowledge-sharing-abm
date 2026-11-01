@@ -1,0 +1,29 @@
+name: Game 1 initial optimality gap diagnostic
+on:
+  workflow_dispatch:
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/game1-heterogeneous-firms
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]"
+      - name: Download original experiment artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 41210955389 --repo "${{ github.repository }}" --dir results/original
+      - name: Calculate initial gap and descriptive comparisons
+        run: python -m experiments.diagnose_game1_initial_gap --artifacts results/original --output results/initial_gap_diagnostic.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-initial-gap-diagnostic-${{ github.sha }}
+          path: results/initial_gap_diagnostic.json
+          retention-days: 90
