@@ -505,3 +505,25 @@ All four families have positive mean final effects in all five populations at al
 **Decision boundary:** If CI succeeds, use its five population artifacts to determine whether early phase disadvantage comes from initial rounds followed by within-phase catch-up, or another temporal pattern. This still will not isolate the causal contribution of exploration probability, radius, or history anchor. Such intervention-based mechanism testing requires explicit researcher approval.
 
 **Status:** Code and CI workflow committed; awaiting user-triggered execution. No test result or numerical outcome is claimed.
+
+
+## 18. Round-level path accounting — CI results (2026-11-01)
+
+**Execution verification:** [GitHub Actions run 41314196973](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41314196973) completed successfully. All five population jobs (2026–2030) succeeded; each reported `241 passed` and `ROUND TRAJECTORY DIAGNOSTIC PASSED`. Five population-specific JSON artifacts are retained by Actions (artifact names `game1-round-paths-{population_seed}-41314196973`). The code keeps the original Game 1 learning policies and production functions unchanged.
+
+**Population-specific path results from five job logs:**
+
+| Family | First positive AND sustained mean round, populations 2026–2030 | Round-25 Guided−Random efficiency, pp range | Round-100 Guided−Random efficiency, pp range |
+|---|---|---|---|
+| CES | 14, 13, 14, 13, 14 | +0.099807 to +0.114545 | +0.010081 to +0.011554 |
+| Cobb–Douglas | 15, 20, 15, 17, 17 | +0.060138 to +0.090417 | +0.007204 to +0.009739 |
+| Leontief | 11, 10, 10, 9, 10 | +1.509388 to +1.737030 | +0.546084 to +0.600572 |
+| Linear | 14, 13, 13, 13, 14 | +1.214312 to +1.360819 | +0.366493 to +0.404219 |
+
+**Interpretation:** In all five population draws, the *population-family average* Guided efficiency becomes positive versus Random within the first 25 rounds and stays positive through round 100. Nevertheless, the 1–25 time-averaged level is negative for CES, Cobb–Douglas and Linear because the earlier negative round levels have sufficient area to offset later positive round levels. These descriptive trajectories reconcile the sign difference between early phase means and phase-end results; they do **not** identify what specific policy mechanism causes the early lag or catch-up. The apparent crossing is for the mean across 100 paired learning seeds within each population, not for all individual firms/seeds.
+
+**Arithmetic check:** Each job's internal assertion verified that mean post-acceptance efficiency differences agree with the cumulative mean of realized per-round improvement differences (tolerance `1e-9`). This validates an accounting identity, not an external economic theory.
+
+**Limitation:** Only five independent population draws; the 100 learning seeds per population are nested replicates. The crossing is descriptive and conditional on current model assumptions and 100-round horizon. No structural/causal identification of exploration frequency, local radius, or historical anchoring has been conducted. Outside literature does not validate the simulation's numerical results.
+
+**Game 1 status:** implementation, robustness checks, independent artifact arithmetic audit, and planned descriptive round-level path diagnostic completed successfully. Outstanding: researcher review and formal sign-off of model assumptions, scope, findings and limitations. Mechanism-specific counterfactuals and wider external validation remain possible future research, not technical blockers by default.
