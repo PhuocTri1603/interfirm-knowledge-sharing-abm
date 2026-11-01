@@ -492,3 +492,16 @@ All four families have positive mean final effects in all five populations at al
 **Literature relationship:** March, J. G. (1991), *Exploration and Exploitation in Organizational Learning*, Organization Science 2(1), 71–87, https://doi.org/10.1287/orsc.2.1.71, provides conceptual context for dynamic exploration/exploitation but neither predicts nor directly verifies these simulation outcomes. Levinthal, D. A. (1997), *Adaptation on Rugged Landscapes*, Management Science 43(7), 934–950, https://doi.org/10.1287/mnsc.43.7.934, is indirectly relevant to adaptive search; Game 1's one-dimensional objective should not be called a rugged landscape.
 
 **Next falsifiable diagnostic:** Within-round (especially 1–25) paired Guided−Random efficiency, cumulative accepted-improvement curves, first-crossing round, and population variability. No model modification is necessary to analyze these trajectories.
+
+
+## 17. Round-level path accounting — protocol, awaiting CI execution (2026-11-01)
+
+**Motivation:** Phase averages in §13 and §16 cannot reveal the precise timing of the Guided-versus-Random reversal. The follow-up is descriptive path accounting; it does **not** change any economic assumptions, learning rules, or production functions.
+
+**Implementation:** `experiments/diagnose_game1_round_paths.py`; CI `.github/workflows/game1-round-paths.yml` (dispatch from `main`, checkout research branch). Five population seeds 2026–2030, 100 matched learning seeds 2026–2125, 100 firms, 100 rounds. For each population × family × round, export paired mean efficiency differences, learning-seed dispersion and positive-seed fraction, per-round realized improvement differences, acceptance differences and cumulative improvement differences. Record first positive mean round and first round after which the population-specific mean stays positive through round 100. Report the across-population variability before making a general claim.
+
+**Invariant:** With identical initial firm states and non-decreasing accepted output, the difference in post-acceptance efficiency at round `t` equals the sum of Guided-minus-Random realized efficiency increments through `t`; the diagnostic asserts this identity for every family and round. This is an accounting identity, **not** causal mechanism identification.
+
+**Decision boundary:** If CI succeeds, use its five population artifacts to determine whether early phase disadvantage comes from initial rounds followed by within-phase catch-up, or another temporal pattern. This still will not isolate the causal contribution of exploration probability, radius, or history anchor. Such intervention-based mechanism testing requires explicit researcher approval.
+
+**Status:** Code and CI workflow committed; awaiting user-triggered execution. No test result or numerical outcome is claimed.
