@@ -39,3 +39,12 @@ The next section documents **outstanding items at the earlier audit checkpoint**
 
 ## Next workflow gate
 Proceed with `simulation-visualization` **Gate 0**: inspect actual website files and data sources, confirm schema/provenance and privacy, then prepare a minimal design/validation specification before implementing or altering frontend behavior.
+
+
+## Independent audit reconfirmation — 2026-11-01
+
+- **PASS:** [Run 41302627999](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41302627999) completed the audit job, original-artifact download, independent CSV recomputation, and report upload. Report artifact ID: 13082122304.
+- **Scope:** 15 original population/horizon artifacts, 150,000 paired observations and 300,000 final policy observations; verification of keys and row bounds, overall/family effects and seed-level 95% normal-approximation confidence intervals, and within-technology strong-minus-moderate effects.
+- **Mean final Guided–Random effect across five populations:** +0.470813 pp (50 rounds), +0.243426 pp (100), +0.121806 pp (200). Population min–max ranges are not confidence intervals. Source results are detailed in heterogeneous_findings.md §14.
+- **Interpretation:** Confirms numerical reconciliation to exported CSV and JSON, not model correctness, identification of learning mechanisms or population-level uncertainty. All outstanding independent mechanism and scientific-validity caveats remain; **NOT SIGNED OFF**.
+- **Literature:** March (1991), https://doi.org/10.1287/orsc.2.1.71, is conceptual support for the importance of learning dynamics, not independent confirmation of these numerical effects.
