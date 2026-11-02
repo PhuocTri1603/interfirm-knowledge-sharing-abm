@@ -29,6 +29,8 @@ class CompetitiveSimulation(Simulation):
         budget=100.0,
         seed=2026,
         competitive_policy="information_only",
+        heterogeneous_population=False,
+        population_seed=2026,
     ):
         if competitive_policy not in (
             "information_only",
@@ -43,6 +45,8 @@ class CompetitiveSimulation(Simulation):
             seed=seed,
             learning_policy="guided_initial",
             matched_randomness=True,
+            heterogeneous_population=heterogeneous_population,
+            population_seed=population_seed,
         )
 
         self.competitive_policy = competitive_policy
