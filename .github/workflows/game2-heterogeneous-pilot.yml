@@ -5,6 +5,7 @@ on:
       - experiment/game1-heterogeneous-firms
     paths:
       - 'experiments/game2_heterogeneous.py'
+      - 'experiments/aggregate_game2_populations.py'
       - 'src/interfirm_abm/competitive_simulation.py'
       - 'tests/test_game2_heterogeneous.py'
       - '.github/workflows/game2-heterogeneous-pilot.yml'
@@ -35,3 +36,27 @@ jobs:
         with:
           name: game2-pilot-${{ matrix.population_seed }}-${{ github.run_id }}
           path: results/game2-${{ matrix.population_seed }}/
+
+  aggregate-populations:
+    needs: matched-game2
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: game2-pilot-*-${{ github.run_id }}
+          path: results/pilot-artifacts
+          merge-multiple: false
+      - name: Aggregate independent populations
+        run: python experiments/aggregate_game2_populations.py --input-dir results/pilot-artifacts --export-dir results/aggregate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game2-cross-population-${{ github.run_id }}
+          path: results/aggregate/
