@@ -162,3 +162,37 @@ def test_competitive_policy_reproducible():
         first.run(),
         second.run(),
     )
+
+
+@pytest.mark.parametrize("population_seed", [2026, 2027])
+def test_heterogeneous_information_only_exactly_matches_game1(population_seed):
+    kwargs = dict(n_firms=100, n_rounds=8, seed=2031,
+                  heterogeneous_population=True, population_seed=population_seed)
+    baseline = Simulation(learning_policy="guided_initial", matched_randomness=True, **kwargs)
+    control = CompetitiveSimulation(competitive_policy="information_only", **kwargs)
+    pd.testing.assert_frame_equal(baseline.run(), control.run(), check_exact=True)
+    pd.testing.assert_frame_equal(baseline.summary(), control.summary(), check_exact=True)
+    assert len(control.observation_log) == 800
+    assert all(row["n_competitors"] == 99 for row in control.observation_log)
+    assert all(row["observed_round"] == row["round"] - 1 for row in control.observation_log)
+
+
+def test_heterogeneous_competitive_treatment_is_reproducible():
+    kwargs = dict(n_firms=100, n_rounds=8, seed=2031,
+                  heterogeneous_population=True, population_seed=2026,
+                  competitive_policy="performance_triggered")
+    first = CompetitiveSimulation(**kwargs)
+    second = CompetitiveSimulation(**kwargs)
+    pd.testing.assert_frame_equal(first.run(), second.run(), check_exact=True)
+    assert all(row["exploration_probability"] in (0.20, 0.40)
+               for row in first.observation_log)
+    for row in first.observation_log:
+        if row["round"] < 3:
+            assert row["own_growth_pct"] is None
+        else:
+            assert row["own_growth_pct"] is not None
+
+
+def test_heterogeneous_population_requires_one_hundred_firms():
+    with pytest.raises(ValueError, match="n_firms=100"):
+        CompetitiveSimulation(n_firms=20, heterogeneous_population=True)
