@@ -78,3 +78,36 @@ To investigate the small negative final-efficiency difference without introducin
 The new push-triggered workflow `.github/workflows/game2-mechanism-diagnostics.yml` uses the same five independent populations and 20 learning seeds per population, 100 rounds. Its jobs and outputs must be verified before discussing any new quantitative mechanism results.
 
 **Interpretation boundary:** trigger activation and subsequent exploration are descriptive properties of the implemented decision rule; they are not exogenous causal mediators. Differences in accepted experiments or output paths may help explain simulated dynamics but cannot establish an economic causal mechanism without additional controlled interventions.
+
+## Mechanism diagnostic results — verified 2026-11-02
+
+**Source:** [GitHub Actions run 41416147878](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41416147878), artifact names `game2-mechanisms-{2026,2027,2028,2029,2030}-41416147878`. All five matrix jobs and pytest succeeded. Each includes `mechanism_summary.json`, `paired_round_family_effects.csv`, and `policy_round_family_paths.csv`. Summary statistics below are the unweighted means across five independently drawn populations (20 matched learning seeds per population; 100 firms × 100 rounds).
+
+| Diagnostic (all families) | Information-only control | Performance-triggered treatment |
+| --- | ---: | ---: |
+| Global-search rate, all rounds | 20.7105% | 28.5558% |
+| Experiment acceptance rate, all rounds | 4.7866% | 4.6410% |
+| Trigger activation rate, rounds 3–100 | n/a | 39.9462% |
+
+Within-family global-search/acceptance rates (control → treatment):
+- CES: 20.6268% → 29.7168%; acceptance 4.3716% → 4.2712%; treatment trigger frequency across all rounds 45.268%.
+- Cobb–Douglas: 20.7196% → 30.1024%; acceptance 4.8364% → 4.7508%; treatment trigger frequency across all rounds 46.9608%.
+- Leontief: 20.6812% → 29.7312%; acceptance 4.7360% → 4.5720%; treatment trigger frequency across all rounds 45.3048%.
+- Linear: 20.8144% → 24.6728%; acceptance 5.2024% → 4.9700%; treatment trigger frequency across all rounds 19.0556%.
+
+Paired mean productive-efficiency differences, treatment minus control (percentage points), averaged over five populations and learning seeds:
+
+| Round | CES | Cobb–Douglas | Leontief | Linear |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 0 | 0 | 0 | 0 |
+| 3 | -0.024855 | +0.037191 | -0.045326 | +0.192974 |
+| 5 | -0.040896 | +0.060218 | -0.261507 | +0.374262 |
+| 10 | -0.023420 | +0.042356 | -0.236688 | +0.092951 |
+| 25 | -0.009959 | -0.006106 | -0.130838 | -0.038243 |
+| 50 | -0.001623 | -0.000936 | -0.059223 | 0 |
+| 75 | -0.000393 | -0.000390 | -0.030934 | 0 |
+| 100 | -0.000300 | -0.000196 | -0.014312 | 0 |
+
+**Economic interpretation:** The preset underperformance rule changes realized search allocation (greater global search) but does not monotonically improve productive efficiency. The lower raw acceptance rate is descriptive, not a causal decomposition. Leontief demonstrates a notably negative short-horizon treatment difference that shrinks by the terminal round; differences for Linear are zero at rounds 50, 75 and 100. No prices, search costs, profits, or welfare exist in this model. A mechanism identification claim would require additional controlled variation; this diagnostic only characterizes the observed simulation paths.
+
+**Next research gate:** Compare global-vs-local conditional acceptance, and inspect whether the earlier treatment gap reflects different timing or quality of accepted capital-share candidates. Distinguish changes in aggregate acceptance due to search-composition shifts from within-search acceptance differences, without changing the underlying behavioral rule.
