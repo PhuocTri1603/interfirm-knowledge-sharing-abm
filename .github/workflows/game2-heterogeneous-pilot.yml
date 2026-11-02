@@ -1,0 +1,37 @@
+name: Game 2 heterogeneous matched pilot
+on:
+  push:
+    branches:
+      - experiment/game1-heterogeneous-firms
+    paths:
+      - 'experiments/game2_heterogeneous.py'
+      - 'src/interfirm_abm/competitive_simulation.py'
+      - 'tests/test_game2_heterogeneous.py'
+      - '.github/workflows/game2-heterogeneous-pilot.yml'
+  workflow_dispatch:
+jobs:
+  matched-game2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        population_seed: [2026, 2027, 2028, 2029, 2030]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest -q
+      - name: Run matched Game 2 pilot
+        run: python experiments/game2_heterogeneous.py --rounds 100 --seeds 20 --population-seed ${{ matrix.population_seed }} --export-dir results/game2-${{ matrix.population_seed }}
+      - name: Record source commit
+        run: git rev-parse HEAD > results/game2-${{ matrix.population_seed }}/source-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game2-pilot-${{ matrix.population_seed }}-${{ github.run_id }}
+          path: results/game2-${{ matrix.population_seed }}/
