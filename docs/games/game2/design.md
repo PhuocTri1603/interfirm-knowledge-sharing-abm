@@ -30,3 +30,9 @@ The **current code** is a competitive-information *learning* prototype, not an i
 Keep output-efficiency outcomes distinct from profits or welfare. Verify baseline equivalence before treatment comparisons. Report negative, null and positive outcomes. Existing literature may motivate interpretation but does not validate numeric simulation results.
 
 **Next technical step:** integrate and test the existing Game 2 prototype against the Game 1 100-firm baseline.
+
+## Implementation checkpoint — 2026-11-02
+
+The existing `CompetitiveSimulation` constructor now accepts `heterogeneous_population` and `population_seed` and passes them unchanged to the Game 1 `Simulation` base class. Its original 20-firm/50-round defaults and existing 0.20/0.40 decision rule are preserved. Tests were added to require **exact** equality of the 100-firm `information_only` control against the frozen Game 1 `guided_initial` baseline for two population seeds, and to check lagged observations, 99 visible rivals, reproducibility and invalid-population rejection. These are code-level assertions; CI outcome has **not yet been inspected**.
+
+The pre-existing `.github/workflows/game1-heterogeneous-tests.yml` already triggers on push to this research branch and runs the full pytest suite. No manual workflow dispatch is required for these commits. Next: verify CI outcome and then build a matched, population-seed-replicated Game 2 experiment reporting output-efficiency differences with the information-only control. Any numerical findings remain conditional on the existing behavior rule and should not be described as market-competition or welfare effects.
