@@ -52,3 +52,21 @@ The pre-existing `.github/workflows/game1-heterogeneous-tests.yml` already trigg
 The five-population matched pilot **completed successfully** in [GitHub Actions run 41412796193](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41412796193), with successful matrix jobs for population seeds 2026–2030. Five separate downloadable result artifacts are present; the companion branch pytest run also passed. This verifies execution and artifact generation, **not** an economic treatment effect. No numerical direction, magnitude, confidence interval, or claim of welfare improvement is inferred from green CI status.
 
 Next analysis gate: extract the five `summary.json` and paired seed-family tables, aggregate effects at the **population seed** level (n=5 independent sampled populations; 20 learning seeds per population), and inspect the sign and heterogeneity of simulated productive-efficiency differences. Within-population learning seeds are repeated stochastic runs, not independent sampled economies. Do not substitute a learning-seed standard error for uncertainty across sampled populations.
+
+## Pilot results inspected — 2026-11-02
+
+Source: `game2-cross-population-41414939636` artifact from [Actions run 41414939636](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41414939636). The ZIP contains `cross_population_summary.json`, `population_overall_effects.csv`, `population_family_effects.csv`, and `all_seed_family_effects.csv`. All five population runs, the aggregate job, and pytest completed successfully.
+
+Design: 5 independent population seeds (2026–2030), 20 matched learning seeds per population, 100 firms and 100 rounds per matched policy. Estimand: final firm productive efficiency, `performance_triggered - information_only`, in **percentage points**, averaged within learning seed and then population. Both policies use the same initial population and random schedule.
+
+| Production family | Mean difference (pp) | Across-population SE (pp) |
+| --- | ---: | ---: |
+| All firms | -0.0037021584 | 0.0006446664 |
+| CES | -0.0003002099 | 0.0000949138 |
+| Cobb-Douglas | -0.0001961767 | 0.0000546151 |
+| Leontief | -0.0143122471 | 0.0025906055 |
+| Linear | 0.0000000000 | 0.0000000000 |
+
+Overall per-population effects (pp): 2026: -0.0041433830; 2027: -0.0049409107; 2028: -0.0012181828; 2029: -0.0038927718; 2030: -0.0043155437. The normal-approximation interval reported by the pipeline is [-0.0049657046, -0.0024386122] pp; **n=5 populations is too small to treat this normal interval as a robust inferential claim**. No empirical or welfare inference is warranted.
+
+**Economic interpretation and follow-up:** The existing performance-triggered rule produces a small negative end-of-horizon productive-efficiency difference relative to the information-only control. Leontief dominates the magnitude; Linear is zero at the reported precision. These observations do not identify why the difference arises. Follow-up diagnostics should inspect trigger frequency, within-round exploration behavior, the path of efficiency (not only terminal efficiency), and whether effects persist under longer horizons or different predetermined learning seeds. The model has no search cost or price/profit competition, so this is not a claim about economically optimal experimentation or market welfare.
