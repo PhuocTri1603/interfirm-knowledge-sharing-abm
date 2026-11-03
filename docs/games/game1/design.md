@@ -894,3 +894,43 @@ A single `strategy_id` must never overwrite the constituent layer choices. Keep 
 **Technical next step:** build a deterministic, data-only layer registry and Cartesian-product enumerator with unique stable keys and metadata, plus tests for 4×3=12 and future layer expansion, without generating economic output or altering existing approved firm population. Implementation must preserve existing `StrategySpec` compatibility and avoid conflating a strategy scenario with a market seller.
 
 **Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (technology and cost comparisons); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696 (task automation); the crossed-factor design and layer/cluster analysis protocol are **researcher-directed design decisions**, not empirical results or specific claims from these sources.
+
+## D3 review — Resource access, factor costs and intertemporal constraints (2026-11-03)
+
+**Status: proposed Layer 3 for researcher review, NOT yet approved.** D1 (four within-task technologies), D2 (three cross-task aggregators), and persistent layer/cluster metadata are approved as *scope*. D3 must distinguish input price accounting, physical capacity and dynamic adjustment; these are separate economic mechanisms, not necessarily mutually exclusive technology choices.
+
+### Proposed D3 resource regimes
+
+| Option | Proposed economic mechanism | Core mathematical distinction | Critical approval question |
+| --- | --- | --- | --- |
+| A — Flexible inputs | Hire input services at prices `w,r` without separate exogenous K/L capacity bounds | `min wL+rK` subject to production feasibility | Are prices fixed and input services freely accessible? |
+| B — Capacity constrained | K/L quantities limited by existing feasible access | `K<=Kbar, L<=Lbar` | Are bounds stocks, service flows, credit limits or exogenous quotas? |
+| C — Adjustment cost | Changing input use or capacity is costly | `cost_t=wL_t+rK_t+phi(Delta K_t,Delta L_t)` | What state carries over, and which changes are costly? |
+| D — Capital investment | Firm can accumulate productive capacity over rounds | `K_{t+1}=(1-delta)K_t+I_t` (illustrative only) | What is the investment price, financing constraint, timing and depreciation? |
+
+**Non-exclusivity warning:** C and D can coexist with A or B. A four-way D3 category is an initial *scenario-regime catalog*, not a logically exhaustive or orthogonal factorial decomposition. A cleaner future design might use separate resource-access, adjustment-cost and investment layers, multiplying combinations only when definitions are mutually consistent and economically meaningful.
+
+### Layer multiplication and scenario counts
+
+Current approved `L1 × L2 = 4×3 = 12` nominal strategy combinations. If the researcher approves the four proposed D3 regimes as a third scenario layer, the nominal count becomes `4×3×4=48`. **48 is a proposed design-space size, not 48 validated technologies, simulations, markets or competing firms.** For any future decomposed layers, count by the Cartesian product and retain an explicit compatibility flag for structurally inconsistent cells.
+
+### Cost-accounting and dynamic safeguards
+
+- Distinguish factor-service rental `rK` from capital-goods investment expenditure `p_I I`. If `K` is owned stock, avoid automatically charging both full capital rental and acquisition costs for the same period without a justified user-cost/financing model.
+- A static one-period constrained optimization and a dynamic capital-accumulation problem do not have the same state space or objective; compare outcomes only under a declared horizon and discounting convention.
+- Input scarcity and factor prices may both bind. Shadow values of capacity are not the same as market input prices.
+- Keep AI adoption cost separate from K/L adjustment cost and capital investment cost unless the researcher explicitly defines their overlap.
+- A strategy's technology layer (D1/D2) and resource regime (D3) are distinct explanatory factors. Do not call a profit difference a behavioral learning effect without implementing behavior.
+- Cross-scenario comparisons need matched 100-firm identifiers, declared output normalization, comparable factor-price units and explicit market/replication IDs. Firms within one market are not independent samples.
+
+### Proposed metadata
+
+Extend `layer_choices` with `L3.resource_regime`; record `factor_price_basis`, `capacity_basis`, `adjustment_cost_spec`, `investment_law_spec`, `time_horizon`, `discounting`, `compatibility_status`, and parameter/specification versions. Store ex ante firm clusters separately from strategy layers and from ex post outcome clusters.
+
+### Researcher gate
+
+D3 options A/B/C/D and their mathematical specifications are **proposals**, not researcher-approved assumptions. The principal researcher may approve all as a layer, approve a decomposed factor design, or refine the catalog. No parameter values, dynamics or code are authorized by this note.
+
+**Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (conditional factor demand, factor prices and constraints); Hayashi (1982), *Tobin's Marginal q and Average q: A Neoclassical Interpretation*, Econometrica 50(1):213–224, https://doi.org/10.2307/1912538 (investment/adjustment-cost theory); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696. These sources motivate the categories; the A–D catalog and layer multiplication are project design proposals.
+
+**Implementation:** Documentation-only D3 proposal; no production-code changes, no new simulations or tests.
