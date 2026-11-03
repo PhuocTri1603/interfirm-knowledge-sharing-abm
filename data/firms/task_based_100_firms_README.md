@@ -1,6 +1,6 @@
-# 100 task-based firms — review population
+# 100 task-based firms — approved initial population
 
-**Status:** Illustrative synthetic data, pending principal researcher's approval. Not simulation outcomes.
+**Status:** Approved by principal researcher on 2026-11-03 as the initial synthetic 100-firm population for Game 1. This approval covers the population profiles and task-level dataset; it does not establish simulation outcomes or approve unmodeled economic mechanisms.
 
 - `task_based_100_firms_profiles.csv`: 100 firms with K, L, K/L, resource scale, provisional cash, automation capability, productivity summaries and Vietnamese individual portraits.
 - `task_based_100_firms_tasks.csv`: 2,000 firm-task records (20 shared tasks per firm), labor productivity, potential capital productivity and automation eligibility.
