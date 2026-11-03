@@ -1098,3 +1098,52 @@ These are proposed D7 **market-composition regimes**, not approved. They may be 
 **Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018); Posen & Levinthal (2012), *Chasing a Moving Target: Exploitation and Exploration in Dynamic Environments*. These support general economic and learning concepts, not the specific factorial catalog.
 
 **Implementation:** Documentation-only researcher approval. No new executable strategy-layer registry, simulation, tests or CI results.
+
+## D7 researcher approval — all four market-population regimes in one layer (2026-11-03)
+
+**Explicit researcher decision:** "có, giữ hết" — retain all four D7 population/market-composition alternatives as **one layer**. This approves their inclusion in the research-design catalog, not their allocation algorithms or empirical comparability.
+
+| Layer | Meaning | Number of options |
+| --- | --- | ---: |
+| L1 / D1 | Within-task technology | 4 |
+| L2 / D2 | Cross-task aggregation | 3 |
+| L3 / D3 | Resource and cost regime | 4 |
+| L4 / D4 | AI shock mechanism | 4 |
+| L5 / D5 | Market institution | 4 |
+| L6 / D6 | Behavioral learning policy | 4 |
+| L7 / D7 | Population and market composition | 4 |
+
+**Approved D7 scope:**
+- A — **Separate Markets:** matched 100-base-firm markets under separate strategy-cell scenarios.
+- B — **Mixed Market:** one 100-firm market containing a defined mixture of strategy assignments.
+- C — **Clone Competition:** matched base-firm clones with different strategies coexisting; number of agents can exceed 100, so market size, demand and strategic interactions differ.
+- D — **Stratified Market:** strategy assignment conditioned on explicitly specified *ex ante* firm strata/clusters (e.g., K/L intensity, task capabilities), with 100 firms unless separately specified.
+
+**Nominal full-factorial design size: `4×3×4×4×4×4×4=12,288`.** This is a **registry count**, not a count of agents, distinct valid economic models, simulations or completed experiments. Preserve `L1` through `L7` as explicit fields, along with versioned parameters, experiment/scenario IDs, market and base-firm identifiers, replication seeds, compatibility flags and cluster-definition provenance.
+
+### D7 analysis safeguards
+
+1. Do not assume one strategy cell maps to one seller: market composition is a **market-level experimental regime**.
+2. Separate Markets and Mixed Markets answer different questions (isolated effects versus interactions/spillovers); do not pool their outcomes as if the treatment assignment were identical.
+3. Clone Competition changes effective market size and possibly market power. Record `n_base_firms`, `n_market_agents`, cloning factor, demand scale and clone assignment explicitly.
+4. Stratified Market needs **pre-treatment** cluster definitions, stratification weights and assignment rules. Ex post outcome clusters are descriptive, not valid ex ante strata.
+5. Some D5 × D6 × D7 cells may be economically under-specified or conceptually incompatible. Retain their IDs and report status rather than silently deleting them.
+6. Analyze within-market dependence and market-level replications, not firm rows as independent random trials.
+7. Researcher approval does not specify the number of simulation replications, sampling design, demand parameters, strategy assignment shares or solver.
+
+### D8 preview — Outcome and welfare analysis layer (PROPOSAL, NOT APPROVED)
+
+D8 originally referred to **outcomes, welfare and estimands**. Because the user wants to preserve all options as analyzable layers, it is important not to mistake a *measurement lens* for an economically causal treatment. Proposed four D8 **analysis lenses**:
+
+- A — **Firm performance:** output, costs, profit, capital/labor input, adoption and survival/concentration metrics where defined.
+- B — **Market performance:** aggregate output, price, allocation, market concentration and dynamics, with explicit market definition.
+- C — **Welfare/distribution:** consumer surplus, producer surplus, total surplus, and distribution across firm/worker groups **only** when demand, costs and transfers are defined consistently.
+- D — **Learning/transition:** adjustment speed, regret relative to a feasible benchmark, exploration/exploitation, path dependence and adoption trajectories, requiring dynamic policy and time-series data.
+
+These lenses can **all be measured on the same simulated run**; they are not mutually exclusive choices that change production or market behavior. If the researcher wants D8 to count as another four-option *analysis layer*, a nominal reporting grid would have `12,288×4=49,152` **scenario–analysis-lens records**, but **not** 49,152 different economic strategy configurations or simulations. Preserve the distinction between treatment/design layers L1–L7 and an optional outcome/analysis dimension L8.
+
+**D8 researcher gate:** Approve all four lenses as a separate reporting/analysis layer, refine the outcome taxonomy, or keep outcomes as multiple metrics without multiplying strategy counts. Do not call outcome metrics causal strategies.
+
+**References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018). These provide theoretical background for outcomes and learning, not an endorsement of the D8 taxonomy.
+
+**Implementation:** Documentation-only. No new model equations, executable layer registry, simulation, tests or CI run.
