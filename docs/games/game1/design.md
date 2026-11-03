@@ -99,6 +99,14 @@ Added `src/interfirm_abm/task_aggregators.py` and `tests/test_task_aggregators.p
 - The workflow was committed and its YAML contents re-read from GitHub. **No successful workflow run or passing test results have yet been verified.** A GitHub Actions green status is required before describing the implementation as tested.
 - These checks are technical only. They do not validate a production function, an equilibrium, or any causal economic claim.
 
+## Full 100-firm pipeline smoke test — 2026-11-03
+
+- Added `tests/test_task_population_pipeline.py` to execute the existing local-neighborhood pipeline once for each of the approved 100 firms, using their canonical 2,000 task records. CI workflow includes this test file.
+- Uses an explicitly **non-scientific fixture**: zero-activity labor baseline, unit activity step, unit input/output prices, and additive task aggregation test stub. These values are not approved or calibrated economic assumptions.
+- Checks each firm yields a well-formed candidate set, a feasible baseline, finite comparable accounting values, and deterministic repeat results. Does **not** report aggregate output/profit or winners and losers as research findings.
+- The test is committed, but **its CI result is pending verification**. The prior 50-pass result predates this new test.
+- Next scientific design tasks: approve within-task production, task aggregation, price/cost interpretation, behavioral information and decision rule, and AI-induced technology change before research simulations.
+
 ## Purpose
 
 Construct an economically coherent artificial market of approximately 100 heterogeneous firms, with production technologies represented using Varian's production theory, firm-level economic decisions, and pre-/post-AI comparisons. This is a foundation for Games 2 and 3, not a mechanism designed to induce cooperation.
