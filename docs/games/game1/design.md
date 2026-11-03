@@ -691,3 +691,83 @@ The principal researcher must decide: (i) exact AI treatment and timing; (ii) wi
 **Theory anchors:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Varian, *Microeconomic Analysis*, 3rd ed. (technology, cost, firm choice); Tirole, *The Theory of Industrial Organization* (1988) (strategic market interaction). The staged counterfactual ladder, matching rules and falsification checks are **proposed design constructions**, not claims that these references endorse the exact simulation protocol.
 
 **Implementation status:** Documentation-only. No production code, tests, CI or economic assumptions changed.
+
+## Milestone 18 — Consolidated Game 1 research design and decision register (2026-11-03)
+
+**Status:** Consolidation for principal-researcher review; **not** authorization of unresolved economic assumptions. This section summarizes Milestones 10–17 without replacing their detailed derivations. The governing authority remains `docs/theoretical_charter.md`.
+
+### 18.1 Research purpose and continuity
+
+Game 1 is the economic baseline for a single research program investigating whether and when **voluntary interfirm knowledge sharing emerges among competing, self-interested firms**. Game 1 should characterize feasible production choices and market consequences of technological change without encoding a desired winner or cooperation outcome. Game 2 adds rival observation, experimentation and learning; Game 3 adds endogenous sharing decisions. Keep economic theory central and ABM instrumental.
+
+### 18.2 Approved foundations versus unresolved specifications
+
+| Dimension | Confirmed foundation | Unresolved decision (requires explicit approval) |
+| --- | --- | --- |
+| Disciplinary charter | Economics, Varian-style production/cost/choice foundations; Axelrod as cooperation inspiration | Any material change to the charter |
+| Production representation | Task-based production inspired by Acemoglu–Restrepo, rather than imposing a direct two-input aggregate CES as the sole foundation | Within-task technology: discrete assignment, CES mixing, complements, or justified heterogeneous types |
+| Population | Approved synthetic 100 base firms, 20 tasks each; canonical CSVs under `data/firms/` | Economic interpretation/calibration of task coefficients, capacities and heterogeneity |
+| Task aggregation | Explicit aggregator-neutral software interface; candidate linear, Leontief, CES aggregators available | Which aggregator, task weights, elasticity, normalization and zero-task behavior |
+| Factor inputs | K/L allocations subject to technical feasibility checks | Stock versus flow, owned versus hired capacity, input prices and opportunity costs |
+| AI treatment | AI may change task automation feasibility | Which tasks change, whether productivity/adoption costs also change, timing, irreversibility |
+| Decision problem | Feasibility, cost and accounting evaluators implemented | Conditional cost minimization, profit maximization, information, beliefs, horizon and behavioral policy |
+| Market | Shared price accounting for supplied quantities implemented | Price-taking, Cournot or alternative institution; inverse demand and clearing/sales |
+| Comparison design | Before/after counterfactual ladder proposed | Primary estimand, equilibrium versus learning, strategy clone coexistence versus matched scenarios |
+| Outcomes | Technical output/cost/profit fields available | Economic cost definition, consumer surplus, welfare, adoption and displacement measures |
+
+The previously discussed `alpha=0.5` and common productivity `A` belonged to an earlier aggregate CES framing. They **must not be imported** into the task model without renewed economic interpretation and approval.
+
+### 18.3 Theoretical workflow: one coherent chain
+
+**Technology and feasibility** `(task eligibility, task efficiencies, K/L capacities)` -> **task allocation and aggregation** `(q_j, F(q))` -> **conditional cost correspondence** `C_i(Y)` -> **output/market choice** `Y_i` -> **joint price and firm outcomes** -> **matched AI counterfactuals** -> **dynamic learning and voluntary sharing in later games**.
+
+Every arrow requires an explicit economic mechanism; a software adapter is not evidence that the mechanism has been specified or validated.
+
+### 18.4 Candidate minimal baseline for discussion (NOT APPROVED)
+
+To reduce unnecessary degrees of freedom, a **candidate** initial theoretical benchmark could use: (a) exclusive task assignment between labor and eligible capital; (b) a clearly normalized task aggregator chosen from the tested candidates; (c) fixed finite K/L capacities and explicitly interpreted service prices; (d) optional automation eligibility expansion with adoption costs initially isolated as a separate sensitivity dimension; (e) an explicit single-market quantity or price-taking institution; and (f) matched 100-firm before/after markets rather than automatically treating 400 clones as the same economy.
+
+This is a **review proposal only**, not a default implementation instruction. No part (a)–(f) becomes an official research assumption by appearing here.
+
+### 18.5 Pre-implementation approval order and dependencies
+
+1. **Production technology:** choose within-task feasible modes, input efficiencies and eligibility; decide whether mixed K/L within a task is meaningful.
+2. **Aggregation:** choose `F(q)`, weights, zero-task rules and whether all 20 tasks are essential; establish monotonicity/concavity/homogeneity as applicable.
+3. **Cost accounting:** clarify capacities, service prices, fixed versus sunk costs, adoption cost and time horizon; prevent double counting.
+4. **AI treatment:** define exact eligibility/productivity/cost shock and which dimensions are held constant.
+5. **Market institution:** define demand, pricing, sales, information and timing; choose competitive, Cournot or another mechanism.
+6. **Agent choice:** specify objective, optimization versus bounded rationality, available information and state transitions.
+7. **Experimental unit:** choose matched 100-firm scenario markets or a deliberately different within-market coexistence design; state stochastic replication protocol.
+8. **Estimands and validation:** define cost, output, adoption, profit, equilibrium gap and welfare metrics; separate code tests from scientific claims.
+
+A downstream choice must not silently settle an upstream unresolved assumption.
+
+### 18.6 Minimal technical and scientific validation gates
+
+- **Population integrity:** exactly 100 distinct base-firm IDs and 20 task records per firm in the approved dataset; no unannounced reweighting or duplicate market sellers.
+- **Feasibility:** capital only in eligible tasks; K/L use within capacities; infeasible output targets reported explicitly.
+- **Mathematical properties:** task aggregator monotonicity, scale behavior, zero handling and fixed-mode concavity checked against the approved specification.
+- **Cost consistency:** fixed/variable/adoption charges distinguished; cost monotonicity under nested output targets where assumptions imply it.
+- **Optimization:** a feasible plan is not necessarily optimal; global certificates or honest approximation gaps required before claiming optimum.
+- **Market:** a common inverse-demand price is not an equilibrium; test global best-response gaps or market clearing as appropriate.
+- **Counterfactuals:** no-treatment replay invariance, eligibility-only old-plan invariance, nested feasible sets, matched population, and controlled rival-price feedback.
+- **Inference:** simulation comparisons conditional on model assumptions, not automatically real-world causal estimates. Learning dynamics must be explicitly implemented before claiming learning.
+
+Existing software validation: [GitHub Actions #41653126765](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41653126765) succeeded with 89 tests on Python 3.11 and 89 tests on Python 3.12. This is **technical validation**, not approval of a production model or scientific evidence. This milestone adds documentation only, so no new CI run is claimed.
+
+### 18.7 Decision register (for researcher approval, not filled by assistant)
+
+| ID | Decision to approve | Current status |
+| --- | --- | --- |
+| D1 | Within-task production / assignment representation | Open |
+| D2 | Cross-task aggregator and parameters | Open |
+| D3 | K/L capacity and cost interpretation | Open |
+| D4 | AI shock and adoption mechanism | Open |
+| D5 | Product-market institution and demand | Open |
+| D6 | Decision rule and information structure | Open |
+| D7 | 100-base-firm versus 400-clone market interpretation | Open |
+| D8 | Primary outcomes, welfare and counterfactual estimands | Open |
+
+**Milestone 18 completion criterion:** A consolidated, internally consistent *review document* is complete when these open choices and dependencies are explicit. **Game 1 economic-model approval is not complete** until the principal researcher makes the relevant decisions. Do not implement an optimizing economic experiment or claim results on the strength of this consolidation alone.
+
+**Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed.; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Tirole, *The Theory of Industrial Organization* (1988); Axelrod, *The Evolution of Cooperation* (1984). The dependency sequence, validation gates and candidate baseline are this project's research-design proposals, not empirical findings or direct prescriptions attributed to those sources.
