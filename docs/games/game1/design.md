@@ -849,3 +849,48 @@ Principal researcher to decide whether D2 should (a) hold a single aggregator co
 **Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (production aggregation and substitution); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. These references support the general production/task framing, not this project's specific 4×3 matrix.
 
 **Implementation:** Documentation-only proposal. No D2 assumption approved, no new simulations or tests.
+
+## Researcher-approved multi-layer strategy architecture — D2 decision (2026-11-03)
+
+**Explicit researcher decision:** Retain **all** D2 options (linear, Leontief, CES) as strategies, just as D1 retains all four within-task technology strategies. Each new strategy layer expands the combinatorial design by Cartesian product. **Persist each layer's identity and parameters** so results can later be analyzed by individual layer, interactions, or firm clusters. This is a project-wide experimental design principle, not a license to invent unapproved economic parameters.
+
+### Approved layer catalog and current count
+
+| Layer | Meaning | Options | Count | Approval |
+| --- | --- | --- | --- | --- |
+| L1 / D1 | Within-task production technology | Assignment; CES; Leontief; Hybrid | 4 | All options retained |
+| L2 / D2 | Cross-task output aggregation | Linear; Leontief; CES | 3 | All options retained |
+
+Current **12 technology strategy combinations** = `4*3`. For future layers with option counts `n_3,...,n_m`, the nominal full-factorial design has `N_strategy = 4*3*product(n_3,...,n_m)` combinations. Counts are nominal: a combination can be **structurally incompatible**, infeasible or redundant under its specified economics. Such cells must be flagged and not silently discarded or treated as valid results.
+
+### Strategy identity, provenance and result schema (design contract)
+
+Represent each scenario with a stable **structured strategy key**, e.g. `L1=assignment|L2=linear`, and an independent canonical `strategy_id`; do not rely on positional labels such as "strategy 7". Store:
+
+- `experiment_id`, `scenario_id`, `strategy_id`, `base_firm_id`, `market_id`, `replication_id`, `round_index`;
+- `layer_choices` (mapping `layer_id -> option_id`) and `layer_parameters` with versioned units/normalization;
+- `technology_regime`, `shock_id`, `seed`, `population_definition`, `model_spec_version`;
+- feasibility/status and outcomes (task adoption, K/L, output, cost, profit, price, market concentration and optional welfare after definition);
+- cluster labels and **cluster definition version** stored separately from strategy-layer assignments.
+
+A single `strategy_id` must never overwrite the constituent layer choices. Keep a registry of option definitions and their scientific rationale, references and researcher approval state.
+
+### Analysis contract
+
+1. **Layer-level effects:** summarize outcome distributions conditional on L1 and L2 separately, with market/scenario/replication and population definitions explicit.
+2. **Interactions:** compare `L1 × L2` cells; effects need not be additive, and raw cell differences are not automatically causal.
+3. **Firm heterogeneity:** stratify by pre-treatment, economically defined characteristics (e.g. K/L intensity, task capability, eligible task share). Do not define a purported baseline cluster using post-treatment outcomes.
+4. **Clusters:** cluster membership must carry a definition/version and distinguish ex ante firm attributes from ex post outcome-based descriptive clusters; ex post clusters cannot be interpreted as predetermined causes.
+5. **Market dependence:** firms in the same market interact through prices, so avoid treating firm rows as independent replications; market-level comparisons and uncertainty must respect shared shocks and within-market dependence.
+6. **Balance:** if an interaction cell is infeasible, record it explicitly; avoid reporting marginal layer averages without identifying missing cells and weighting.
+7. **Comparison unit:** a 12-cell crossed design does **not** mean 1,200 simultaneous competitors. Prefer 12 matched 100-firm market scenarios for isolation when later approved; mixed strategies in one market are a distinct, explicitly approved economic experiment.
+
+### Remaining scientific and implementation gates
+
+**Approved:** D1 scope = all four within-task technologies; D2 scope = all three aggregators; multi-layer Cartesian-product strategy bookkeeping; later layer and cluster analysis.
+
+**Not yet approved:** actual parameters, hybrid task assignment, eligibility conventions for CES/Leontief, task weights/normalization, production and cost calibration, demand, market structure, whether all nominal combinations are economically meaningful, and whether regimes are separate markets or coexisting firms. D3–D8 remain open.
+
+**Technical next step:** build a deterministic, data-only layer registry and Cartesian-product enumerator with unique stable keys and metadata, plus tests for 4×3=12 and future layer expansion, without generating economic output or altering existing approved firm population. Implementation must preserve existing `StrategySpec` compatibility and avoid conflating a strategy scenario with a market seller.
+
+**Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (technology and cost comparisons); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696 (task automation); the crossed-factor design and layer/cluster analysis protocol are **researcher-directed design decisions**, not empirical results or specific claims from these sources.
