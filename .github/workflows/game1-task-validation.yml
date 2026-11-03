@@ -1,0 +1,44 @@
+name: Game 1 task-based validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/interfirm_abm/task_*.py"
+      - "tests/test_task_*.py"
+      - "data/firms/task_based_100_firms_*.csv"
+      - ".github/workflows/game1-task-validation.yml"
+  pull_request:
+    paths:
+      - "src/interfirm_abm/task_*.py"
+      - "tests/test_task_*.py"
+      - "data/firms/task_based_100_firms_*.csv"
+      - ".github/workflows/game1-task-validation.yml"
+  workflow_dispatch:
+
+jobs:
+  task-validation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install project and test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run Game 1 task-based unit and integration tests
+        run: |
+          python -m pytest -q \
+            tests/test_task_based_firm.py \
+            tests/test_task_economics.py \
+            tests/test_task_aggregators.py \
+            tests/test_task_execution.py \
+            tests/test_task_bundle.py \
+            tests/test_task_plan_selection.py \
+            tests/test_task_candidate_generation.py \
+            tests/test_task_pipeline.py
