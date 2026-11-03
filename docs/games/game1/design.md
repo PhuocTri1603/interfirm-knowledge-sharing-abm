@@ -934,3 +934,38 @@ D3 options A/B/C/D and their mathematical specifications are **proposals**, not 
 **Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (conditional factor demand, factor prices and constraints); Hayashi (1982), *Tobin's Marginal q and Average q: A Neoclassical Interpretation*, Econometrica 50(1):213–224, https://doi.org/10.2307/1912538 (investment/adjustment-cost theory); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696. These sources motivate the categories; the A–D catalog and layer multiplication are project design proposals.
 
 **Implementation:** Documentation-only D3 proposal; no production-code changes, no new simulations or tests.
+
+## D3 researcher approval — four resource regimes in one layer (2026-11-03)
+
+**Explicit researcher decision:** "Tôi phê duyệt D3 gồm bốn phương án A/B/C/D trong một layer. Hãy tiếp tục." D3 is approved **as one four-option strategy layer**, not decomposed into separate access/adjustment/investment layers. Retain all options: A flexible inputs, B capacity constrained, C adjustment cost, D capital investment.
+
+### Updated approved strategy-layer registry
+
+| Layer | Research dimension | Options | Count | Status |
+| --- | --- | --- | --- | --- |
+| L1 / D1 | Within-task production technology | Assignment; CES; Leontief; Hybrid | 4 | Scope approved |
+| L2 / D2 | Cross-task aggregation | Linear; Leontief; CES | 3 | Scope approved |
+| L3 / D3 | Resource/cost regime | Flexible Inputs; Capacity Constrained; Adjustment Cost; Capital Investment | 4 | **Scope approved, one layer** |
+
+The nominal crossed design now has **4 × 3 × 4 = 48** strategy combinations. Preserve a stable composite strategy key with separate `L1`, `L2`, `L3` choices and all approved parameters and provenance. Retain compatibility/feasibility flags for cells where the economic primitives are not well-defined. No combination is silently removed, and the 48 combinations are **not** 48 concurrent firms, nor 48 simulations already performed.
+
+**Important economic boundary:** D3 regimes are scenario labels, not mutually exclusive mechanisms in economic reality. Adjustment-cost and capital-investment regimes require a defined dynamic state and time horizon; their combination with fixed technology, input prices and market structure cannot be inferred from their labels. The approval is to **retain all four as options in a single layer**, not to invent investment laws, adjustment parameters or treat the options as proven comparable.
+
+### D4 — AI shock and adoption layer: review candidates, NOT APPROVED
+
+The next decision concerns what AI changes in the task economy, distinct from the D1 technology and D3 resource regimes. Candidate *treatments* for discussion:
+
+| Candidate | Technology/economic intervention | Interpretation and safeguards |
+| --- | --- | --- |
+| A: Automation eligibility expansion | Expand which tasks permit capital execution, retaining old feasible modes | For CES/complementarity tasks, must specify a coherent eligibility mapping; mere eligibility is not adoption |
+| B: Task capital-efficiency improvement | Raise capital task efficiency `aK_j` on specified tasks | Productivity shock differs from pure eligibility expansion |
+| C: Adoption cost reduction | Reduce an explicitly modeled fixed or marginal adoption charge | Only meaningful if an adoption cost is defined and non-double-counted |
+| D: Joint shock | Prespecified combination of A/B/C | Requires explicit component definitions and interaction attribution |
+
+These are **proposed alternatives**, not researcher-approved D4 strategies. A future D4 layer would multiply the current 48 nominal combinations by the number of approved options, subject to compatibility flags. AI shocks must not silently force firms to adopt or predetermine the research outcome.
+
+**D4 design gate:** The principal researcher must decide whether to retain all proposed D4 options as another layer, refine the treatment catalog, or use a single controlled shock. Timing, task coverage, shock magnitude, adoption behavior, treatment assignment, and normalization remain open.
+
+**References:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Varian, *Microeconomic Analysis*, 3rd ed. The proposed shock catalog is a project design framework, not a finding from those references.
+
+**Implementation status:** Documentation-only update; no new strategy generator, economic model, simulation, tests or CI run.
