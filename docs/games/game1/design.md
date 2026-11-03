@@ -472,3 +472,73 @@ These are candidate *mathematical property checks*, not an instruction to rewrit
 Before adding property-based tests or optimization to the canonical Game 1 pipeline, the principal researcher must approve (i) the within-task feasible technology, (ii) the cross-task aggregator and normalization, (iii) whether free disposal is assumed, (iv) the economic meaning of fixed capacities and costs, and (v) whether a convex relaxation is economically admissible.
 
 **Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed., production theory, production sets, returns to scale, cost functions; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The property statements here are mathematical deductions for the stated candidates, **not** quotations or empirically validated results from these works.
+
+## Milestone 15 — From task technology to firm cost and market supply (2026-11-03)
+
+**Status: economic-theory comparison, not model selection.** This note separates conditional cost minimization from output choice and strategic market behavior. It does not approve a demand function, price-taking assumption, Cournot game, equilibrium concept, cost schedule, or firm policy.
+
+### 15.1 Cost minimization as a conditional subproblem
+
+For a specified candidate task technology `T_i`, capacities `Kbar_i,Lbar_i`, and output requirement `Y`, define the **conditional variable cost**:
+
+`C_i^v(Y;Kbar_i,Lbar_i,e_i,w,r) = min_{(q,m,K,L) in T_i, F_i(q)>=Y, K<=Kbar_i, L<=Lbar_i} (wL+rK + eligible incremental mode charges)`.
+
+If no feasible plan meets `Y`, define `C_i^v(Y)=+infinity` for mathematical bookkeeping. The capacity-constrained feasible output set `D_i={Y>=0: C_i^v(Y)<infinity}` must be established from technology; do not assume it is unbounded.
+
+**Accounting boundary:** If K and L are fixed *owned* capacities, clarify whether `rK` and `wL` are actual purchased service flows, imputed opportunity costs, or already-sunk expenditures. Avoid counting both acquisition costs and full service costs for the same input over the same period. Fixed costs can be separated as `C_i(Y)=C_i^v(Y)+F_i^{fixed}` when economically justified, but fixed costs must not be confused with sunk costs or technology feasibility.
+
+With free disposal and nonnegative incremental costs, `C_i^v(Y)` is weakly nondecreasing in the **minimum-output-requirement** `Y` because `{plans:F(q)>=Y_2}` is a subset of `{plans:F(q)>=Y_1}` for `Y_2>Y_1`. This conditional monotonicity does **not** imply differentiability, convexity, or a continuous marginal-cost schedule. Discrete automation choices may produce kinks or nonconvexities.
+
+### 15.2 Output choice under price-taking behavior (candidate only)
+
+If a firm faces an **exogenous** output price `p>=0` and can sell all chosen output at that price, a static candidate is:
+
+`max_{Y in D_i} [pY-C_i(Y)]`.
+
+At a differentiable *interior* optimum, `p=C_i'(Y)` is a **necessary** first-order condition; it is sufficient for a global maximum only with additional conditions such as convex cost and a convex feasible output interval. With capacity limits, corners, discrete task modes, or nonconvex costs, one must compare global profit values and consider boundary choices. No universal smooth supply curve follows from the current task-based code.
+
+An industry with 100 firms does not automatically make each firm a price taker. Price-taking is an explicit information/market-power assumption, not a population-size threshold.
+
+### 15.3 Output choice with strategic quantity competition (candidate only)
+
+Under a **Cournot-style** candidate, with a differentiable inverse-demand function `P(Q)` and `Q=sum_i Y_i`, firm `i` chooses `Y_i` given competitors' quantities:
+
+`max_{Y_i in D_i} [P(Y_i+Q_-i)Y_i-C_i(Y_i)]`.
+
+For an interior differentiable optimum:
+
+`P(Q)+Y_i P'(Q)=C_i'(Y_i)`.
+
+The term `Y_i P'(Q)` represents the firm's own price impact, which the price-taking condition omits. These conditions are **not** sufficient for Nash equilibrium without verifying best responses, feasibility and any relevant regularity. A Nash equilibrium, if it exists, requires every firm's quantity to be a best response to the others. Multiple equilibria or no pure-strategy equilibrium can arise under some nonconvex/discrete technologies; no existence claim is made for the unspecified current market.
+
+**Current code boundary:** `task_shared_market.py` and `task_repeated_market.py` calculate a common price for externally supplied quantities; they do not solve the price-taking supply problem, Cournot best responses, market clearing, or equilibrium.
+
+### 15.4 Comparative statics of AI: conditional, not predetermined
+
+Suppose an AI shock only expands task eligibility, leaving all old modes, input prices, capacities, adoption charges and the aggregator unchanged. The set of feasible production plans weakly expands. Consequently, the **conditional minimum cost** for any previously feasible target cannot rise; similarly, the firm's **maximum attainable profit** cannot fall *if the firm faces the same fixed price or the same fixed competitors' quantities and inverse demand* and can still choose its former plan.
+
+These are **fixed-environment value-function inequalities**, not claims that equilibrium profits, wages, employment, consumer surplus or welfare increase. If every firm changes behavior, aggregate quantity and prices may change, and the strategic equilibrium must be solved anew. The shock may also alter costs or information, invalidating the fixed-environment comparison.
+
+### 15.5 Costs, supply and welfare are different outputs
+
+| Object | Conditional definition | Cannot infer without further assumptions |
+| --- | --- | --- |
+| Minimum cost | Least expense for target output under a specified technology | Observed input allocation or actual behavior |
+| Supply decision | Chosen output given price or strategic beliefs | Unique smooth supply schedule |
+| Firm profit | Revenue minus appropriately defined economic costs | Social welfare |
+| Consumer surplus | Requires demand and allocation/sales assumptions | Welfare from aggregate firm profits alone |
+| Total surplus | Requires consumer benefits and all relevant real resource costs/transfers | Welfare without a specified market and accounting boundary |
+| Learning outcome | Requires policy, information, state transitions and feedback | Learning from a repeated accounting evaluator alone |
+
+### 15.6 Suggested validation plan, conditional on researcher approval
+
+1. Derive `D_i` and `C_i(Y)` from an approved task technology; check feasibility, monotonicity, boundary behavior, cost accounting and potential kinks.
+2. Specify **one** market interpretation for the main baseline (price-taking, Cournot, or another justified institution); document information sets and timing.
+3. Derive the corresponding global output-choice problem, then test it on transparent small examples before using the 100-firm population.
+4. Distinguish exogenous-price counterfactuals from re-equilibrated market counterfactuals. Do not treat price impact as an optional code flag without economic meaning.
+5. Define sales, transfers, fixed costs, investment costs and welfare components before reporting aggregate outcomes.
+6. Preserve technical test coverage; add scientific property checks only after the principal researcher approves their assumptions.
+
+**Theory references:** Varian, *Microeconomic Analysis*, 3rd ed., production/cost/profit maximization and competitive supply; Tirole, *The Theory of Industrial Organization* (1988), quantity competition and strategic market behavior; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. All inequalities and first-order conditions above are conditional derivations for the candidate structures, not empirical findings or claims attributed verbatim to those sources.
+
+**Decision gate:** The researcher must approve the task production specification and market institution before implementing cost curves, firm supply rules or equilibrium solvers. This milestone changes documentation only.
