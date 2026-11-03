@@ -1147,3 +1147,36 @@ These lenses can **all be measured on the same simulated run**; they are not mut
 **References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018). These provide theoretical background for outcomes and learning, not an endorsement of the D8 taxonomy.
 
 **Implementation:** Documentation-only. No new model equations, executable layer registry, simulation, tests or CI run.
+
+## D8 researcher approval — four outcome lenses as one Analysis Layer (2026-11-03)
+
+**Explicit researcher decision:** "chính xác" confirming that all four D8 outcome groups are retained as one **Analysis Layer** for layer-wise, cluster-wise and interaction analysis. D8 is **not** an eighth causal technology, behavioral policy, or market-composition strategy.
+
+### Approved D8 analysis lenses
+
+| Lens | Outcome family | Measurement prerequisites |
+| --- | --- | --- |
+| A — Firm Performance | Output, costs, profits, K/L mix, technology adoption and firm-level changes | Defined accounting, firm identity and factor prices |
+| B — Market Performance | Aggregate production, prices, concentration, market dynamics | Market boundaries, demand and market-clearing/pricing rules |
+| C — Welfare & Distribution | Consumer and producer surplus, total surplus, distributional impacts | Consistent demand, cost and transfer definitions; welfare not inferred from firm profit alone |
+| D — Learning & Transition | Adaptation paths, exploration/exploitation, speed of adjustment, regret, technology transition | Dynamic actions, comparable benchmarks, time-series and state histories |
+
+### Two distinct cardinalities
+
+- **7 strategy/design layers:** `4×3×4×4×4×4×4 = 12,288` **nominal** scenario strategy combinations. Not all are necessarily feasible, specified or comparable.
+- **1 analysis layer with 4 lenses:** `12,288×4 = 49,152` **scenario–lens reporting pairs** if every nominal combination receives every lens. This is **not** 49,152 unique strategy configurations, market simulations, or firms.
+- One simulated trajectory may support several or all lenses if the required economic data exist. Report unavailable metrics explicitly; do not invent welfare, equilibrium, or learning results.
+
+### Data and analysis contract
+
+Keep strategy layer IDs `L1` through `L7` immutable in each scenario record and `analysis_lens_id` separately in output tables. Maintain `strategy_id`, `scenario_id`, `market_id`, `base_firm_id`, `agent_id`, `round_index`, `replication_id`, `seed`, `model_spec_version`, `compatibility_status`, and `cluster_definition_version`. For cloned markets distinguish base firm from clone agent. Cluster definitions should distinguish **ex ante** firm characteristics from **ex post** descriptive outcome clusters. Aggregate uncertainty at the market/replication level when market agents interact.
+
+**Approved:** D8 four-lens reporting architecture and the separation between design and analysis layers. **Still unapproved:** operational metric formulas, welfare definitions, economic calibration, numerical parameters, learning algorithms and market equilibria.
+
+### Next engineering milestone (technical, no new economic assumptions)
+
+Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8 analysis lenses, deterministic Cartesian-product enumeration, stable structured IDs, and compatibility/definition status fields. Unit tests should assert exactly 12,288 nominal strategy keys, four analysis lenses and 49,152 reporting keys, unique IDs, stable order and preservation of constituent layer labels. Registry generation is not an ABM simulation. Use this registry to prepare reproducible experiment metadata without treating any economic model as approved.
+
+**References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018). These support the general economic and learning categories, not the specific factorial architecture.
+
+**Implementation status at approval:** Documentation-only; registry and tests are proposed, not yet implemented.
