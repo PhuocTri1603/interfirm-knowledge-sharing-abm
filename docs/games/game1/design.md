@@ -542,3 +542,72 @@ These are **fixed-environment value-function inequalities**, not claims that equ
 **Theory references:** Varian, *Microeconomic Analysis*, 3rd ed., production/cost/profit maximization and competitive supply; Tirole, *The Theory of Industrial Organization* (1988), quantity competition and strategic market behavior; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. All inequalities and first-order conditions above are conditional derivations for the candidate structures, not empirical findings or claims attributed verbatim to those sources.
 
 **Decision gate:** The researcher must approve the task production specification and market institution before implementing cost curves, firm supply rules or equilibrium solvers. This milestone changes documentation only.
+
+## Milestone 16 — Market equilibrium and strategic interaction audit (2026-11-03)
+
+**Status: comparative economic theory only; no market institution, behavioral rule or equilibrium solver is approved.** This section connects the conditional cost/value analysis of Milestone 15 to market interaction while preserving the distinction between accounting trajectories and equilibrium outcomes.
+
+### 16.1 Three different solution concepts
+
+1. **Competitive equilibrium candidate.** Each firm chooses an individually optimal production/supply plan at an exogenous-to-it price `p`; a separate market-clearing condition equates aggregate supply to demand at that same price, subject to a fully specified demand side and trade feasibility. Price-taking alone, without market clearing, is **not** a competitive equilibrium.
+2. **Nash–Cournot candidate.** For inverse demand `P(Q)`, firms simultaneously choose feasible quantities `Y_i in D_i`, taking rival quantities `Q_-i` as fixed in their best-response calculation. An equilibrium `Y*` requires `Y_i* in argmax_{y in D_i} [P(y+Q_-i*)y-C_i(y)]` **for every firm**. The common market price is `P(sum_i Y_i*)`. A first-order condition alone does not establish a best response or equilibrium.
+3. **ABM learning trajectory.** At each round, policies generate choices based on an information set and past observations. Such a trajectory may fluctuate, stabilize, cycle, or exhibit persistent exploration. A stationary observed state is **not automatically** a Nash or competitive equilibrium, and failure to converge is not proof that no equilibrium exists.
+
+The existing `task_shared_market.py`, `task_repeated_market.py` and `task_strategy_policy.py` evaluate externally supplied choices or injected policies. They do not verify the relevant best-response or market-clearing conditions.
+
+### 16.2 Conditions that matter for equilibrium existence
+
+For a **continuous-quantity Cournot** game, a standard sufficient route to a pure-strategy Nash existence theorem requires each firm's feasible quantity set to be nonempty, compact and convex, and each profit function to be continuous in all quantities and quasiconcave in its own quantity. Under those assumptions, a fixed-point existence theorem applies. These are **sufficient conditions**, not automatic consequences of the 100-firm task model.
+
+Task-mode discreteness, adoption charges, endogenous capacity choices and nonconvex cost schedules can undermine own-quantity quasiconcavity or the required convexity. Consequently, **no pure-strategy equilibrium existence claim is justified for the present unspecified task model**. Mixed strategies, convexified production or alternative timing would require explicit additional assumptions.
+
+For competitive equilibrium, the existence argument additionally depends on demand, feasibility, commodity structure and appropriate production/consumer assumptions. A common price computed from an inverse-demand function does not itself demonstrate market clearing or decentralized price-taking optimality.
+
+### 16.3 Two-firm transparent benchmark (illustration, not empirical result)
+
+Take two firms with constant marginal cost `c>=0`, nonnegative quantities, and linear inverse demand `P(Q)=a-bQ` over the economically relevant range, with `a>c` and `b>0`. Firm `i` solves `max_{q_i>=0} (a-b(q_i+q_-i)-c)q_i`. The best response is
+
+`BR_i(q_-i)=max{0,(a-c-b q_-i)/(2b)}`.
+
+The unique symmetric Cournot equilibrium is `q_1*=q_2*=(a-c)/(3b)`, `Q*=2(a-c)/(3b)`, and `P*=(a+2c)/3`. At this benchmark, `P*>c`. A price-taking benchmark under the same constant-cost simplification would instead require an explicit demand-clearing allocation at `P=c`; firm-level supplies may be indeterminate at that price. This comparison illustrates market power, **not** a prediction for the 100-firm ABM.
+
+**Numerical consistency example:** with `a=10,b=1,c=4`, Cournot quantities are `q_1=q_2=2`, total quantity `4`, price `6`, and each firm's profit `(6-4)2=4`. These are constructed arithmetic checks only.
+
+### 16.4 Automation comparative statics and strategic feedback
+
+Let `C_i^0(Y)` and `C_i^1(Y)` denote before/after conditional cost functions under a **pure optional eligibility expansion**. Holding the other economic primitives fixed, `C_i^1(Y)<=C_i^0(Y)` at each previously feasible `Y`, as shown in Milestone 15. This does **not** order equilibrium prices, outputs, market shares or profits without solving the market interaction.
+
+Distinguish three counterfactual levels:
+
+- **Technical:** Which plans become feasible when an eligibility mask changes?
+- **Partial equilibrium / fixed rivals:** What is a firm's optimal response with rivals' quantities and demand fixed?
+- **Re-equilibrated market:** How do all firms respond, and what joint outcome satisfies the selected equilibrium or learning criterion?
+
+A common AI shock can change all firms' best-response maps simultaneously. A change in one firm's profit may reflect its own technology, rivals' responses, and price feedback; these channels must not be conflated.
+
+### 16.5 Shared market with strategy clones: unit of analysis
+
+The 100 approved base firms and any cloned strategy agents must not be counted interchangeably. If each base firm is copied into four independently competing strategy agents, the market has **400 sellers**, not 100 sellers each considering four counterfactual policies. If the research goal is to compare four strategies **holding the same 100-firm market composition fixed**, the clean design is four separate matched market runs (one strategy assignment per base firm per run), with comparable shocks and initial conditions. If the goal is **within-market strategic coexistence**, 400 competing clones can be justified, but it is a different economic treatment with different aggregate supply and market power.
+
+**Decision gate:** The principal researcher must choose whether strategy clones coexist as actual sellers or serve as matched counterfactual alternatives. Do not interpret a 400-agent market as the original 100-firm economy.
+
+### 16.6 Equilibrium and learning diagnostics (specification only)
+
+| Concept | Appropriate diagnostic | Not sufficient |
+| --- | --- | --- |
+| Price-taking firm optimum | Profit gap versus feasible alternative quantities at fixed price | `p=MC` alone at a corner or nonconvexity |
+| Competitive equilibrium | Individual optimality **and** market clearing | Merely calling `P(Q)` |
+| Cournot equilibrium | For each firm, unilateral best-response profit gap `<= tolerance` | Stable aggregate quantity or zero price change |
+| ABM convergence | Time-series stability and cross-seed robustness, under declared metrics | A single flat trajectory |
+| Market welfare | Consumer benefit, producer surplus and resource/transfer accounting under approved demand and cost definitions | Sum of accounting profits |
+| Automation effect | Matched technology and market counterfactuals with explicit treatment | Before/after differences without controlled changes |
+
+A proposed Cournot deviation metric is `gap_i=max_{y in D_i} pi_i(y,Y_-i)-pi_i(Y_i,Y_-i)`, with `gap_i>=0` when the current action is feasible. `max_i gap_i <= epsilon` can diagnose approximate Nash only when the unilateral maximizations are solved to sufficient global accuracy; a finite local-neighborhood check does **not** certify Nash in a nonconvex task model.
+
+### 16.7 Researcher decision gate
+
+Before implementing an equilibrium solver or reporting a market finding, the principal researcher must approve: (i) the task technology and derived feasible supply/cost correspondence; (ii) demand and sales rules; (iii) market institution (price-taking, Cournot or alternative); (iv) quantity/price information and timing; (v) strategy-clone unit of analysis; and (vi) equilibrium versus learning trajectory as the target object.
+
+**Theory references:** Varian, *Microeconomic Analysis*, 3rd ed., firm supply and competitive equilibrium; Tirole, *The Theory of Industrial Organization* (1988), Cournot competition; Nash (1950), *Equilibrium Points in N-Person Games*, Proceedings of the National Academy of Sciences 36(1):48–49, https://doi.org/10.1073/pnas.36.1.48; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696. The two-firm benchmark and diagnostics are constructed theoretical examples, not quotations or empirically validated results.
+
+**Implementation:** Documentation-only update. No new simulation, optimization solver, production assumptions or CI tests are introduced.
