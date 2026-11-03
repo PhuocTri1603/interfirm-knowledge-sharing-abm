@@ -771,3 +771,38 @@ Existing software validation: [GitHub Actions #41653126765](https://github.com/P
 **Milestone 18 completion criterion:** A consolidated, internally consistent *review document* is complete when these open choices and dependencies are explicit. **Game 1 economic-model approval is not complete** until the principal researcher makes the relevant decisions. Do not implement an optimizing economic experiment or claim results on the strength of this consolidation alone.
 
 **Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed.; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Tirole, *The Theory of Industrial Organization* (1988); Axelrod, *The Evolution of Cooperation* (1984). The dependency sequence, validation gates and candidate baseline are this project's research-design proposals, not empirical findings or direct prescriptions attributed to those sources.
+
+## D1 researcher clarification — all four technologies as competing strategies (2026-11-03)
+
+**Researcher instruction:** "Cứ làm hết phương án, và theo tôi nó là chiến lược" — retain **all** previously proposed A/B/C/D options as strategies to study, rather than asking the researcher to select only one. This supersedes the D1 single-choice gate in Milestone 18. **D1 scope approved: study all four.** The precise mathematical specifications, economic calibration, and comparison protocol remain open to review. Do not construe this instruction as approving arbitrary parameter values, output aggregation, demand, or market institutions.
+
+### D1 strategy catalog (all retained)
+
+| ID | Candidate technology strategy | Within-task activity representation | Critical boundary |
+| --- | --- | --- | --- |
+| A | Exclusive task assignment | Labor-only `q=aL*L` or eligible capital-only `q=aK*K` | Discrete mode choice, eligibility and possible adoption costs |
+| B | Continuous K/L substitution | CES `q=[beta(aL*L)^rho+(1-beta)(aK*K)^rho]^(1/rho)` | Requires approved `beta`, `sigma_KL`, and how eligibility restricts capital |
+| C | Fixed-proportions complementarity | `q=min(aL*L,aK*K)` | Requires both inputs; eligibility semantics must be reconciled |
+| D | Hybrid task technology | Each task draws/receives a specified type among A/B/C | Must specify task-type assignment, information and fairness |
+
+**Conceptual caution:** These are *production-technology strategies / technology regimes*, not yet behavioral strategies (e.g., myopic profit maximization, experimentation, imitation). Technology and behavior are separate experimental factors. In particular, strategy B and C are not simply alternative decision policies over an identical feasible set. Do not attribute performance differences to "better learning" if the underlying technology differs.
+
+### Fair experimental comparison without preassigned advantage
+
+1. Preserve the 100 approved base-firm identities and their 20 task IDs in each strategy scenario.
+2. Use a **matched 100-firm market per technology regime** to isolate regime-level contrasts, or deliberately specify a mixed-regime 100-firm market to study coexistence. A 400-agent coexistence market is a different population and cannot be silently substituted for the approved 100-firm baseline.
+3. Hold common initial attributes, task weights, input prices, demand, shock assignment and randomization protocol fixed when the economic meanings match; explicitly document quantities that cannot be equated across technologies.
+4. Choose a normalization/calibration procedure so that different functional forms are not mechanically ranked by arbitrary output units or parameter scaling. Equal baseline output or cost is a **possible calibration target**, not yet approved.
+5. Compare feasibility, input demands, costs, output, adoption, profit and market outcomes only after the shared aggregation and market rules are approved. Report heterogeneity and uncertainty; do not force a winner.
+6. Keep technological eligibility distinct from behavioral adoption. For B and C, the meaning of "capital ineligible for a task" requires an explicit production-set specification (a CES task may become labor-only; a Leontief task may be infeasible unless its technology is modified). Do not silently impose the A rule on B/C.
+7. The hybrid strategy D needs an explicit exogenous task-type mapping or an endogenous technology-selection decision with associated costs. These are **different** research questions.
+
+### Updated decision status
+
+- **D1: Scope decided — include A, B, C, D as competing technology strategies.** Exact forms/parameters/eligibility conventions remain pending, as does whether these are fixed firm types or selectable technologies.
+- **D2–D8: Still open.** Cross-task aggregation, K/L accounting, AI treatment, market institution, behavioral policy, population comparison design and welfare metrics are not approved by D1.
+- Existing technical `StrategySpec(strategy_id)` labels and market clones do not yet implement these four economic technologies. **Do not claim D1 code implementation or CI validation from this documentation update.**
+
+**Theory:** Varian, *Microeconomic Analysis*, 3rd ed. (production sets and heterogeneous technologies); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696 (task assignment and automation). CES and Leontief are conventional production representations used here as research alternatives, not asserted to be the exact Acemoglu–Restrepo task technology.
+
+**Next technical step:** define a technology-neutral within-task evaluation interface and property tests that preserve the different feasible sets; do not activate economic results before the remaining researcher decisions.
