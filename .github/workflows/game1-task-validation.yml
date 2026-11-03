@@ -47,4 +47,5 @@ jobs:
             tests/test_task_strategy_population.py \
             tests/test_task_shared_market.py \
             tests/test_task_repeated_market.py \
-            tests/test_task_strategy_policy.py
+            tests/test_task_strategy_policy.py \
+            tests/test_task_policy_adapter.py
