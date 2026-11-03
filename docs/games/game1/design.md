@@ -305,3 +305,50 @@ For a candidate fixed-proportions task technology `q_ij = min(aL_ij L_ij, aK_ij 
 **Literature anchors:** Acemoglu and Restrepo (2018), *The Race between Man and Machine: Implications of Technology for Growth, Factor Shares, and Employment*, American Economic Review 108(6), 1488–1542, https://doi.org/10.1257/aer.20160696 ; Acemoglu and Restrepo (2018), *Modeling Automation*, AEA Papers and Proceedings 108, 48–53, https://doi.org/10.1257/pandp.20181020 ; Acemoglu and Restrepo (2019), *Automation and New Tasks: How Technology Displaces and Reinstates Labor*, Journal of Economic Perspectives 33(2), 3–30, https://doi.org/10.1257/jep.33.2.3 ; Varian, *Microeconomic Analysis*, 3rd ed., production and cost-minimization framework. These references motivate the economic questions; the candidate equations above are **explicit model constructions for review**, not quotations or validated specifications from the papers.
 
 **Research governance:** No candidate is approved by this note. The researcher retains the choice of technology and assumptions; the assistant may implement mathematical property tests only after the choice is approved.
+
+## Milestone 12 — Joint 20-task constrained cost minimization (2026-11-03)
+
+**Status: theoretical derivation / candidate formulation only; not a selected production model.** This follows Milestone 11 candidate A (exclusive labor or capital task modes), while retaining the ability to replace that candidate after researcher approval. No new behavioral policy or economic experiment is activated.
+
+### 12.1 Conditional cost-minimization problem
+
+For firm `i`, tasks `j=1,...,20`, activity `q_ij >= 0`, mode `m_ij in {L,K}`, and technical eligibility `e_ij in {0,1}`, define the illustrative requirements:
+
+`L_ij(L,q)=q/aL_ij; K_ij(L,q)=0`; `L_ij(K,q)=0; K_ij(K,q)=q/aK_ij` with `m_ij=K` only when `e_ij=1`.
+
+Conditional on a **researcher-supplied** task aggregator `F_i`, output target `Ybar_i`, nonnegative wage `w`, capital-service price `r`, and (optional) task-mode adoption charges `f_ij >= 0`, a candidate firm problem is:
+
+`C_i(Ybar_i; Kbar_i,Lbar_i) = min_{m,q} sum_j [w L_ij(m,q) + r K_ij(m,q) + f_ij 1{m_ij=K}]`
+
+subject to `F_i(q_i1,...,q_i20) >= Ybar_i`, `sum_j K_ij <= Kbar_i`, `sum_j L_ij <= Lbar_i`, `q_ij >= 0`, and the eligibility mask. If the feasible set is empty, the target cannot be met with the given capacities. Adoption charges should be included only if they are genuine incremental costs of the relevant decision horizon; sunk charges must not be charged again. `w` and `r` are treated here as service/opportunity prices, not a statement that stocks are purchased each round.
+
+This is a **mixed discrete-continuous** conditional cost-minimization problem. Independent per-task cheapest-mode selection is not generally valid under joint capacities, fixed adoption charges, or nonseparable task aggregation.
+
+### 12.2 Shadow-value logic for fixed task requirements
+
+For a given externally specified activity vector `q` and no adoption charges, suppose nonnegative multipliers `lambda_K` and `lambda_L` are attached to binding shared capacity constraints. The Lagrangian has terms `lambda_K(sum_j K_j-Kbar)` and `lambda_L(sum_j L_j-Lbar)`. For a *conditional* comparison of a task's modes at the same `q_j`, their effective costs are:
+
+- Labor: `(w+lambda_L) q_j/aL_j`.
+- Capital: `(r+lambda_K) q_j/aK_j`, if eligible.
+
+Hence the conditional capital-mode preference is `(r+lambda_K)/aK_j < (w+lambda_L)/aL_j`, with ties allowed. This is an **economic interpretation of marginal scarcity**, not a general sufficient condition for the discrete global optimum: nonconvexities, adoption charges, and endogenous `q_j` can invalidate a per-task decomposition or a zero-duality-gap claim. Shadow prices are additional capacity-scarcity values *in this Lagrangian*; do not add them again as realized accounting expenses.
+
+### 12.3 Constructed counterexample: independent task selection fails
+
+**Illustration only; not a result from the 100-firm data.** Consider two active tasks, each with target `q=1`; all other tasks have fixed zero requirements. Both tasks are capital-eligible. Let `w=r=1`, `aL=1` and `aK=2` for both tasks. Thus each task costs `1` with labor or `0.5` with capital. Set shared capacities `Kbar=0.5` and `Lbar=1`.
+
+Independent minimization selects capital for both tasks, requiring `K=1 > Kbar`: **infeasible**. A feasible least-cost assignment is capital for one task and labor for the other, requiring `K=0.5`, `L=1`, with variable cost `1.5`. Assigning both to labor violates `Lbar=1`. The example proves only that a per-task cheapest-mode rule can violate shared capacity constraints under these illustrative numbers. It does not establish the optimal economic model for Game 1.
+
+### 12.4 Implications for future implementation
+
+- A **feasibility evaluator** (existing `task_bundle.py`) is not an optimizer: it checks a supplied plan, not the best plan.
+- For fixed `q`, finite-mode enumeration is conceptually possible (up to `2^20` combinations before eligibility pruning), but computational convenience alone does not justify the economic assumptions. Dynamic programming or mixed-integer optimization would require explicit modeling choices and numerical validation.
+- With endogenous `q` and a chosen `F_i`, an optimization solver must handle the coupled output constraint; the existence, uniqueness, convexity and optimality guarantees depend on the chosen technology and fixed costs.
+- The market decision remains separate: cost minimization at `Ybar` is only an input-demand subproblem. A profit-maximizing quantity decision would require a justified price/demand and information structure.
+- A technological eligibility change `e_ij:0 -> 1` weakly expands the **feasible set** under otherwise unchanged assumptions, but need not strictly lower realized cost or induce adoption; this monotonicity statement is conditional on the candidate assignment model, not an empirical AI finding.
+
+### 12.5 Researcher decision gate
+
+Before implementing a joint optimizer or interpreting its results, confirm (i) task-assignment technology, (ii) whether task activity requirements or final output are fixed, (iii) cross-task aggregation, (iv) capacity and price interpretation, and (v) adoption costs/timing. Until then, keep Milestone 12 as a theory-only specification and preserve the verified 89-test software baseline.
+
+**Theory anchors:** Varian, *Microeconomic Analysis* (3rd ed.), production sets, cost minimization and constrained optimization; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The constructed counterexample and Lagrangian expressions are derived for the explicit candidate above, not quoted findings from these sources.
