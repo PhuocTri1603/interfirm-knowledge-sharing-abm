@@ -4,6 +4,8 @@
 **Scope:** Milestone 5, Economic Model Validation  
 **Authority:** [Theoretical charter](../../theoretical_charter.md)
 
+> **Researcher clarification (2026-11-03):** The A/B/C comparison of interest is **three firms with the same production function, identical initial K and L, and identical starting conditions, but different decision strategies**. This is a behavioral-strategy comparison, **not** a comparison of three production functions. The earlier sections A/B/C below remain a taxonomy of *technological representations* for review only; they must not be treated as the three firm strategies. No specific decision rules have yet been approved. A common production technology must be defined separately from the strategy functions. This clarification supersedes any implication that the researcher must select A/B/C as alternative firm technologies.
+
 ## 1. The modeling question
 
 For firm `i` and task `j`, distinguish (i) the set of technically feasible input bundles, (ii) task output, (iii) aggregation into final output, (iv) prices/costs, and (v) behavior under imperfect information. A firm's capital/labor intensity `K/L` is an outcome of feasible technologies, prices, resources, and decisions; it must not be programmed to rise following an AI shock.
