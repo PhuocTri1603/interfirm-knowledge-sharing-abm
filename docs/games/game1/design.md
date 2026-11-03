@@ -806,3 +806,46 @@ Existing software validation: [GitHub Actions #41653126765](https://github.com/P
 **Theory:** Varian, *Microeconomic Analysis*, 3rd ed. (production sets and heterogeneous technologies); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696 (task assignment and automation). CES and Leontief are conventional production representations used here as research alternatives, not asserted to be the exact Acemoglu–Restrepo task technology.
 
 **Next technical step:** define a technology-neutral within-task evaluation interface and property tests that preserve the different feasible sets; do not activate economic results before the remaining researcher decisions.
+
+## D2 review — Cross-task aggregation under four D1 technology strategies (2026-11-03)
+
+**Status: proposal for researcher review, NOT approved.** D1 retains A/B/C/D as technology-strategy alternatives. D2 concerns the distinct mapping from 20 task activity levels to final firm output. Do not conflate a within-task CES in D1 with a CES **across tasks** in D2.
+
+### D2 candidate aggregator set
+
+For `q_j>=0`, positive task weights `omega_j`, and a common normalization chosen before comparison:
+
+1. **Weighted linear:** `Y=sum_j omega_j q_j`. Tasks can compensate for one another at constant marginal rates in the activity space. This does not imply that labor and capital themselves are perfect substitutes across the whole firm.
+2. **Leontief / essential-task bottleneck:** `Y=min_j (q_j/b_j)` with positive requirements `b_j`. An essential task with zero activity makes output zero; an increase in a non-bottleneck task may not change output.
+3. **CES across tasks:** `Y=[sum_j omega_j q_j^rho_tasks]^(1/rho_tasks)` for appropriate parameter/domain conventions, with `rho_tasks=(sigma_tasks-1)/sigma_tasks`. The weights and scale normalization must be chosen consistently; the Cobb–Douglas limit needs its own well-defined normalization. This `sigma_tasks` is distinct from any `sigma_KL` within a task.
+
+The user has **not** explicitly approved retaining all three D2 candidates. Their instruction to retain all options concerned D1. Therefore D2's three-way comparison is proposed, not recorded as an approved decision.
+
+### Crossed research-design matrix (proposal only)
+
+| D1 within-task strategy | D2 Linear | D2 Leontief | D2 CES |
+| --- | --- | --- | --- |
+| A: exclusive task assignment | Candidate | Candidate | Candidate |
+| B: within-task CES | Candidate | Candidate | Candidate |
+| C: within-task complements | Candidate | Candidate | Candidate |
+| D: hybrid task types | Candidate | Candidate | Candidate |
+
+Twelve cells are **candidate technology combinations**, not twelve validated economic models. The hybrid strategy needs a defined mapping of task types. For B/C, automation eligibility needs a defensible interpretation before evaluation. If a task is technologically infeasible under a regime, an aggregator that treats all tasks as essential can make the whole firm infeasible; this is a substantive economic implication, not a numerical error.
+
+### Comparison safeguards
+
+- Preserve 100 approved base-firm IDs and their 20 tasks in matched scenarios.
+- Specify whether all tasks are essential or optional, and how zero-activity tasks are treated.
+- Use common output units and explicit task weights/normalization; raw output levels from arbitrarily scaled functions are not comparable.
+- Hold input price, capacity, demand and AI treatment definitions constant **where economically meaningful**; disclose technology-specific constraints.
+- Treat the within-task technology choice and cross-task aggregator choice as distinct experimental factors; interaction effects may be research objects.
+- Avoid ranking candidate cells by profitability before specifying and approving cost accounting and market demand.
+- This matrix is a research-design proposal and does not imply that firms can endogenously choose their own production technology at zero cost.
+
+### D2 approval gate
+
+Principal researcher to decide whether D2 should (a) hold a single aggregator constant across all four D1 technologies to isolate within-task effects, (b) test all three aggregators in a 4×3 factorial design, or (c) adopt a different task aggregation representation. The choice of weights, CES elasticity, Leontief requirements, scale normalization and task essentiality is a **separate** parameter-approval step.
+
+**Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (production aggregation and substitution); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. These references support the general production/task framing, not this project's specific 4×3 matrix.
+
+**Implementation:** Documentation-only proposal. No D2 assumption approved, no new simulations or tests.
