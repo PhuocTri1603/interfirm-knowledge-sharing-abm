@@ -172,3 +172,11 @@ Do not fill these gaps with arbitrary default economic assumptions. Recover prev
 
 **Implementation boundary:** The existing technical pipeline and passing CI tests remain intact. This checkpoint records research design; modular strategy registration and cloning are future implementation tasks.
 
+
+## Extensible shared-market strategy clones — implementation checkpoint (2026-11-03)
+
+- Implemented `src/interfirm_abm/task_strategy_population.py`: open-ended `StrategySpec` identifiers; `build_shared_market_population` constructs one independent `TaskBasedFirm` clone per (base firm, strategy) pair, with identical initial tasks, capital, and labor and unique `base_firm_id::strategy_id` identifiers.
+- Implemented `tests/test_task_strategy_population.py` and included it in `.github/workflows/game1-task-validation.yml`. Checks 300 agents for three strategies, 400 for four including `AXXXX`, arbitrary IDs, deterministic construction, and invalid rosters.
+- **Scope boundary:** `SharedMarketPopulation` is a container for agents in one intended market; it does not yet simulate shared demand, endogenous prices, strategic decisions, interactions, or payoffs. Strategy labels are not executable policies. Technical checks must not be interpreted as an economic experiment.
+- The original heterogeneous 100-firm CSVs are preserved as the existing fixture. The homogeneous-base-firm experimental scenario requested by the researcher remains to be specified independently.
+- **CI:** newly added tests are awaiting workflow verification; prior green runs do not validate this new code.
