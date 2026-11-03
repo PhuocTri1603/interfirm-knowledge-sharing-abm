@@ -208,3 +208,46 @@ Do not fill these gaps with arbitrary default economic assumptions. Recover prev
 - Added `tests/test_task_policy_adapter.py` and included it in CI. Synthetic labor-only plans and sum-of-activities aggregation are **test fixtures only**, not approved economic assumptions.
 - **Scientific boundary:** Task-level linear activity, pure labor/capital execution, and externally supplied aggregation remain provisional. The adapter does not choose K/L, optimize, model AI adoption, validate production theory, or define market equilibrium. A researcher-approved task production model, aggregation, and input-price interpretation are required before interpreting outputs as economic evidence.
 - **CI VERIFIED (2026-11-03):** [Actions run #41653126765](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41653126765), code commit `95e18529aae660137db5eec41a9b7fffa1935692`, completed `success`. Python 3.11: **89 passed in 0.77s**; Python 3.12: **89 passed in 0.92s**. This validates task-plan-to-market technical integration against test fixtures; it does not establish an approved task production function, optimizing behavior or economic equilibrium.
+
+## Milestone 10 — Economic model validation audit (2026-11-03)
+
+**Status: Theory audit, not approval or simulation evidence.** No production function, price schedule, or behavioral policy is selected by this section. Source: Acemoglu and Restrepo (2018), *The Race between Man and Machine*, American Economic Review 108(6):1488–1542, https://doi.org/10.1257/aer.20160696 ; Acemoglu and Restrepo (2018), *Modeling Automation*, AEA Papers and Proceedings 108:48–53, https://doi.org/10.1257/pandp.20181020 ; Acemoglu and Restrepo (2019), *Automation and New Tasks*, Journal of Economic Perspectives 33(2):3–30, https://doi.org/10.1257/jep.33.2.3 . Theoretical authority within this repo: `docs/theoretical_charter.md`.
+
+### A. What the current implementation actually means
+
+1. `task_based_firm.py`: provisional within-task activity `q_ij = aL_ij L_ij + aK_ij K_ij`, with capital disallowed on ineligible tasks. This implies perfect substitutability *within an eligible task* in the accounting formula; it does **not** establish the production technology that the researcher intends to study.
+2. `task_execution.py` and `task_bundle.py`: compare **pure labor** and **pure capital** execution modes, with fixed target activity and finite K/L endowments. They do not optimize a continuous mixed input allocation, or include adjustment, fixed adoption, or sunk costs by default.
+3. `task_aggregators.py`: linear, normalized Leontief, and CES candidates aggregate **task activities** into final output. The CES sigma is a **cross-task elasticity**, not directly an identified aggregate K/L substitution elasticity. Note: `weighted_leontief = min_j(q_j/omega_j)` is **not** the sigma-to-zero limit of the implemented weighted CES; the latter tends to `min_j(q_j)` under its current normalization.
+4. `task_policy_adapter.py`: externally chosen task plans map to K/L accounting and market output/cost. It does not validate economic incentives or establish an optimizing firm.
+5. `task_shared_market.py`: evaluates externally supplied joint quantities at a common caller-injected inverse-demand price. It is **not** an equilibrium model. All supplied output is valued at that price by convention, not because a sales/clearing mechanism has been established.
+6. `task_strategy_policy.py`: only completed-round market history is provided by the harness. This is an information-set restriction of the implementation, not yet a researcher-approved behavioral assumption. The runner does not endogenously update capital, labor, productivity, technology eligibility, or knowledge.
+
+### B. Required economics decisions (not approved)
+
+| Layer | Question for principal researcher | Why it matters |
+| --- | --- | --- |
+| Within-task technology | Can capital and labor perform the same task, in exclusive modes or mixtures? Under what task-specific productivity and feasibility conditions? | Determines the economic meaning of automation and factor substitution |
+| Cross-task aggregation | Are tasks essential/complementary, substitutable, or another production-set representation? Which normalization and task weights? | Determines marginal product, bottlenecks and output |
+| Inputs and costs | Are K/L endowments fixed capacities, owned stocks, or purchasable flows? Are w and r market prices or opportunity costs? | Avoids mixing capacity constraints with rental-cost accounting |
+| Automation | Does an AI shock change task eligibility, capital productivity, task set, or adoption cost? Are adoption and technological feasibility distinct? | Distinguishes displacement, productivity, adoption, and adjustment mechanisms |
+| Market structure | Are firms price takers, Cournot quantity setters, or operating under another demand/sales arrangement? What information do they observe? | Determines whether quantity decisions internalize own price impact |
+| Choice and timing | What objective, feasible set, beliefs, information, and decision sequence governs the firm? | Converts a technical policy interface into an economic decision model |
+| Dynamic state | Which stocks/technologies/knowledge persist across rounds, and what are their transition laws? | Needed for learning and investment rather than independent accounting snapshots |
+| Outcomes | Which welfare concept, counterfactual and price normalization are appropriate? | Prevents labeling aggregate profits as social welfare |
+
+### C. Literature-grounded guardrails
+
+- In Acemoglu and Restrepo's task framework, automation is **a change in which tasks capital can perform instead of labor**; it is not adequately represented merely by increasing an aggregate productivity constant or changing the cross-task CES elasticity. Their models also distinguish displacement from productivity and reinstatement/new-task mechanisms. These results apply under the respective papers' assumptions, not automatically to this ABM.
+- A task-based model does not, by itself, imply that automation increases profits for every firm, or that K/L ratios move in one direction for every firm. Prices, comparative productivity, costs, feasible task assignments and market feedback all matter.
+- A 100-firm clone experiment with 3 or 4 strategies is a useful controlled software comparison, but it does not identify causal economic effects until treatment, common shocks, equilibrium/interference and counterfactual assumptions are specified.
+
+### D. Recommended next validation sequence (not a choice of model)
+
+1. Document an explicit *candidate* within-task production/assignment technology and its feasible set, then derive cost minimization for a given vector of task requirements.
+2. Choose and normalize a *candidate* task aggregator; check monotonicity, scaling, zero-task behavior, and factor demand implications.
+3. Define economic meaning of K/L stocks, wages/rental rates, and any automation fixed or adjustment costs; avoid double-counting.
+4. Specify market demand and timing; distinguish accounting price from a justified market equilibrium or quantity-game outcome.
+5. Only then implement optimizing or bounded-rational strategy policies and evaluate before/after automation counterfactuals.
+6. Preserve the existing 89-test software baseline, adding economic property tests and sensitivity tests as hypotheses are approved.
+
+**Decision gate:** This audit approves no new economic assumptions. The principal researcher must approve a candidate technology and market specification before research-grade simulation.
