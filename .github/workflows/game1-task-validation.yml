@@ -44,4 +44,5 @@ jobs:
             tests/test_task_pipeline.py \
             tests/test_task_population_smoke.py \
             tests/test_task_population_pipeline.py \
-            tests/test_task_strategy_population.py
+            tests/test_task_strategy_population.py \
+            tests/test_task_shared_market.py
