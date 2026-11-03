@@ -41,4 +41,5 @@ jobs:
             tests/test_task_bundle.py \
             tests/test_task_plan_selection.py \
             tests/test_task_candidate_generation.py \
-            tests/test_task_pipeline.py
+            tests/test_task_pipeline.py \
+            tests/test_task_population_smoke.py
