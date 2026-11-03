@@ -410,3 +410,65 @@ For a **fixed task-activity vector**, the problem reduces to a finite discrete a
 **Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (production sets, conditional factor demand and cost minimization); Acemoglu and Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu and Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The compactness/existence and fixed-mode convexity arguments are **derived for this candidate model**; they should not be attributed as quoted theorems from the cited task-automation papers.
 
 **Decision gate:** No economic assumptions or optimization algorithm approved by this audit. Preserve the current verified software tests and do not report simulated findings.
+
+## Milestone 14 — Production-property audit: monotonicity, scale, continuity, substitution, convexity (2026-11-03)
+
+**Status: theory-only review.** No candidate aggregator, within-task technology, optimization method, or AI shock is selected. Claims below are conditional mathematical implications of specified illustrative assumptions; they are not simulation findings or statements about observed firms.
+
+### 14.1 Separate the objects under review
+
+Let `q=(q_1,...,q_20)` denote task activities, `Y=F(q)` final output, and `(K,L)` available inputs. A **production set** records feasible input-output combinations; an **output aggregator** maps task activities to final output; a **policy** chooses an allocation from the feasible set. Properties of one do not automatically imply properties of the others.
+
+For candidate A, task modes are discrete and eligible capital modes are optional. Let `V(Kbar,Lbar;e)` be the *maximum technically feasible output* with given capacities and eligibility mask, if a continuous aggregator and feasible plan are specified. Distinguish this technical frontier from output actually chosen by a profit-seeking or learning firm.
+
+### 14.2 Monotonicity and free disposal
+
+If unused K/L may be left idle, the eligible modes do not shrink, and technology does not change, increasing either resource capacity weakly enlarges the feasible set. Thus `V(Kbar',Lbar';e) >= V(Kbar,Lbar;e)` whenever `Kbar'>=Kbar` and `Lbar'>=Lbar`, provided the maxima exist. This does **not** imply actual chosen output or profit rises.
+
+If `F` is componentwise nondecreasing, greater task activity cannot lower final output, holding other tasks fixed. For the existing candidate aggregators with nonnegative activities and strictly positive weights: weighted linear is increasing in each task; normalized Leontief is weakly nondecreasing (a non-bottleneck task can have zero marginal effect); weighted CES for `sigma>0` is weakly nondecreasing, with strictness and boundary derivatives depending on positive task activities and parameters.
+
+**Free disposal** is an explicit production-set assumption, not a theorem from nonnegative coefficients. It must be stated before treating the output frontier as monotone.
+
+### 14.3 Returns to scale and normalization
+
+For `t>=0`, the candidate weighted linear, normalized Leontief and weighted CES task aggregators are **homogeneous of degree one in task activities**: `F(tq)=tF(q)`, using the continuous extension at `t=0`. The provisional pure-mode task requirements are also proportional to activity. Consequently, in the *unconstrained static candidate* with scalable input capacities, no fixed charges, unchanged technology and no non-scalable restrictions, the maximum feasible output scales linearly with a proportional scaling of both capacities. This is a **conditional constant-returns-to-scale construction**, not a finding about the 100 synthetic firms or actual industries.
+
+With **fixed capacities** held constant, proportional expansion of a plan may be infeasible; with fixed adoption charges, scale economies can arise in *average cost* even if physical production is constant-returns-to-scale. A fixed monetary charge does not by itself change the physical production function's homogeneity. Dynamic investment or indivisibilities require separate analysis.
+
+### 14.4 Continuity and discrete technology
+
+Each implemented candidate aggregator is continuous on the nonnegative activity domain under its documented parameter restrictions, including its specified zero-activity behavior. For a **fixed** task-mode assignment, input requirements and task activities vary continuously with their continuous inputs.
+
+A discrete switch in the chosen task mode can cause the **selected input allocation** to jump as relative costs cross a threshold. That does **not** prove that the production possibility frontier or the minimum-cost *value function* is discontinuous. With finitely many modes and continuous mode-specific value functions on a common feasible domain, their pointwise minimum is continuous; however, mode-specific infeasibility and changing eligibility can change that conclusion. A binary eligibility shock is a discrete change in the feasible technology, not an infinitesimal change of a continuous parameter.
+
+### 14.5 Substitutability is level-specific
+
+- **Within-task**: the provisional linear activity formula `q_j=aL_j L_j+aK_j K_j` permits perfect substitution when both inputs are technically eligible; pure-mode assignment is a *discrete* substitution choice. CES and fixed-proportions within-task models from Milestone 11 are separate candidates.
+- **Across tasks**: `task_aggregators.task_ces` defines substitution among task activities, parameterized by `sigma_tasks`; it is not directly a within-task `sigma_KL`.
+- **Aggregate K/L**: any effective substitution response of total firm capital and labor depends on task efficiencies, eligibility, task aggregation, input prices, resource capacities, and the allocation rule. It must be derived or simulated under approved assumptions, not inferred from one CES parameter.
+
+### 14.6 Convexity, concavity and production sets
+
+For nonnegative task activities and strictly positive weights, the candidate weighted linear aggregator is both concave and convex; normalized Leontief (a minimum of linear terms) is concave; the weighted CES power-mean aggregator with `sigma_tasks>0` (equivalently `rho<1`) is concave on the nonnegative orthant. Their superlevel sets `{q:F(q)>=Ybar}` are therefore convex.
+
+**However**, a union over discrete pure-mode task assignments need not be convex even if each fixed-mode feasible subset is convex. In particular, a midpoint of a labor-only plan and a capital-only plan may require mixing modes prohibited by the candidate A assignment rule. Thus the full task-assignment production set and optimization problem are not guaranteed convex. A mathematical relaxation permitting fractional mode mixtures may change the economic technology and cannot silently be treated as equivalent.
+
+### 14.7 Property-test matrix (specification only, no tests added)
+
+| Proposed test | Expected conditional property | Boundary / failure mode |
+| --- | --- | --- |
+| Task aggregator monotonicity | `F(q+delta)>=F(q)` for nonnegative `delta` | Nonmonotone researcher-supplied aggregators need not pass |
+| Positive homogeneity | `F(tq)≈tF(q)` for `t>=0` | Fixed charges are cost, not output; finite precision near zero |
+| Continuity | Nearby positive activity vectors yield nearby output | Do not mistake jumps in chosen modes for discontinuity of `F` |
+| Concavity | `F(theta q+(1-theta)z)>=theta F(q)+(1-theta)F(z)` | Requires candidate aggregator assumptions and numerical tolerance |
+| Capacity expansion | Enlarged capacities do not remove feasible old plans | Fails if extra capacity must be used or technology changes |
+| Eligibility expansion | Newly capital-eligible tasks preserve old feasible plans | Does not guarantee adoption, profit, or welfare gains |
+| Full technology convexity | **Not generally expected** for exclusive task modes | Convexification changes candidate technology |
+
+These are candidate *mathematical property checks*, not an instruction to rewrite or approve production functions. Existing CI tests remain the technical baseline; no new CI run is required for this documentation-only audit.
+
+### 14.8 Decision gate and theoretical references
+
+Before adding property-based tests or optimization to the canonical Game 1 pipeline, the principal researcher must approve (i) the within-task feasible technology, (ii) the cross-task aggregator and normalization, (iii) whether free disposal is assumed, (iv) the economic meaning of fixed capacities and costs, and (v) whether a convex relaxation is economically admissible.
+
+**Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed., production theory, production sets, returns to scale, cost functions; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The property statements here are mathematical deductions for the stated candidates, **not** quotations or empirically validated results from these works.
