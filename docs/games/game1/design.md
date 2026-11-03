@@ -107,6 +107,14 @@ Added `src/interfirm_abm/task_aggregators.py` and `tests/test_task_aggregators.p
 - The test is committed, but **its CI result is pending verification**. The prior 50-pass result predates this new test.
 - Next scientific design tasks: approve within-task production, task aggregation, price/cost interpretation, behavioral information and decision rule, and AI-induced technology change before research simulations.
 
+## Verified 100-firm integration checkpoint — 2026-11-03
+
+- **Milestone 4 (technical integration) passed:** [GitHub Actions Game 1 task-based validation run #5](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41646731779), triggered by commit `958c2e997cd7102737000700fe663f81c9dee34a`.
+- Read the job logs: Python 3.11 **52 passed in 0.88 s**, Python 3.12 **52 passed in 0.60 s**. Both jobs and workflow concluded `success`.
+- The two new tests exercise a canonical 100-firm / 2,000-task population through the local candidate-generation, feasibility, and accounting comparison pipeline, and check deterministic repeatability. Synthetic test-only prices, zero-activity baseline, unit activity step, and additive task stub are not research assumptions.
+- Technical status: **PASS** for the tested commit; scientific status: **not validated**. Do not infer enterprise adoption choices, actual gains, market equilibrium, or AI effects from these unit/integration tests.
+- Next research milestone: define and obtain researcher approval of within-task production, across-task aggregation, economic costs/prices, the firm's decision/information rule, and the AI shock before research experiment runs.
+
 ## Purpose
 
 Construct an economically coherent artificial market of approximately 100 heterogeneous firms, with production technologies represented using Varian's production theory, firm-level economic decisions, and pre-/post-AI comparisons. This is a foundation for Games 2 and 3, not a mechanism designed to induce cooperation.
