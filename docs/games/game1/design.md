@@ -969,3 +969,43 @@ These are **proposed alternatives**, not researcher-approved D4 strategies. A fu
 **References:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Varian, *Microeconomic Analysis*, 3rd ed. The proposed shock catalog is a project design framework, not a finding from those references.
 
 **Implementation status:** Documentation-only update; no new strategy generator, economic model, simulation, tests or CI run.
+
+## D4 researcher approval — four AI shock strategies in one layer (2026-11-03)
+
+**Explicit researcher decision:** Approve retaining all four D4 options A/B/C/D as **one fourth strategy layer**, continuing the Cartesian-product multi-layer design. This is approval of the option catalog and layer architecture, **not** of shock magnitudes, task assignments, adoption behavior or economic results.
+
+| Layer | Approved option catalog | Count |
+| --- | --- | --- |
+| L1 / D1 | Assignment; within-task CES; within-task Leontief; Hybrid | 4 |
+| L2 / D2 | Cross-task Linear; Leontief; CES | 3 |
+| L3 / D3 | Flexible Inputs; Capacity Constrained; Adjustment Cost; Capital Investment | 4 |
+| L4 / D4 | Automation Eligibility Expansion; Capital Efficiency Improvement; Adoption Cost Reduction; Combined Shock | 4 |
+
+**Nominal strategy count:** `4 × 3 × 4 × 4 = 192`. Store `L1`–`L4` identifiers and their parameter/definition versions for each strategy, along with market/scenario, base firm, task, replication and cluster metadata. Count feasible, incompatible and unparameterized cells separately. Do not interpret 192 strategy cells as 192 competing firms or completed simulations.
+
+### D4 treatment boundaries
+
+- **A — Eligibility:** expand capital-feasible task set without deleting prior feasible methods. Define separate eligibility semantics for each L1 technology, particularly complementarity.
+- **B — Efficiency:** improve specified `aK_j` values. Do not automatically equate an efficiency gain with a task becoming eligible.
+- **C — Adoption cost:** reduce a defined adoption expense. Without an approved cost function, this treatment is a placeholder and cannot produce economic effects.
+- **D — Combined:** explicitly specify the component interventions and their magnitudes; do not infer an interaction effect from a single before/after comparison.
+- Preserve no-treatment controls, identical-plan replay, matching and cross-market interference checks from Milestone 17. AI availability is not automatically AI adoption.
+
+### D5 preview — Market institution layer (proposal, NOT APPROVED)
+
+Candidate regimes to examine, retaining economic distinctions:
+
+| Option | Institution | Necessary model ingredient |
+| --- | --- | --- |
+| A | Price-taking with market clearing | Firm supply choices and explicit demand/clearing |
+| B | Cournot quantity competition | Inverse demand and globally evaluated unilateral best responses |
+| C | Price competition | Product differentiation/capacity/rationing and a well-defined pricing game; homogeneous Bertrand can have degenerate outcomes |
+| D | Dynamic adaptive market | Agent information, decision rules, price formation and state transitions; not necessarily equilibrium |
+
+These are **candidate D5 strategies**, not yet approved. Market structures cannot be treated as mere labels over identical accounting rules. A price-taking market with clearing, a Cournot game, a Bertrand-style game and an adaptive ABM require different behavioral/institutional mechanisms. Keep D5 separate from learning-policy details that may later constitute an additional layer.
+
+**Approval gate:** Researcher to confirm D5 catalog and whether all four institutions should form one layer. If four options are approved, the nominal crossed count becomes `192×4=768`; compatibility and comparison unit must be reported explicitly.
+
+**References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. These are theoretical anchors, not endorsements of the project's factorial design.
+
+**Implementation:** Documentation-only update. No economic solver, layer generator, simulations, tests or CI run are claimed.
