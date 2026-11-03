@@ -156,3 +156,19 @@ Do not fill these gaps with arbitrary default economic assumptions. Recover prev
 5. Validate accounting identities, feasible choices, market behavior, and reproducibility before reporting economic results.
 
 **Research safeguard:** The model should make it possible to investigate whether cooperation emerges in later games; it must not make cooperation inevitable.
+
+## Researcher-approved experiment architecture: extensible strategies — 2026-11-03
+
+**Approved conceptual requirements (not yet implemented):**
+
+- Use **one shared competitive market** per simulation run, rather than independent markets for strategies.
+- Define base-firm characteristics, technology, initial inputs and initial conditions separately from behavior. For a controlled comparison, clone each base firm once per registered strategy; clones share the same initial attributes but become independent competing agents.
+- Strategy identifiers are **open-ended strings**, e.g. `A`, `B`, `C`, `AXXXX`. Do not hard-code a three-strategy limit or use production-function names as strategy identifiers.
+- With `N` base firms and `S` strategies, a fully crossed experiment contains `N × S` competing agents. Strategy additions create further agents in the **same** market.
+- All agents interact through shared market outcomes. Evaluate per-round and cumulative payoffs, with matched comparisons among clones of the same base firm over repeated rounds.
+- Adding strategies changes the market composition and potentially prices and outcomes for all existing strategies. Record the full strategy roster and market setup for each run; do not interpret cross-roster comparisons as isolated strategy effects.
+- The current 100-firm heterogeneous synthetic population is **not** automatically replaced or deleted. The researcher has clarified a homogeneous-base-firm comparison as the initial controlled scenario; reconcile this with the existing heterogeneous population before experiments.
+- No specific strategy decision rules, production function, pricing rule, AI shock, or payoffs have been approved by this architectural clarification. Do not implement research behavior by guessing them.
+
+**Implementation boundary:** The existing technical pipeline and passing CI tests remain intact. This checkpoint records research design; modular strategy registration and cloning are future implementation tasks.
+
