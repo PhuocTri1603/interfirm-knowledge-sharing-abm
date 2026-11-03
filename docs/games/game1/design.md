@@ -352,3 +352,61 @@ Independent minimization selects capital for both tasks, requiring `K=1 > Kbar`:
 Before implementing a joint optimizer or interpreting its results, confirm (i) task-assignment technology, (ii) whether task activity requirements or final output are fixed, (iii) cross-task aggregation, (iv) capacity and price interpretation, and (v) adoption costs/timing. Until then, keep Milestone 12 as a theory-only specification and preserve the verified 89-test software baseline.
 
 **Theory anchors:** Varian, *Microeconomic Analysis* (3rd ed.), production sets, cost minimization and constrained optimization; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The constructed counterexample and Lagrangian expressions are derived for the explicit candidate above, not quoted findings from these sources.
+
+## Milestone 13 — Existence, convexity and global optimality audit (2026-11-03)
+
+**Status: conditional mathematical audit of Milestone 12 candidate A, not researcher approval.** No solver, economic policy or AI treatment is introduced. The mathematical results below are deductions from the explicitly stated candidate assumptions, not empirical findings.
+
+### 13.1 Feasibility is distinct from optimality
+
+For a given firm, take finite nonnegative capacity bounds `Kbar,Lbar`, strictly positive finite task efficiencies `aL_j,aK_j`, 20 tasks, and a fixed eligibility mask. A feasible plan must select one eligible mode for each task, assign `q_j >= 0`, satisfy shared capacity constraints and `F(q) >= Ybar`. An output target may be **infeasible** even when each task individually has an available labor mode. In particular, high task requirements can exhaust joint capacities.
+
+**Check zero-output edge cases explicitly:** `Ybar=0` is feasible with `q=0` if `F(0)>=0` and zero-input modes are permitted; otherwise feasibility depends on the chosen aggregator. A negative or nonfinite target should be rejected by an implementation, but this is an input validation convention, not a theoretical result.
+
+### 13.2 Conditional existence proposition
+
+**Proposition (candidate A):** Suppose (i) the number of tasks and eligible mode assignments is finite and nonempty; (ii) `Kbar,Lbar` are finite and nonnegative; (iii) `aL_j,aK_j` are finite and strictly positive; (iv) `F: R_+^20 -> R` is continuous; (v) the output target is feasible; and (vi) costs are continuous in activity within each mode and finite, with any mode-fixed charges finite. Then the conditional cost-minimization problem attains a minimum.
+
+**Argument:** For any fixed mode vector, shared K/L bounds and strictly positive efficiencies bound every `q_j` from above, so the feasible activity set is bounded. Nonnegativity, linear capacity inequalities, and the continuous-output superlevel condition make it closed; hence it is compact. Continuous cost attains a minimum on every nonempty fixed-mode feasible set. There are finitely many eligible mode vectors, so the least of their attained minima exists. This proves existence, **not uniqueness, convexity, efficient computability, or equilibrium**.
+
+If the target is infeasible, the problem has **no feasible solution**; do not report a finite optimal cost. If capacity bounds are removed or the technology/cost assumptions change, this particular existence argument must be revisited.
+
+### 13.3 Conditional convexity within a fixed mode
+
+For a **fixed** eligible mode vector, activity costs and capacity constraints are linear in `q`. If `F` is **concave** and continuous, its superlevel set `{q : F(q)>=Ybar}` is convex. Therefore the fixed-mode conditional cost-minimization problem is a convex optimization problem (possibly infeasible). This includes an appropriately parameterized concave CES aggregator, but not every arbitrary user-supplied `F`.
+
+The full mode-choice problem is generally **nonconvex** because the feasible set is a finite union of mode-specific sets. Fixed adoption charges can also create discrete jumps in the objective across mode selections. Thus a first-order condition or locally optimal candidate is **not generally sufficient** to establish a global optimum for the mixed problem.
+
+**Uniqueness is not guaranteed:** Even a fixed-mode convex problem with linear costs can have multiple cost-minimizing activity vectors. Strict convexity/appropriate regularity of the objective and feasible set would need separate verification; do not infer unique K/L choices from existence alone.
+
+### 13.4 Solution methods and what they certify
+
+| Method | What it can establish | Important limitation |
+| --- | --- | --- |
+| Evaluate a supplied 20-task plan (existing code) | Whether that plan is feasible and its accounting cost | Cannot prove global optimality |
+| Independent cheapest-mode choice | Conditional per-task cost comparison | Can violate shared capacities and output coupling |
+| Enumerate eligible mode vectors, globally solve each continuous subproblem | Global optimum if all eligible modes are covered and each subproblem is solved globally with verified tolerances | Up to `2^20 = 1,048,576` mode vectors before pruning; computationally demanding |
+| Mixed-integer optimization | Potential global certificates/bounds for an accurately encoded problem | Applicability and guarantees depend on chosen aggregator, objective, solver, tolerances and formulation |
+| Heuristics / local search | Candidate feasible plans, useful exploratory baselines | No general global optimality certificate |
+
+For a **fixed task-activity vector**, the problem reduces to a finite discrete assignment with shared resource capacities; for **endogenous task activities** and nonlinear `F`, it is a coupled mixed discrete-continuous problem. No algorithm should be selected solely because it is convenient to code.
+
+### 13.5 Economic interpretation and remaining limits
+
+- **A technology shock that expands the eligibility mask** weakly enlarges the candidate feasible set, holding all else constant. Conditional on an already feasible output target, its *minimum achievable cost* therefore cannot increase **if newly eligible modes are optional and existing costs/constraints are unchanged**. This does **not** imply observed adoption, higher equilibrium profit, higher welfare, or a fall in labor demand.
+- Shadow-price comparisons in Milestone 12 are diagnostic conditional comparisons. With discrete choices, the Lagrangian dual can have a positive duality gap, and capacity multipliers need not globally rank mode assignments.
+- Firm-wide capacities, labor and capital opportunity prices, adoption charges, and the meaning of `Ybar` must be settled before cost differences are interpreted as economic incentives.
+- Cost minimization at fixed output is not profit maximization; the latter additionally requires an output/market decision and appropriate information assumptions.
+
+### 13.6 Review checklist before any solver implementation
+
+1. Researcher approval of the pure-mode task-assignment candidate or another within-task technology.
+2. Researcher approval of the aggregator `F` and its continuity, concavity, normalization, zero-task and scale properties.
+3. Specification of whether `q` is exogenous or chosen jointly to meet an output target, and whether a target is economically meaningful.
+4. Economic treatment of K/L capacities, wages, rental rates, fixed adoption charges, and the time horizon.
+5. Choice of numerical optimality standard: feasibility tolerance, objective tolerance, global bound/gap and reproducibility controls.
+6. Separate scientific evaluation of automation counterfactuals after the mathematical model is approved.
+
+**Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (production sets, conditional factor demand and cost minimization); Acemoglu and Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu and Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The compactness/existence and fixed-mode convexity arguments are **derived for this candidate model**; they should not be attributed as quoted theorems from the cited task-automation papers.
+
+**Decision gate:** No economic assumptions or optimization algorithm approved by this audit. Preserve the current verified software tests and do not report simulated findings.
