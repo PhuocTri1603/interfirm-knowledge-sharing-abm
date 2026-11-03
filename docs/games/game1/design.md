@@ -611,3 +611,83 @@ Before implementing an equilibrium solver or reporting a market finding, the pri
 **Theory references:** Varian, *Microeconomic Analysis*, 3rd ed., firm supply and competitive equilibrium; Tirole, *The Theory of Industrial Organization* (1988), Cournot competition; Nash (1950), *Equilibrium Points in N-Person Games*, Proceedings of the National Academy of Sciences 36(1):48–49, https://doi.org/10.1073/pnas.36.1.48; Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696. The two-firm benchmark and diagnostics are constructed theoretical examples, not quotations or empirically validated results.
 
 **Implementation:** Documentation-only update. No new simulation, optimization solver, production assumptions or CI tests are introduced.
+
+## Milestone 17 — Before/after AI counterfactual design and identification audit (2026-11-03)
+
+**Status: preregistration-style design proposal only.** No AI treatment, task technology, equilibrium model, strategy, welfare definition, or scientific hypothesis is approved. No experiment has been run. This section provides a framework for the principal researcher to select and authorize a research design.
+
+### 17.1 Treatment must be specified before comparison
+
+Let `e_i^0` and `e_i^1` denote firm `i`'s pre/post technical eligibility masks over 20 tasks. An illustrative **pure feasibility expansion** treatment satisfies `e_ij^1 >= e_ij^0` for all tasks and firms, with all other primitives held fixed. This isolates the option to use capital in newly eligible tasks. It is **not equivalent** to an AI productivity shock (`aK` change), an adoption-cost reduction, or new task creation; these require separate treatments and potentially different theoretical predictions.
+
+Record the treatment assignment at the **base-firm and task** level, not only as an aggregate AI indicator. Eligibility is not actual adoption. The adoption decision may depend on prices, costs, endowments and information.
+
+### 17.2 A staged counterfactual ladder
+
+| Stage | Technology | Firm actions | Rival actions and price | What it identifies conditionally |
+| --- | --- | --- | --- | --- |
+| S0: baseline | `e^0` | Pre-shock feasible plans | Pre-shock market environment | Reference outcome |
+| S1: mechanical replay | `e^1` | **Exactly the same** old plans | Same rival actions and price | Feasibility/accounting consistency check; **zero effect** for a pure optional eligibility expansion with unchanged costs and plans |
+| S2: own response, fixed environment | `e^1` | Firm `i` reoptimizes (if a choice model is approved) | Rivals' quantities and demand held fixed | Firm-level option value / partial response, not a market equilibrium effect |
+| S3: joint response | `e^1` | All firms adjust under the same approved rule | Market price responds endogenously | Total change including strategic feedback, conditional on model |
+| S4: dynamic learning | `e^1` | Firms learn with specified information/state transitions | Time-varying joint actions and prices | Path-dependent adaptation; **not** automatically equilibrium |
+
+The stages answer different questions. S1 is not an estimate of productivity effects if the shock only changes optional eligibility: the old feasible plan remains available and unchanged. The S2-to-S3 difference is a useful **scenario comparison**, but cannot automatically be called a unique additive “competition effect”: nonlinear responses, equilibrium selection and spillovers may make the decomposition path-dependent.
+
+### 17.3 Counterfactual notation and decomposition limits
+
+Let `O_i(T,A_i,A_-i,P)` denote a selected outcome (e.g. firm profit), where `T` is the technology regime, `A_i` own action, `A_-i` rival actions and `P` the price rule. An illustrative comparison is:
+
+`Delta_i^joint = O_i(T^1,A_i^1,A_-i^1,P^1) - O_i(T^0,A_i^0,A_-i^0,P^0)`.
+
+An own-response comparison with rivals fixed is
+
+`Delta_i^own = O_i(T^1,A_i^{BR,1}(A_-i^0),A_-i^0,P(Q_i^{BR,1}+Q_-i^0)) - O_i(T^0,A_i^0,A_-i^0,P^0)`,
+
+where the **market price is recomputed consistently with the firm's unilateral quantity** under an inverse-demand game. Alternatively, a genuinely exogenous-price experiment must explicitly keep `p` fixed; do not mix these institutions. `Delta_i^joint - Delta_i^own` is a **path-specific residual** rather than an identified universal strategic externality. No causal empirical identification is claimed by synthetic counterfactuals.
+
+### 17.4 Matching, interference and strategy cloning
+
+- Use the approved 100 base-firm identifiers and 20 tasks as the matched unit across regimes. Preserve task efficiencies, initial capacities and all non-treatment primitives unless a separate factorial treatment explicitly changes them.
+- A **100-firm matched scenario** and a **400-agent coexistence market** are different economies. Never present them as interchangeable comparisons.
+- When comparing strategy policies, hold the market population definition, initial state, treatment, information timing and random-number design constant to the extent the chosen model permits. Distinguish independent-market replications from 400-agent within-market interactions.
+- **Interference is expected:** a firm's outcome can depend on rivals' technology and actions via market price. Standard independent-unit treatment-effect language is inappropriate without a defined interference structure.
+- In stochastic ABM runs, paired random seeds can reduce comparison noise when the stochastic streams and scenario coupling are well defined; identical seed labels alone do not guarantee identical random draws if the number/order of calls changes.
+
+### 17.5 Outcomes and denominators to specify
+
+| Level | Candidate measurement | Interpretation boundary |
+| --- | --- | --- |
+| Task | Eligibility share, capital-mode adoption share, task-specific activity and cost | Eligibility is not adoption; task weights and zero-activity tasks matter |
+| Firm | Output, K and L used, K/L ratio, variable and total cost, profit, adoption expenditures | K/L undefined if L=0; input quantities and prices need consistent units |
+| Market | Aggregate output, inverse-demand price, firm shares, profit distribution and concentration | Common market price alone is not a market-clearing or equilibrium certificate |
+| Efficiency | Feasible output frontier, cost-minimization gap, best-response gap | Depends on approved technology and ability to solve global benchmarks |
+| Welfare | Consumer surplus, producer surplus, real resource costs, investment costs | Cannot infer welfare from sum of profits; transfers and externalities need explicit accounting |
+| Dynamics | Time-to-adoption, volatility, persistent mode choices, cross-seed distributions | Require genuine state transitions and policy behavior, absent in current accounting harness |
+
+Define whether ratios are firm-weighted, output-weighted or task-weighted. Report both absolute and relative changes where denominators are nonzero, and identify zero-denominator cases explicitly. Do not call an accounting-profit sum total welfare.
+
+### 17.6 Pre/post scenarios and falsification checks
+
+1. **No-treatment replay:** `T^1=T^0` and identical action profiles must produce identical deterministic outcomes under the same price/cost functions.
+2. **Eligibility-only mechanical replay:** old plans remain feasible and yield unchanged accounting outcomes if no other primitive changes.
+3. **Feasible-set nesting:** an optional eligibility expansion must not remove previously feasible task bundles.
+4. **Conditional cost monotonicity:** minimum cost at a fixed feasible output cannot rise after an optional eligibility expansion with unchanged economic primitives, if globally minimized.
+5. **Firm fixed-environment option value:** maximum attainable profit cannot fall when the old feasible action remains available and the rivals/environment are held fixed; this does **not** order post-shock equilibrium profit.
+6. **Equilibrium diagnostics:** if claiming Cournot outcomes, compute global unilateral best-response gaps; if claiming competitive equilibrium, check both price-taking optimality and clearing.
+7. **Population integrity:** every scenario has exactly the declared number of market sellers; base firms and strategy clones are counted separately.
+8. **Stochastic robustness:** declare number of replications, shock timing, randomization, uncertainty intervals and any stopping/convergence criterion before interpreting results.
+
+These are **proposed future checks**, not passing tests. Existing verified CI (89 tests on Python 3.11 and 3.12 at run #41653126765) remains the software baseline, not scientific validation.
+
+### 17.7 What cannot yet be concluded
+
+No approved AI shock or adoption mechanism exists, so the model cannot currently estimate automation adoption, displacement of labor, equilibrium prices, welfare changes, winners/losers or cooperation effects. Nor can it attribute observed changes to AI without a controlled scenario design. Milestone 17 does not resolve the unresolved production/market choices of Milestones 11–16.
+
+### 17.8 Researcher approval checklist
+
+The principal researcher must decide: (i) exact AI treatment and timing; (ii) within-task technology and task aggregation; (iii) capacity, input price and adoption-cost accounting; (iv) output choice and market institution; (v) 100-firm matched scenarios versus 400-agent coexistence; (vi) outcome and welfare definitions; and (vii) whether the primary estimand concerns a static optimum, a strategic equilibrium or a dynamic learning path. Only after these decisions should an experiment runner or economic result pipeline be implemented.
+
+**Theory anchors:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Varian, *Microeconomic Analysis*, 3rd ed. (technology, cost, firm choice); Tirole, *The Theory of Industrial Organization* (1988) (strategic market interaction). The staged counterfactual ladder, matching rules and falsification checks are **proposed design constructions**, not claims that these references endorse the exact simulation protocol.
+
+**Implementation status:** Documentation-only. No production code, tests, CI or economic assumptions changed.
