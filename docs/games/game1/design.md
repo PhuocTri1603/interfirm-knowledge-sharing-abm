@@ -251,3 +251,57 @@ Do not fill these gaps with arbitrary default economic assumptions. Recover prev
 6. Preserve the existing 89-test software baseline, adding economic property tests and sensitivity tests as hypotheses are approved.
 
 **Decision gate:** This audit approves no new economic assumptions. The principal researcher must approve a candidate technology and market specification before research-grade simulation.
+
+## Milestone 11 — Candidate within-task technologies and cost-minimization derivations (2026-11-03)
+
+**Status:** Comparative theory note only. This section does **not** select the Game 1 technology, objective, cost structure, or AI shock. All formulas below are explicit candidate assumptions to be evaluated by the principal researcher. The approved direction remains task-based production.
+
+### 11.1 Candidate A — Task assignment / pure-mode automation
+
+For firm `i`, task `j`, required activity `q_ij >= 0`, task-specific efficiencies `aL_ij > 0`, `aK_ij > 0`, wage `w >= 0`, capital service price `r >= 0`, and an exogenous **technical eligibility** indicator `e_ij in {0,1}`:
+
+- Labor mode: `L_ij = q_ij/aL_ij`, `K_ij = 0`; variable cost `cL_ij(q) = w q/aL_ij`.
+- Capital mode, **only if** `e_ij=1`: `K_ij = q_ij/aK_ij`, `L_ij = 0`; variable cost `cK_ij(q) = r q/aK_ij`.
+- If both modes are feasible, the unconstrained *per-task variable-cost* comparison selects capital only when `r/aK_ij < w/aL_ij`, labor only for the reverse inequality, and either at equality. This is **not** the globally optimal assignment when firm-wide K/L capacities bind or there are adoption/adjustment costs.
+- With mode-specific fixed adoption cost `F_ij >= 0` payable for capital mode, comparison for one task and one period becomes `F_ij + r q/aK_ij` versus `w q/aL_ij`. A break-even activity threshold exists only if `w/aL_ij > r/aK_ij`: `q* = F_ij/(w/aL_ij - r/aK_ij)`. Sunk versus recurring costs and adoption persistence require separate specification.
+- An AI *feasibility* shock can be represented as `e_ij: 0 -> 1`; a productivity shock `aK_ij` and a cost shock `F_ij` are conceptually different treatments. Eligibility does not imply adoption.
+
+**Critical caveat:** The current `task_bundle.py` quotes match the *variable-cost arithmetic* of these pure modes, but do not optimize assignment or model fixed adoption costs or dynamic eligibility changes.
+
+### 11.2 Candidate B — Continuous within-task K/L substitution
+
+For a candidate task technology `q_ij = [beta_ij (aL_ij L_ij)^rho + (1-beta_ij) (aK_ij K_ij)^rho]^(1/rho)`, `0 < beta_ij < 1`, `rho=(sigma_KL-1)/sigma_KL`, `sigma_KL > 0`, interior cost-minimizing choices with positive `w,r` and `L,K` satisfy:
+
+`K_ij/L_ij = [((1-beta_ij)/beta_ij) (aK_ij/aL_ij)^rho (w/r)]^sigma_KL`.
+
+This elasticity `sigma_KL` describes **within-task capital–labor substitution**, unlike the existing `task_aggregators.task_ces` parameter, which describes substitution **between task outputs**. At `sigma_KL=1`, the limit is Cobb–Douglas; at low elasticity inputs approach complements; as elasticity becomes large they approach perfect substitutes under appropriate normalization. Boundary solutions and eligibility restrictions must be treated separately. This formula is a conditional first-order condition, not an approved model or a claim about aggregate factor shares.
+
+### 11.3 Candidate C — Complementary within-task inputs
+
+For a candidate fixed-proportions task technology `q_ij = min(aL_ij L_ij, aK_ij K_ij)`, the minimum-cost inputs for target `q_ij` with nonnegative prices are `L_ij=q_ij/aL_ij` and `K_ij=q_ij/aK_ij`; variable cost is `q_ij(w/aL_ij+r/aK_ij)`. The formula requires **both** inputs; merely enabling capital does not displace labor. This is a separate technological hypothesis, not an alternative implementation of the current pure-mode quotes.
+
+### 11.4 Comparison and decision boundary
+
+| Property | A: pure-mode task assignment | B: within-task CES | C: within-task complements |
+| --- | --- | --- | --- |
+| K and L jointly required within a task | No, by candidate assumption | Usually interior, depending on parameters and constraints | Yes |
+| How AI may enter | Eligibility, task productivity, or adoption costs | Productivity/feasible set/parameters, explicitly defined | Productivity of one or both required inputs |
+| Typical factor response | Discrete mode switch, subject to capacity and costs | Continuous conditional demand response | Fixed conditional proportions |
+| Existing code support | Quotes and feasibility only | Not implemented | Not implemented |
+| Approved by principal researcher | No | No | No |
+
+**Cross-task aggregation remains a separate decision for all three candidates.** It is not valid to infer an aggregate capital–labor substitution elasticity solely from a CES aggregator over task outputs. Task-specific choices are also coupled by firm-wide resource constraints, output requirements, and any market objective.
+
+**Important model distinction:** The currently coded provisional `q=aL L+aK K` is a *mixed-input linear accounting function* when eligibility permits capital. It is mathematically distinct from a discrete choice between labor-only and capital-only modes. Although both can produce a corner solution under simple linear prices without capacity constraints, they need not generate the same feasible assignments, especially with global resource constraints or fixed costs.
+
+### 11.5 Validation gates before economic simulation
+
+1. Decide whether the object of study is task *assignment* (candidate A), smooth within-task substitution (B), complements (C), or a theoretically justified heterogeneous combination.
+2. Define the feasible input set and economic interpretation of the 100 firms' initial K/L endowments, including whether prices are opportunity costs, rental flows or purchases.
+3. Choose task-output aggregation and clarify whether each task is essential; then derive the firm's constrained cost-minimization problem **jointly across 20 tasks**.
+4. Define AI shock separately from AI adoption, including information, irreversibility, costs and transition timing.
+5. Define product-market pricing and firm information before deriving a profit-maximizing policy. Do not use accounting results as equilibrium claims.
+
+**Literature anchors:** Acemoglu and Restrepo (2018), *The Race between Man and Machine: Implications of Technology for Growth, Factor Shares, and Employment*, American Economic Review 108(6), 1488–1542, https://doi.org/10.1257/aer.20160696 ; Acemoglu and Restrepo (2018), *Modeling Automation*, AEA Papers and Proceedings 108, 48–53, https://doi.org/10.1257/pandp.20181020 ; Acemoglu and Restrepo (2019), *Automation and New Tasks: How Technology Displaces and Reinstates Labor*, Journal of Economic Perspectives 33(2), 3–30, https://doi.org/10.1257/jep.33.2.3 ; Varian, *Microeconomic Analysis*, 3rd ed., production and cost-minimization framework. These references motivate the economic questions; the candidate equations above are **explicit model constructions for review**, not quotations or validated specifications from the papers.
+
+**Research governance:** No candidate is approved by this note. The researcher retains the choice of technology and assumptions; the assistant may implement mathematical property tests only after the choice is approved.
