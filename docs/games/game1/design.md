@@ -1051,3 +1051,50 @@ These are **candidate D6 options**, not approved strategies. They are not necess
 **Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (economic optimization); Tirole, *The Theory of Industrial Organization* (1988) (strategic competition); Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018) (reinforcement/softmax learning, as a computational mechanism rather than an economic finding); Posen & Levinthal (2012), *Chasing a Moving Target: Exploitation and Exploration in Dynamic Environments* (exploration/exploitation literature). These references motivate categories but do not validate this project's specific policy catalog.
 
 **Implementation status:** Documentation-only approval record; no economic code, simulations, tests or CI run changed.
+
+## D6 researcher approval — retain all four behavioral policy families in one layer (2026-11-03)
+
+**Explicit researcher decision:** "có, giữ hết" in response to retaining all four D6 behavioral strategies in one layer. The approved **catalog scope** is:
+- A — Profit Optimization (benchmark with explicit objective, feasible set and information).
+- B — Trial-and-Error (local experiments, reward evaluation, memory).
+- C — Softmax Learning (probabilistic action choice based on learned action values).
+- D — Rival Imitation (observation of selected rivals, information and imitation rules).
+
+D6 is **one four-option layer**. These are distinct **policy regimes** for factorial labeling, although their underlying mechanisms could be combined in a later separately approved model. Retaining all does not approve specific learning rates, temperature, memory decay, optimization solver, observed rival data, timing or action menu.
+
+### Updated approved nominal layer space
+
+| Layer | Meaning | Number of options |
+| --- | --- | ---: |
+| L1 / D1 | Within-task technology | 4 |
+| L2 / D2 | Cross-task aggregation | 3 |
+| L3 / D3 | K/L resource and cost regime | 4 |
+| L4 / D4 | AI shock mechanism | 4 |
+| L5 / D5 | Market institution | 4 |
+| L6 / D6 | Decision/learning policy | 4 |
+
+**Nominal Cartesian-product count: `4×3×4×4×4×4=3,072`.** Every record must preserve all six option IDs, parameters, status, and experiment provenance. This is **not** 3,072 firms, markets, completed runs or economically valid combinations. Incompatibilities and under-specified cells remain visible in the registry. Keep market/replication identifiers and ex ante firm clusters distinct from technology/policy strategy IDs.
+
+### D6 interaction safeguards
+
+- An optimizing benchmark requires an approved objective, information set and economic constraints; it is not interchangeable with a heuristic policy.
+- Trial-and-error and softmax can both be mechanisms within a more complex policy; their placement in this layer means the researcher is comparing *policy regimes*, not asserting theoretical mutual exclusivity.
+- Rival imitation needs a well-defined observable set, rival-selection rule and a feasible translation of observed rival actions into the firm's own technology and constraints.
+- D5 market institution × D6 policy regime may have incompatible equilibrium interpretations: adaptive policy trajectories do not automatically satisfy Cournot, Bertrand or competitive equilibrium.
+- Preserve the 100-base-firm population and task identities; do not automatically instantiate all 3,072 strategies simultaneously in one market.
+- Evaluate layer interactions and clusters only after matched experiment designs, explicit outcome definitions, and treatment/market dependence are resolved.
+
+### D7 preview — Population and market composition (NOT APPROVED)
+
+The next decision is **how to place technology-policy combinations into markets**, distinct from the number of strategy cells. Candidate market-population arrangements:
+
+1. **A — Matched separate markets:** 100 base firms in each strategy-cell scenario, with the same ex ante firm profiles; no cross-cell price spillovers. Allows controlled between-scenario comparisons.
+2. **B — Mixed strategy market:** 100 total firms allocated among strategy combinations in a single market, with an explicitly defined assignment mechanism; strategic interactions and spillovers are endogenous to the mix.
+3. **C — Matched clones coexist:** Clone 100 base firms into selected strategy variants in the same market (e.g. 100×k agents). This changes market size and competition and is **not** equivalent to A or B.
+4. **D — Stratified mixed markets:** 100 total firms assigned to strategy variants by prespecified ex ante K/L, task capability or other firm strata; permits heterogeneous exposure, but requires assignment and causal interpretation safeguards.
+
+These are proposed D7 **market-composition regimes**, not approved. They may be retained as another layer if the principal researcher chooses, but changing market size between A/B/C changes the economic object, not just a strategy label. For 3,072 × 4 options the nominal crossed count would be 12,288, with potentially incompatible cells.
+
+**Literature orientation:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018); Posen & Levinthal (2012), *Chasing a Moving Target: Exploitation and Exploration in Dynamic Environments*. These support general economic and learning concepts, not the specific factorial catalog.
+
+**Implementation:** Documentation-only researcher approval. No new executable strategy-layer registry, simulation, tests or CI results.
