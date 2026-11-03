@@ -1009,3 +1009,45 @@ These are **candidate D5 strategies**, not yet approved. Market structures canno
 **References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. These are theoretical anchors, not endorsements of the project's factorial design.
 
 **Implementation:** Documentation-only update. No economic solver, layer generator, simulations, tests or CI run are claimed.
+
+## D5 researcher approval — four market institutions in one layer (2026-11-03)
+
+**Explicit researcher decision:** Retain all four D5 alternatives **in one layer**, following the approved multi-layer strategy architecture. The researcher approves the catalog and layer structure, **not** specific demand, game forms, behavioral equations, equilibrium solutions, or numerical parameters.
+
+| Layer | Dimension | Options | Count |
+| --- | --- | --- | --- |
+| L1 / D1 | Within-task technology | Assignment; CES; Leontief; Hybrid | 4 |
+| L2 / D2 | Cross-task aggregation | Linear; Leontief; CES | 3 |
+| L3 / D3 | Resource and cost regime | Flexible Inputs; Capacity Constrained; Adjustment Cost; Capital Investment | 4 |
+| L4 / D4 | AI shock mechanism | Eligibility Expansion; Capital Efficiency; Adoption Cost Reduction; Combined Shock | 4 |
+| L5 / D5 | Market institution | Price-taking Competitive; Cournot Quantity; Price Competition; Dynamic Adaptive | 4 |
+
+**Nominal strategy combinations: `4×3×4×4×4=768`.** Every scenario must retain a structured layer key, option identifiers, parameter and specification versions, compatibility status, market ID, base-firm ID, replication, and cluster provenance. A strategy combination is **not** a firm and 768 cells are **not** 768 simultaneous sellers or completed experiments.
+
+### D5 distinctions that must survive implementation
+
+- **Competitive:** price-taking firm optimality plus explicit market clearing and a coherent demand side.
+- **Cournot:** quantities are strategic choices; evaluate unilateral best responses against rivals' quantities, with inverse demand.
+- **Price competition:** prices are strategic choices; requires a precise product differentiation, capacity, rationing and sales rule where appropriate. Do not silently treat a homogeneous-product Bertrand outcome as the general price-competition result.
+- **Adaptive market:** dynamic policy and price-formation rules must be specified; a simulated steady state is not automatically Nash or competitive equilibrium.
+- Some crossed cells may require a separate time horizon or solution concept, especially dynamic D3 with static D5; preserve all nominal cells in the registry while explicitly flagging model-incompatibility or missing specifications.
+- To isolate layer effects, distinguish separate matched 100-firm market scenarios from a deliberately constructed mixed-strategy market. Never multiply 100 base firms by 768 and present the result as the original economy.
+
+### D6 preview — Behavioral and learning policy layer (PROPOSAL ONLY)
+
+The next dimension concerns **how a firm chooses** within its feasible technology and market institution, distinct from the technology itself. Candidate policy families for researcher review:
+
+| Option | Candidate decision policy | Required economic definition |
+| --- | --- | --- |
+| A — Optimizing benchmark | Choose globally profit-maximizing feasible action given information and institutional timing | Explicit objective, feasible action set, beliefs, optimization standard |
+| B — Trial-and-error | Experiment with local K/L, task and/or output changes; evaluate realized outcomes | Experiment proposal, memory, acceptance/rejection and exploration rules |
+| C — Softmax reinforcement | Assign choice probabilities based on learned action values | Action menu, reward signal, updating, temperature and decay |
+| D — Rival-responsive imitation | Observe selected rivals and adapt toward their observed actions or performance | Observation scope, information noise, rival selection and feasibility |
+
+These are **candidate D6 options**, not approved strategies. They are not necessarily mutually exclusive: trial-and-error may use softmax selection, and imitation can coexist with optimization. If retained as one categorical layer, define each as a complete, mutually identifiable **policy regime** rather than asserting their underlying behavioral mechanisms cannot coexist.
+
+**Next decision gate:** Ask the principal researcher whether all four D6 candidate policy regimes should be retained as a single new layer. If approved, the nominal count would be `768×4=3,072`, subject to compatibility and computational feasibility. Do not implement behavioral dynamics before the policy rules and information sets are specified.
+
+**Theory orientation:** Varian, *Microeconomic Analysis*, 3rd ed. (economic optimization); Tirole, *The Theory of Industrial Organization* (1988) (strategic competition); Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018) (reinforcement/softmax learning, as a computational mechanism rather than an economic finding); Posen & Levinthal (2012), *Chasing a Moving Target: Exploitation and Exploration in Dynamic Environments* (exploration/exploitation literature). These references motivate categories but do not validate this project's specific policy catalog.
+
+**Implementation status:** Documentation-only approval record; no economic code, simulations, tests or CI run changed.
