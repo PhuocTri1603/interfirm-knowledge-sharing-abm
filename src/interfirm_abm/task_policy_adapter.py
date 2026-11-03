@@ -51,8 +51,8 @@ def evaluate_policy_task_plan(
         aggregate_tasks=aggregate_tasks,
         prices=EconomicPrices(
             output_price=0.0,
-            capital_unit_cost=unit_costs.capital_unit_cost,
-            labor_unit_cost=unit_costs.labor_unit_cost,
+            capital_unit_cost=unit_costs.capital_rental_rate,
+            labor_unit_cost=unit_costs.wage,
         ),
         fixed_cost=fixed_cost,
         adoption_cost=adoption_cost,
