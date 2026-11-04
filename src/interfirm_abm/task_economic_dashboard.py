@@ -29,6 +29,21 @@ def economic_dashboard_payload(results: Sequence[Mapping]) -> dict:
         ranking = result["ranking"]
         if len(trajectory) != result["rounds"] or len(ranking) != result["players"]:
             raise ValueError("incomplete tournament result")
+        player_trajectory = result.get("player_trajectory")
+        if player_trajectory is not None:
+            if len(player_trajectory) != result["rounds"] * result["players"]:
+                raise ValueError("incomplete player-level trajectory")
+            by_player = {}
+            for point in player_trajectory:
+                by_player.setdefault(point["player_id"], []).append(point)
+            if set(by_player) != {row["player_id"] for row in ranking}:
+                raise ValueError("player-level trajectory roster mismatch")
+            for row in ranking:
+                history = by_player[row["player_id"]]
+                if len(history) != result["rounds"] or [p["round"] for p in history] != list(range(1, result["rounds"] + 1)):
+                    raise ValueError("incomplete player-level round sequence")
+                if abs(history[-1]["cumulative_profit"] - row["total_benefit"]) > 1e-7 * max(1.0, abs(row["total_benefit"])):
+                    raise ValueError("player cumulative profit does not match ranking")
         configurations.append({
             "id": config_id,
             "price_trajectory": [
@@ -41,6 +56,7 @@ def economic_dashboard_payload(results: Sequence[Mapping]) -> dict:
                 for point in trajectory
             ],
             "top_10": ranking[:10],
+            "player_trajectory": player_trajectory,
             "total_market_benefit": sum(row["total_benefit"] for row in ranking),
             "note": "Externally injected policies; not a calibrated or validated research result.",
         })
