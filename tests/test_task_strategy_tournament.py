@@ -72,3 +72,19 @@ def test_rejects_unregistered_player_label(tmp_path):
             labor_unit_cost=1,
             policy_factory=lambda config, player, firm: FixedTaskPolicy(),
         )
+
+
+def test_rejects_reused_policy_instance_across_configurations(tmp_path):
+    shared_policy = FixedTaskPolicy()
+    with pytest.raises(ValueError, match="fresh policy object"):
+        export_strategy_configuration_tournament(
+            tmp_path / "out.json",
+            {"a": {PLAYER: make_firm()}, "b": {PLAYER: make_firm()}},
+            aggregate_tasks=lambda activities: sum(activities.values()),
+            inverse_demand=lambda quantity: 10 - quantity,
+            capital_unit_cost=1,
+            labor_unit_cost=1,
+            policy_factory=lambda config, player, firm: shared_policy,
+            rounds=2,
+        )
+    assert not (tmp_path / "out.json").exists()
