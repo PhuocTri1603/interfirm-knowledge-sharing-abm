@@ -1402,3 +1402,26 @@ A candidate strict two-input Leontief task is `q_j=min{aL_j L_j/bL_j, aK_j K_j/b
 The literature supports examining task feasibility, substitution and automation; it does **not** establish that F1-A/B/C or F2-A/B/C is uniquely correct for this research design.
 
 **Implementation:** Documentation-only. No new economic equations have been authorized for execution, and no new CI result is claimed.
+
+## Executable Acemoglu–Restrepo-style task benchmark (2026-11-04)
+
+**Researcher direction:** Use Acemoglu–Restrepo's task-based automation theory as the baseline and prioritize a playable/runnable Game 1 instead of repeated specification questions. `K` denotes capital (not AI itself); automation changes which tasks capital may perform. Tasks without capital eligibility can still be performed by labor. L1 CES/Leontief/Hybrid remain research extensions, **not** blockers for this baseline.
+
+**Executable module:** `src/interfirm_abm/task_ar_benchmark.py`. Run from the installed repository root:
+
+```bash
+python -m interfirm_abm.task_ar_benchmark --output artifacts/game1_task_benchmark.csv --seed 2026
+```
+
+This creates a **200-row matched panel** (100 firms × pre/post phases) and prints aggregate output, labor, capital, cost, revenue, profit and automated-task counts. The same firm's task efficiencies and eligibility ordering persist across phases. Every task is produced by labor or, when eligible and cheaper, capital. No task becomes zero-output solely because automation is unavailable.
+
+**Transparent illustrative closure, not calibrated economic evidence:**
+
+- 100 firms, 20 tasks, fixed final-output target 20 per firm, equal task requirements; illustrative fixed-recipe task requirements used for a cost-comparison benchmark.
+- Pre/post eligible-task shares 20%/60%; wage 1, capital rental rate 0.7, output price 1.5; deterministic seed 2026; task efficiencies sampled from documented uniform ranges. These are **example parameters** to make the game executable, **not** researcher-approved or empirically estimated values.
+- Fixed output, exogenous factor/output prices, no market-clearing, no strategic competition, no investment/adoption adjustment costs and no welfare claims. Firm profit is accounting revenue minus factor costs. A lower cost when the eligible set expands is a mechanical consequence of feasible-set expansion under fixed prices and the cheapest-method rule; **not** a new empirical finding.
+- All 12 L1×L2 technology families remain in the registry; the executable benchmark implements only a labor-versus-eligible-capital assignment variant. Do not call the benchmark a full implementation of all 12 technologies or 12,288 nominal strategies.
+
+**Tests and CI:** `tests/test_task_ar_benchmark.py` adds six tests (matched panel, reproducibility, cost monotonicity under benchmark assumptions, labor-only fallback, accounting identity and parameter validation). Workflow updated at `bf12f42201d1f9a0afa185eec83b52f3a08e40be`; CI run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41769338408 was **queued when recorded**, not yet verified successful.
+
+**Theory:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The implemented closure is a deliberately simplified pedagogical benchmark, not a reproduction of their full equilibrium model.
