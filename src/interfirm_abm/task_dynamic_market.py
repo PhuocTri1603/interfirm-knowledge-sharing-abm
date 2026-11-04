@@ -94,3 +94,20 @@ def run_dynamic_task_market(
         "trajectory": trajectory, "ranking": ranking,
         "execution_status": "injected_task_policies_not_research_validated",
     }
+
+
+def run_dynamic_task_scenarios(
+    configurations: Mapping[str, DynamicTaskMarket],
+    policy_factory: Callable[[str, DynamicTaskMarket], Mapping[str, TaskAllocationPolicy]],
+    rounds: int = 200,
+) -> list[dict]:
+    """Run independent configurations with fresh policy objects per scenario."""
+    if not configurations or any(not key for key in configurations):
+        raise ValueError("nonempty named configurations required")
+    results = []
+    for config_id, market in configurations.items():
+        policies = policy_factory(config_id, market)
+        result = run_dynamic_task_market(market, policies, rounds)
+        result["config_id"] = config_id
+        results.append(result)
+    return results
