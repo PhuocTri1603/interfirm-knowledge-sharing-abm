@@ -4,7 +4,7 @@ from interfirm_abm.task_based_firm import TaskBasedFirm, TaskCapability
 from interfirm_abm.task_mechanism_audit import PlayerMechanism, audit_mixed_configuration
 
 
-P1 = "L1=assignment|L2=linear|L3=flexible|L4=eligibility|L5=competitive|L6=optimization"
+P1 = "L3=flexible|L4=eligibility|L5=competitive|L6=optimization"
 P2 = P1.replace("L6=optimization", "L6=softmax")
 
 
