@@ -18,3 +18,11 @@ def test_site_does_not_hardcode_200_rounds_for_price_chart():
     )
     assert "maxRound-1" in html
     assert "String(maxRound)" in html
+
+
+def test_site_handles_invalid_economic_json_and_labels_proxy_fallback():
+    html = (Path(__file__).resolve().parents[1] / "site" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    assert "economic.json().catch(()=>null)" in html
+    assert "economic results not deployed" in html
