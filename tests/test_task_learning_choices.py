@@ -58,3 +58,25 @@ def test_imitation_rejects_missing_peer_evidence():
 def test_softmax_requires_positive_temperature():
     with pytest.raises(ValueError):
         SoftmaxChoice(lambda f, o: {}, lambda f, o, name, p: 0, 0, Random(1))
+
+
+def test_trial_feedback_records_realized_own_profit():
+    firm, plans, obs = fixture()
+    rule = TrialAndErrorChoice(
+        lambda f, o: plans, lambda f, o, name, plan: 1, 0, Random(7)
+    )
+    rule.decide_tasks(firm, obs)
+    rule.observe_payoff(firm, 1, 12.5)
+    assert rule.realized_history["p"] == [(1, rule.current_choice["p"], 12.5)]
+    with pytest.raises(ValueError):
+        rule.observe_payoff(firm, 1, 12.5)
+
+
+def test_trial_feedback_rejects_future_round():
+    firm, plans, obs = fixture()
+    rule = TrialAndErrorChoice(
+        lambda f, o: plans, lambda f, o, name, plan: 1, 0, Random(7)
+    )
+    rule.decide_tasks(firm, obs)
+    with pytest.raises(ValueError):
+        rule.observe_payoff(firm, 2, 12.5)
