@@ -6,7 +6,7 @@ from interfirm_abm.task_shared_market_game import (
 
 def test_l7_is_not_duplicated_as_player():
     ids = player_ids()
-    assert len(ids) == 3072
+    assert len(ids) == 256
     assert len(set(ids)) == len(ids)
     assert all("L7=" not in name for name in ids)
 
