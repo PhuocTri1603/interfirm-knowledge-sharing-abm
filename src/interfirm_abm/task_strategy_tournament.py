@@ -47,7 +47,7 @@ def export_strategy_configuration_tournament(
             labor_unit_cost=labor_unit_cost,
         )
 
-    seen_policy_objects = []
+    seen_policy_objects = {}
 
     def fresh_policies(config_id: str, market: DynamicTaskMarket):
         policies = require_strategy_policies(
@@ -55,9 +55,9 @@ def export_strategy_configuration_tournament(
             lambda player_id, firm: policy_factory(config_id, player_id, firm),
         )
         for policy in policies.values():
-            if any(policy is prior for prior in seen_policy_objects):
+            if id(policy) in seen_policy_objects:
                 raise ValueError("policy factory must create a fresh policy object for each player and configuration")
-            seen_policy_objects.append(policy)
+            seen_policy_objects[id(policy)] = policy
         return policies
 
     return export_dynamic_task_results(
