@@ -43,7 +43,7 @@ def test_two_players_compete_in_same_endogenous_price_market(tmp_path):
     assert len(result["configurations"]) == 1
     trajectory = result["configurations"][0]["price_trajectory"]
     assert len(trajectory) == 2
-    assert trajectory[0]["market_price"] == pytest.approx(8.0)
+    assert trajectory[0]["price"] == pytest.approx(8.0)
 
 
 def test_full_benchmark_rejects_partial_profiles(tmp_path):
