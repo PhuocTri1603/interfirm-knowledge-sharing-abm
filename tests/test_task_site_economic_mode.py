@@ -44,3 +44,14 @@ def test_site_validates_economic_payload_and_displays_disclosure():
     assert 'candidate.configurations.every(c=>' in html
     assert 'c.player_trajectory.length===candidate.rounds*candidate.players' in html
     assert 'data.warning||' in html
+
+
+def test_pages_publishing_is_manual_and_main_only():
+    workflow = (Path(__file__).resolve().parents[1] / '.github' / 'workflows' / 'game1-illustrative-pages.yml').read_text(encoding='utf-8')
+    assert 'workflow_dispatch:' in workflow
+    assert '  pull_request:' not in workflow
+    assert '  push:' not in workflow
+    assert "github.ref == 'refs/heads/main'" in workflow
+    assert 'actions/deploy-pages@v4' in workflow
+    assert 'tests/test_task_economic_export.py tests/test_task_site_economic_mode.py' in workflow
+    assert 'ILLUSTRATIVE FIXTURE ONLY' in workflow
