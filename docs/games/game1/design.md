@@ -1205,3 +1205,13 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 - The previous 91 tests increased to 95 tests in this verified run.
 - **Scope boundary:** Passing unit tests validates the tested registry mechanics, not economic model assumptions, calibration, equilibrium, causal inference, learning behavior, welfare, or outcomes.
 - Next technical milestone: Experiment Configuration (deterministic selection/configuration of scenario cells, market IDs, replication seeds and Monte Carlo manifests), while keeping economic parameter approval with the principal researcher and preserving the D1–D8 layer provenance.
+
+## Verified Experiment Configuration CI — Run 41762621083 (2026-11-04)
+
+- GitHub Actions: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41762621083
+- Verified run conclusion: **success** on `main` at commit `27e454b1dfcc9a9ce43f43e81565e964240531c5`.
+- Python 3.11 (`task-validation` job `126353578605`): **100 passed in 1.71s**.
+- Python 3.12 (`task-validation` job `126353578483`): **100 passed in 2.10s**.
+- The workflow includes `tests/test_task_experiment_config.py` and validates deterministic manifest planning, subset filters, distinct run IDs, and reproducible seeds.
+- **Interpretation:** Test success verifies implemented software behavior under the covered assertions; it is not evidence of economic equilibrium, firm optimization, AI causality, calibration, welfare, or scientific findings.
+- **Next milestone:** Connect planning metadata to Experiment Registry and validate cross-layer market/population provenance, without running unsupported economic specifications.
