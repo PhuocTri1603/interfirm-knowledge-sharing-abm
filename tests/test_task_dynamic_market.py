@@ -72,3 +72,27 @@ def test_market_accounting_identity_each_round():
     assert sum(row["round_total_profit"] for row in result["trajectory"]) == pytest.approx(
         result["ranking"][0]["total_benefit"]
     )
+
+
+def test_payoff_feedback_is_delivered_after_simultaneous_decisions():
+    firm = TaskBasedFirm(
+        "p", 3, 3,
+        tuple(TaskCapability(f"T{i:02d}", 1, 2, True) for i in range(1, 21)),
+    )
+    class FeedbackPolicy(ChangingPolicy):
+        def __init__(self):
+            self.received = []
+        def decide_tasks(self, firm, observation):
+            assert len(self.received) == observation.round_number - 1
+            return super().decide_tasks(firm, observation)
+        def observe_payoff(self, firm, round_number, payoff):
+            self.received.append((round_number, payoff))
+    policy = FeedbackPolicy()
+    market = DynamicTaskMarket(
+        {"p": firm}, lambda a: sum(a.values()), lambda q: 10 - q, 1, 1
+    )
+    result = run_dynamic_task_market(market, {"p": policy}, rounds=2)
+    assert [t for t, _ in policy.received] == [1, 2]
+    assert sum(p for _, p in policy.received) == pytest.approx(
+        result["ranking"][0]["total_benefit"]
+    )
