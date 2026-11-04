@@ -1,6 +1,6 @@
 """Canonical Game 1 experiment dimensions, without invented economic policies.
 
-L1-L6 identify strategy players; L7 identifies market design; initial profiles
+L3-L6 identify strategy players; L1-L2 are configuration-level technology choices; L7 identifies market design; initial profiles
 are independent configurations. Counting combinations does not execute them.
 """
 from __future__ import annotations
@@ -11,8 +11,8 @@ from typing import Mapping
 
 from interfirm_abm.task_layer_registry import LAYERS
 
-STRATEGY_LAYERS = LAYERS[:6]
-MARKET_LAYER = LAYERS[6]
+STRATEGY_LAYERS = tuple(item for item in LAYERS if item[0] in ('L3', 'L4', 'L5', 'L6'))
+MARKET_LAYER = next(item for item in LAYERS if item[0] == 'L7')
 DEFAULT_INITIAL_CONFIGURATIONS = 100
 DEFAULT_ROUNDS = 200
 
@@ -76,6 +76,6 @@ def validate_experiment_rosters(
         if not isinstance(config_id, str) or not config_id.strip():
             raise ValueError("configuration IDs must be nonempty")
         if require_complete_roster and frozenset(roster) != expected:
-            raise ValueError("each initial configuration must contain all 3072 strategy players")
+            raise ValueError("each initial configuration must contain all 256 strategy players")
         if len(roster) != len(set(roster)):
             raise ValueError("duplicate player IDs")
