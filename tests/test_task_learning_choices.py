@@ -85,3 +85,8 @@ def test_trial_feedback_rejects_future_round():
 def test_shared_technology_market_behavior_fixture():
     from test_task_behavioral_comparison import test_same_technology_different_decisions_change_market_outcomes
     test_same_technology_different_decisions_change_market_outcomes()
+
+
+def test_shared_technology_market_200_round_fixture():
+    from test_task_behavioral_comparison import test_two_strategies_200_rounds_under_shared_technology
+    test_two_strategies_200_rounds_under_shared_technology()
