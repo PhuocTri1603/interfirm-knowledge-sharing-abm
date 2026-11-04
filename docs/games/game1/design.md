@@ -1277,3 +1277,66 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 - Sutton, Richard S., and Andrew G. Barto (2018), *Reinforcement Learning: An Introduction*, 2nd edition: trial-and-error and action-selection algorithms; methodological reference, not a claim of economic equilibrium.
 
 **Implementation note:** This table documents research questions only. The previously verified economic-audit code and CI remain unchanged by this documentation update.
+
+## L1 × L2 production technology — candidate equations and feasibility gate (2026-11-04)
+
+**Research status:** Economic formulation for **discussion**, not a new approval, calibration or simulation. The researcher has approved **four L1 technology families × three L2 aggregators = 12 nominal technology cells**, but has **not approved numerical elasticities, weights, input prices, task requirements, automation rules, hybrid assignment, or a particular production equation**. The 20-task capability data remain a feasibility/accounting input, not evidence of an approved production function. Earlier aggregate CES assumptions (including `alpha=0.5` and common `A`) must **not** be carried over without explicit reinterpretation.
+
+### Notation and distinct economic objects
+
+For firm `i`, task `j ∈ {1,...,20}`, period `t`:
+
+- `l_ijt >= 0`, `k_ijt >= 0`: labor and capital assigned to task `j`; `q_ijt`: task service/activity **before** aggregation; `Y_it`: **final** output.
+- `a^L_ijt`, `a^K_ijt`: task-specific efficiencies; `e_ijt ∈ {0,1}`: capital/automation eligibility, when required by the selected technology.
+- `q_ijt = f_j(l_ijt,k_ijt; technology, eligibility, parameters)`; `Y_it = G(q_i1t,...,q_i20t; aggregator, parameters)`. **Do not equate** a task's `q_j` with the firm's `Y`.
+- A separate feasible set `sum_j l_ijt <= L_it`, `sum_j k_ijt <= K_it` applies **only** when the selected L3 regime imposes these resource endowments; other L3 regimes require their own economic definitions. No cost minimization or profit optimum follows from the equations alone.
+
+### L1 candidate within-task technologies (NOT APPROVED EQUATIONS)
+
+| L1 option | Candidate mathematical family | Economic interpretation / unresolved requirement |
+| --- | --- | --- |
+| Assignment | `q_j = a^L_j l_j` **or** `q_j = a^K_j k_j` depending on a feasible exclusive mode `m_j` | Task performed by one input type at a time; define mode-selection, eligibility, and switching cost; **not** the additive `a^L l+a^K k` convention |
+| CES | `q_j = B_j [beta_j (a^L_j l_j)^rho_j + (1-beta_j)(a^K_j k_j)^rho_j]^(1/rho_j)` | Inputs potentially substitute within a task; define `beta_j`, `rho_j`, normalization, zero-input domain and capital eligibility. For the usual interior CES family, `sigma_j=1/(1-rho_j)`; this is a candidate parameterization, not an estimate |
+| Leontief | `q_j = min{a^L_j l_j / b^L_j, a^K_j k_j / b^K_j}` | Both factors required in fixed proportions. If `e_j=0` forbids capital, this candidate would produce zero: a separate labor-only feasible regime or another interpretation is required; **do not silently override the contradiction** |
+| Hybrid | `q_j=f_{h_j}(l_j,k_j)` where `h_j` selects an explicitly specified technology family for each task | Define whether the family assignment is fixed, firm-specific, task-specific or endogenously chosen, and whether switching incurs costs; no costless endogenous switching is assumed |
+
+**Domain cautions:** CES needs explicit limiting cases for `rho=0` and boundary values; formula above is not universally defined at zero inputs when `rho<0`. Leontief's fixed-proportion coefficients and units must be defined. A zero-eligible-capital task cannot automatically be treated as capital-complementary.
+
+### L2 candidate aggregation of 20 task services (NOT APPROVED EQUATIONS)
+
+| L2 option | Candidate mathematical family | Economic meaning / pending choices |
+| --- | --- | --- |
+| Linear | `Y = sum_j w_j q_j` | Task services are additive substitutes; specify nonnegative weights, units, and whether a missing task can be compensated by others |
+| Leontief | `Y = min_j {q_j / b_j}` | Every task is essential at a fixed recipe; define strictly positive requirements `b_j` and treatment of missing tasks |
+| CES | `Y = B [sum_j w_j q_j^eta]^(1/eta)` | Imperfect task substitutability; specify weights, normalization, domain and `sigma_tasks=1/(1-eta)` where applicable. `eta` is **not** the within-task `rho_j` |
+
+The proposed equations are **examples of families** rather than a single authorized structural model. Alternative normalizations may change scale, units, and implied marginal products. For meaningful comparisons, define what is held constant across L1 and L2 treatments (input budgets, task efficiencies, baseline output, cost environment and market demand) **before** attributing changes to technology.
+
+### Twelve nominal L1 × L2 cells — review matrix
+
+| L1 / L2 | Linear aggregation | Leontief aggregation | CES aggregation |
+| --- | --- | --- | --- |
+| Assignment | `L1=assignment|L2=linear` | `L1=assignment|L2=leontief` | `L1=assignment|L2=ces` |
+| Within-task CES | `L1=ces|L2=linear` | `L1=ces|L2=leontief` | `L1=ces|L2=ces` |
+| Within-task Leontief | `L1=leontief|L2=linear` | `L1=leontief|L2=leontief` | `L1=leontief|L2=ces` |
+| Hybrid | `L1=hybrid|L2=linear` | `L1=hybrid|L2=leontief` | `L1=hybrid|L2=ces` |
+
+**All twelve are retained as nominal catalog entries**, not declared executable. Each must be assessed for domain feasibility, input availability, task essentiality, identification and normalization. In particular, Leontief within-task technology plus automation-ineligible capital requires an explicit alternative regime or a formal infeasibility flag, not a fabricated positive output.
+
+### Researcher decision gates before implementation
+
+1. **Task technology:** Decide what labor-only, capital-only and joint-input task production mean, especially when capital is not eligible; approve whether L1 Leontief truly requires both factors.
+2. **Technology parameters:** Approve productivity scales, CES shares/elasticities, Leontief coefficients, hybrid task assignments and parameter bounds; do not assume historical aggregate `alpha=0.5` applies.
+3. **Aggregation:** Approve weights/requirements and final-output normalization, including whether every task is essential.
+4. **Feasibility and counterfactual comparability:** Define baseline task output, factor resources/costs, zero-input handling, technology shock timing and the normalization used when comparing the twelve cells.
+5. **Model verification:** Only after explicit sign-off, implement monotonicity, nonnegativity, domain, resource-feasibility, limiting-case and counterfactual tests. Do not call test success a causal result.
+
+### Literature and theoretical scope
+
+- Varian, Hal R. (1992), *Microeconomic Analysis*, 3rd ed.: production sets, substitutability, cost minimization and aggregation as standard microeconomic foundations.
+- Acemoglu, Daron, and Pascual Restrepo (2018), “The Race between Man and Machine: Implications of Technology for Growth, Factor Shares, and Employment,” *American Economic Review*, 108(6), 1488–1542. https://doi.org/10.1257/aer.20160696
+- Acemoglu, Daron, and Pascual Restrepo (2019), “Automation and New Tasks: How Technology Displaces and Reinstates Labor,” *Journal of Economic Perspectives*, 33(2), 3–30. https://doi.org/10.1257/jep.33.2.3
+
+These references motivate microeconomic production and task-based automation; **they do not validate the specific 12-cell design or any unapproved parameterization**.
+
+**Implementation status:** Documentation-only. No new economic production code, calibration, simulation, tests or CI workflow changes in this milestone.
