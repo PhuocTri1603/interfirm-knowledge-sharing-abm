@@ -1478,3 +1478,20 @@ The current catalog contains **12,288 nominal L1–L7 combinations**, but L7 (`s
 - A testable **simulation scaffold** may be built before all economic mechanisms are approved, but its outputs must be labeled illustrative and cannot claim valid equilibrium or scientific findings.
 
 **Theoretical orientation:** Acemoglu & Restrepo (2018), https://doi.org/10.1257/aer.20160696, for task-based production and automation; Varian, *Microeconomic Analysis*, for firm choices; Tirole (1988), *The Theory of Industrial Organization*, for shared-market strategic interaction. These references do not establish the chosen 200-round experimental design.
+
+## Implementation milestone — 200-round strategy-player shared-market scaffold (2026-11-04)
+
+**Code:** `src/interfirm_abm/task_shared_market_game.py`, tests `tests/test_task_shared_market_game.py`, CI `.github/workflows/game1-task-validation.yml`.
+
+**Run:**
+```bash
+python -m interfirm_abm.task_shared_market_game --configurations 1 --rounds 200 --output-dir artifacts/game1_shared_market
+```
+
+The runner enumerates **3,072 distinct L1–L6 strategy IDs** from the existing **12,288 L1–L7 registry**; L7 is not treated as a player's economic action. One configuration creates one shared-market panel with 3,072 players × 200 rounds = **614,400 player-round records**, plus 3,072 ranking rows. The `--configurations N` option executes N initial configurations sequentially, each starting afresh, with separate IDs and ranked outcomes. CSV outputs: `rounds.csv`, `ranking.csv`. For the 100 legacy initial configurations, these can eventually be supplied as scenario parameters, but the current CLI uses generated illustrative configurations and does **not** claim to import the original 100 firm profiles.
+
+**Crucial limitation:** This milestone is a **software scaffold only**. It deliberately uses the **same fixed-quantity policy for every player**, a shared illustrative inverse-demand price, and a deterministic hash-derived proxy unit cost. L1–L6 labels are **not yet executed as distinct economic policies**. Thus any winner is an **arbitrary fixture ranking**, not a meaningful strategic/economic result. Output carries `execution_status=proxy_only_not_economic_strategy_execution`. Do not publish or interpret rankings as scientific findings, welfare results, equilibria or evidence of strategy superiority.
+
+**Next gate:** implement actual task-based feasible production and heterogeneous strategy decisions within a common-market round, beginning with an explicitly defined economically coherent subset. Preserve unimplemented strategies in the roster with transparent execution-status metadata rather than silently assigning fake economics to them. Validate shared market clearing, payoff accounting and round-to-round state before interpreting any ranking.
+
+**CI:** Workflow run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41774802062 was queued when first checked; do not claim success without later verification.
