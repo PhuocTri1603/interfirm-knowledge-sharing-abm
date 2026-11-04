@@ -34,6 +34,8 @@ def audit_mixed_configuration(
     by_layer = defaultdict(lambda: defaultdict(set))
     capitals = set()
     labors = set()
+    technologies = set()
+    production_mechanisms = set()
     for player_id, firm in firms.items():
         if firm.firm_id != player_id:
             raise ValueError("firm identity must equal strategy identity")
@@ -44,6 +46,8 @@ def audit_mixed_configuration(
             raise ValueError("mechanism IDs cannot be blank")
         capitals.add(firm.capital_endowment)
         labors.add(firm.labor_endowment)
+        technologies.add(tuple(sorted((task.task_id, task.labor_productivity, task.capital_productivity, task.automation_eligible) for task in firm.tasks)))
+        production_mechanisms.add(mechanism.production_mechanism)
         for layer, option in choices.items():
             by_layer[layer][option].add((
                 mechanism.production_mechanism,
@@ -52,6 +56,8 @@ def audit_mixed_configuration(
             ))
     if len(capitals) != 1 or len(labors) != 1:
         raise ValueError("mixed benchmark requires common initial K and L")
+    if len(technologies) != 1 or len(production_mechanisms) != 1:
+        raise ValueError("mixed benchmark requires common production technology within each configuration")
     signatures = {(
         mechanism.production_mechanism,
         mechanism.decision_mechanism,
@@ -64,6 +70,7 @@ def audit_mixed_configuration(
         "unique_mechanism_signatures": len(signatures),
         "common_initial_capital": next(iter(capitals)),
         "common_initial_labor": next(iter(labors)),
+        "common_production_technology": True,
         "layer_option_counts": {
             layer: {option: len(values) for option, values in options.items()}
             for layer, options in by_layer.items()
