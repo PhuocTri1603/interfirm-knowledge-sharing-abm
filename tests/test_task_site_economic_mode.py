@@ -26,3 +26,14 @@ def test_site_handles_invalid_economic_json_and_labels_proxy_fallback():
     )
     assert "economic.json().catch(()=>null)" in html
     assert "economic results not deployed" in html
+
+
+def test_site_renders_player_trajectory_only_for_economic_records():
+    html = (Path(__file__).resolve().parents[1] / 'site' / 'index.html').read_text(encoding='utf-8')
+    assert 'id="player-panel"' in html
+    assert 'id="player-chart"' in html
+    assert 'id="metric"' in html
+    assert 'function playerChart(' in html
+    assert 'playerPanel.hidden=!economic||!panel.length' in html
+    for metric in ('cumulative_profit', 'round_profit', 'output', 'capital_used', 'labor_used'):
+        assert f'value="{metric}"' in html
