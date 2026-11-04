@@ -1,4 +1,4 @@
-"""Strict bindings between L1-L6 player identities and executable policies.
+"""Strict bindings between L3-L6 player identities and executable policies.
 
 This module does not invent strategy mechanisms. It prevents a strategy label
 from silently receiving a generic fallback policy.
@@ -10,7 +10,7 @@ from typing import Mapping
 from interfirm_abm.task_layer_registry import LAYERS
 from interfirm_abm.task_economic_policy import EconomicStrategy
 
-PLAYER_LAYERS = tuple(name for name, _ in LAYERS if name != "L7")
+PLAYER_LAYERS = tuple(name for name, _ in LAYERS if name in ("L3", "L4", "L5", "L6"))
 PLAYER_OPTIONS = {name: frozenset(options) for name, options in LAYERS if name != "L7"}
 
 
@@ -19,7 +19,7 @@ def parse_player_identity(player_id: str) -> dict[str, str]:
         raise ValueError("player ID must be a string")
     components = player_id.split("|")
     if len(components) != len(PLAYER_LAYERS):
-        raise ValueError("player identity must specify L1-L6 exactly once")
+        raise ValueError("player identity must specify L3-L6 exactly once")
     choices: dict[str, str] = {}
     for component in components:
         if component.count("=") != 1:
