@@ -60,4 +60,5 @@ jobs:
             tests/test_task_economic_policy.py \
             tests/test_task_economic_tournament.py \
             tests/test_task_economic_dashboard.py \
-            tests/test_task_policy_binding.py
+            tests/test_task_policy_binding.py \
+            tests/test_task_registered_tournament.py
