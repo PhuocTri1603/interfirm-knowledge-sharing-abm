@@ -62,4 +62,5 @@ jobs:
             tests/test_task_economic_dashboard.py \
             tests/test_task_policy_binding.py \
             tests/test_task_registered_tournament.py \
-            tests/test_task_market_bridge.py
+            tests/test_task_market_bridge.py \
+            tests/test_task_dynamic_market.py
