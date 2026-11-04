@@ -9,7 +9,7 @@ from interfirm_abm.task_learning_choices import SoftmaxChoice
 from interfirm_abm.task_dynamic_market import DynamicTaskMarket, run_dynamic_task_market
 
 
-def test_same_technology_different_decisions_change_market_outcomes():
+def test_same_technology_different_decisions_change_market_outcomes(rounds=2):
     ids = (
         "L3=flexible|L4=eligibility|L5=competitive|L6=optimization",
         "L3=flexible|L4=eligibility|L5=competitive|L6=softmax",
@@ -40,10 +40,14 @@ def test_same_technology_different_decisions_change_market_outcomes():
         inverse_demand=lambda q: max(0.0, 10.0 - q),
         capital_unit_cost=1.0, labor_unit_cost=1.0,
     )
-    result = run_dynamic_task_market(market, policies, rounds=2)
+    result = run_dynamic_task_market(market, policies, rounds=rounds)
     assert result["players"] == 2
-    assert [r["market_quantity"] for r in result["trajectory"]] == pytest.approx([2.0, 2.0])
+    assert [r["market_quantity"] for r in result["trajectory"]] == pytest.approx([2.0] * rounds)
     assert result["ranking"][0]["player_id"] == ids[0]
-    assert result["ranking"][0]["total_benefit"] == pytest.approx(28.0)
+    assert result["ranking"][0]["total_benefit"] == pytest.approx(14.0 * rounds)
     assert result["ranking"][1]["total_benefit"] == 0.0
     assert result["execution_status"] == "injected_task_policies_not_research_validated"
+
+
+def test_two_strategies_200_rounds_under_shared_technology():
+    test_same_technology_different_decisions_change_market_outcomes(rounds=200)
