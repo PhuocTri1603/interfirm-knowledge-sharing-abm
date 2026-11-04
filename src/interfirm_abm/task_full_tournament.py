@@ -50,7 +50,8 @@ def run_full_tournament(
     all_player_rows = []
     all_rankings = []
     summaries = []
-    seen_policies = set()
+    retained_policies = []
+    seen_policy_ids = set()
     for config_id, roster in configurations.items():
         if not isinstance(config_id, str) or not config_id.strip():
             raise ValueError("configuration IDs must be nonempty")
@@ -63,9 +64,14 @@ def run_full_tournament(
         if set(policies) != expected_players:
             raise ValueError("policy factory must provide all 256 players")
         # Prevent learning-history leakage across independently run scenarios.
-        if any(id(policy) in seen_policies for policy in policies.values()):
+        if len({id(policy) for policy in policies.values()}) != len(policies):
+            raise ValueError("policy objects cannot be shared within a configuration")
+        if any(id(policy) in seen_policy_ids for policy in policies.values()):
             raise ValueError("policy objects cannot be reused between configurations")
-        seen_policies.update(map(id, policies.values()))
+        # Retain strong references: otherwise Python may recycle object IDs,
+        # producing false positives for freshly constructed policies.
+        retained_policies.extend(policies.values())
+        seen_policy_ids.update(map(id, policies.values()))
         for player_id, policy in policies.items():
             if policy.identity.strategy_id != player_id:
                 raise ValueError("policy identity mismatch")
