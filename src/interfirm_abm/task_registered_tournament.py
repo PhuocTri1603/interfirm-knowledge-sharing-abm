@@ -23,3 +23,25 @@ def run_registered_tournament(
         if set(configuration.players) != set(roster):
             raise ValueError("all configurations must use the same strategy roster")
     return run_economic_sequential(configurations, policies, rounds)
+
+
+def run_registered_tournament_with_fresh_policies(
+    configurations: tuple[EconomicMarketConfiguration, ...],
+    policy_factory,
+    rounds: int = 200,
+) -> list[dict]:
+    """Construct a fresh policy roster for every independent configuration.
+
+    Required for learning policies whose internal memory changes during play.
+    The factory must accept a configuration and return explicit policies for
+    exactly its player roster. No state or experience is carried between runs.
+    """
+    if not configurations or len({c.config_id for c in configurations}) != len(configurations):
+        raise ValueError("configurations must have unique nonempty IDs")
+    results = []
+    for configuration in configurations:
+        policies = policy_factory(configuration)
+        validate_policy_roster(tuple(configuration.players), policies)
+        from interfirm_abm.task_economic_tournament import run_economic_configuration
+        results.append(run_economic_configuration(configuration, policies, rounds))
+    return results
