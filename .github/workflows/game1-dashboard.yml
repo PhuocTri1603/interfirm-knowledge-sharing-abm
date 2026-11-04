@@ -1,0 +1,48 @@
+name: Game 1 dashboard publication
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "src/interfirm_abm/task_dashboard_export.py"
+      - "src/interfirm_abm/task_shared_market_game.py"
+      - "src/interfirm_abm/task_layer_registry.py"
+      - ".github/workflows/game1-dashboard.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: game1-dashboard-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install simulation
+        run: python -m pip install -e .
+      - name: Generate 200-round market chart dataset
+        run: python -m interfirm_abm.task_dashboard_export --output site/data.json --configurations 3
+      - name: Verify dashboard files
+        run: |
+          test -s site/index.html
+          test -s site/data.json
+          python -c 'import json; d=json.load(open("site/data.json")); assert d["players"]==3072 and d["rounds"]==200 and len(d["configurations"])==3'
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
