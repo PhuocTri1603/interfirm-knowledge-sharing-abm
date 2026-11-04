@@ -109,3 +109,30 @@ def test_player_trajectory_reconciles_each_round_and_final_ranking():
     assert [p['output'] for p in panel] == pytest.approx([2, 4])
     assert panel[0]['cumulative_profit'] == pytest.approx(panel[0]['round_profit'])
     assert panel[-1]['cumulative_profit'] == pytest.approx(result['ranking'][0]['total_benefit'])
+
+
+def test_distinct_behavioral_mechanisms_shared_market_200_rounds():
+    from interfirm_abm.task_behavioral_experiment import run_behavioral_experiment
+    first = run_behavioral_experiment()
+    second = run_behavioral_experiment()
+    assert first == second
+    assert first["rounds"] == 200
+    assert first["players"] == 2
+    assert len(first["trajectory"]) == 200
+    assert len(first["player_trajectory"]) == 400
+    assert set(first["learning_action_counts"]) == {"low", "medium", "high"}
+    assert sum(first["learning_action_counts"].values()) == 200
+    assert first["experiment_status"] == "controlled_unvalidated_behavioral_comparison"
+    assert first["assumptions"]["information"] == "myopic uses lagged market price; learner uses only own payoff"
+    assert {x["player_id"] for x in first["ranking"]} == {"myopic_forecast", "own_payoff_learning"}
+    for round_number in range(1, 201):
+        records = [p for p in first["player_trajectory"] if p["round"] == round_number]
+        assert len(records) == 2
+        assert records[0]["market_price"] == records[1]["market_price"]
+
+
+def test_behavioral_experiment_rejects_invalid_exploration():
+    from interfirm_abm.task_behavioral_experiment import run_behavioral_experiment
+    import pytest
+    with pytest.raises(ValueError, match="epsilon"):
+        run_behavioral_experiment(rounds=2, epsilon=1.5)
