@@ -78,4 +78,5 @@ jobs:
             tests/test_task_experiment_dimensions.py \
             tests/test_task_initial_profile_bridge.py \
             tests/test_task_experiment_manifest.py \
-            tests/test_task_profile_strategy_roster.py
+            tests/test_task_profile_strategy_roster.py \
+            tests/test_task_mixed_benchmark.py
