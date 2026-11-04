@@ -1193,3 +1193,15 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 - CI verifies implementation and enumeration only. Scientific specification/compatibility, parameter calibration, market equilibrium, welfare, learning and treatment effects remain unapproved or unimplemented.
 
 **Next technical milestone:** Experiment Registry (market, base-firm, agent/clone, replication, random seed, round, strategy and analysis-lens provenance). Treat cells as experiment designs rather than concurrent firms. Preserve separate ex ante versus ex post clustering and status flags. No unapproved economic results should be generated.
+
+## Verified Experiment Registry CI — Run 41762205634 (2026-11-04)
+
+**Verified directly from GitHub Actions run and both job logs:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41762205634
+
+- `main` commit: `84cac43089d9e2d9d079561b684d4d364fbb0119`
+- Python 3.11 job `126352244505`: **success** — **95 passed in 1.50s**.
+- Python 3.12 job `126352244772`: **success** — **95 passed in 1.65s**.
+- Included `tests/test_task_experiment_registry.py`, which validates scenario provenance, base-firm/clone membership, market-regime consistency and cluster annotation behavior.
+- The previous 91 tests increased to 95 tests in this verified run.
+- **Scope boundary:** Passing unit tests validates the tested registry mechanics, not economic model assumptions, calibration, equilibrium, causal inference, learning behavior, welfare, or outcomes.
+- Next technical milestone: Experiment Configuration (deterministic selection/configuration of scenario cells, market IDs, replication seeds and Monte Carlo manifests), while keeping economic parameter approval with the principal researcher and preserving the D1–D8 layer provenance.
