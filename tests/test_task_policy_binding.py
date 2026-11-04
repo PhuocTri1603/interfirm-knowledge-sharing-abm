@@ -4,8 +4,8 @@ from interfirm_abm.task_policy_binding import parse_player_identity, validate_po
 
 def test_all_player_ids():
     ids = player_ids()
-    assert len(ids) == 3072
-    assert all(len(parse_player_identity(i)) == 6 for i in ids)
+    assert len(ids) == 256
+    assert all(len(parse_player_identity(i)) == 4 for i in ids)
 
 def test_missing_policy_rejected():
     with pytest.raises(ValueError):
