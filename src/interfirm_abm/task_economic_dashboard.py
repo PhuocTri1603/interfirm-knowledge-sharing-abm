@@ -20,7 +20,10 @@ def economic_dashboard_payload(results: Sequence[Mapping]) -> dict:
         if config_id in seen:
             raise ValueError("duplicate configuration ID")
         seen.add(config_id)
-        if result.get("execution_status") != "injected_policies_not_research_validated":
+        if result.get("execution_status") not in (
+            "injected_policies_not_research_validated",
+            "injected_task_policies_not_research_validated",
+        ):
             raise ValueError("unsupported economic result status")
         trajectory = result["trajectory"]
         ranking = result["ranking"]
@@ -44,7 +47,7 @@ def economic_dashboard_payload(results: Sequence[Mapping]) -> dict:
     if len({r["players"] for r in results}) != 1 or len({r["rounds"] for r in results}) != 1:
         raise ValueError("dashboard requires a common player count and round horizon")
     return {
-        "status": "injected_policies_not_research_validated",
+        "status": "externally_injected_policies_not_research_validated",
         "warning": "Economic functions and policies are externally supplied; no research superiority is established.",
         "rounds": results[0]["rounds"],
         "players": results[0]["players"],
