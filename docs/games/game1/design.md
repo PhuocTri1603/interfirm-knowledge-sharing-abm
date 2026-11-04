@@ -1349,3 +1349,13 @@ These references motivate microeconomic production and task-based automation; **
 - **CI status at documentation time: in progress.** Do not claim tests passed until logs are checked.
 - **Economic status:** data-only review; no production equations, task allocations, CES coefficients, AI eligibility interpretation, output results or equilibria have been approved or computed.
 - **Next researcher gate:** resolve within-task Leontief versus automation-ineligible tasks and define the common output/parameter normalization before any numerical production comparison.
+
+## Verified L1 × L2 Technology Review CI — Run 41765382612 (2026-11-04)
+
+- GitHub Actions: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41765382612
+- Workflow completed successfully at `main` commit `cb00b897cb39bea848cc685222f129a858456802`.
+- Python 3.11 job `126362416205`: **115 passed in 1.41s**.
+- Python 3.12 job `126362415448`: **115 passed in 1.71s**.
+- Both job logs explicitly include `tests/test_task_technology_review.py`; the new six tests increase the previous 109 to 115.
+- Scope: the 12 nominal L1 × L2 cells are preserved and review flags cover input eligibility/Leontief requirements, distinct CES elasticity domains, hybrid assignment, and cross-task essentiality. The review does **not** calibrate production functions or prove economic feasibility, substitutability or AI effects.
+- Pending researcher approval: definitions of automation-ineligible tasks under Leontief within-task technology; task/aggregate equation domains; cost and baseline normalization for comparisons.
