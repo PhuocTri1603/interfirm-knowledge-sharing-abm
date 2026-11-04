@@ -7,6 +7,7 @@ demand, information and cost specifications.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Callable, Mapping, Protocol
 
 
@@ -31,7 +32,9 @@ class PlayerState:
     def __post_init__(self) -> None:
         if not self.player_id:
             raise ValueError("player_id must not be empty")
-        if self.capital_endowment < 0 or self.labor_endowment < 0:
+        if (not isfinite(self.capital_endowment) or not isfinite(self.labor_endowment)
+                or not isfinite(self.cumulative_profit)
+                or self.capital_endowment < 0 or self.labor_endowment < 0):
             raise ValueError("endowments must be nonnegative")
 
 
@@ -42,7 +45,8 @@ class ProductionDecision:
     labor: float
 
     def __post_init__(self) -> None:
-        if self.capital < 0 or self.labor < 0:
+        if (not isfinite(self.capital) or not isfinite(self.labor)
+                or self.capital < 0 or self.labor < 0):
             raise ValueError("input use must be nonnegative")
 
 
