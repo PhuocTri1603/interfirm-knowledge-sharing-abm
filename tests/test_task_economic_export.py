@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability
 from interfirm_abm.task_dynamic_market import DynamicTaskMarket
@@ -32,6 +33,6 @@ def test_end_to_end_task_export(tmp_path):
     assert result["rounds"] == 2
     assert result["players"] == 1
     assert len(result["configurations"]) == 2
-    assert result["configurations"][0]["price_trajectory"][1]["market_quantity"] == 4
-    assert result["configurations"][0]["total_market_benefit"] == 37
+    assert result["configurations"][0]["price_trajectory"][1]["market_quantity"] == pytest.approx(4)
+    assert result["configurations"][0]["total_market_benefit"] == pytest.approx(37)
     assert "not_research_validated" in result["status"]
