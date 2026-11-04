@@ -33,3 +33,23 @@ def test_rejects_missing_task_policy():
     market = DynamicTaskMarket({"p": firm}, sum, lambda quantity: 1, 1, 1)
     with pytest.raises(ValueError):
         run_dynamic_task_market(market, {}, rounds=1)
+
+
+def test_scenarios_reset_policy_memory():
+    from interfirm_abm.task_dynamic_market import run_dynamic_task_scenarios
+
+    firm = TaskBasedFirm(
+        "p", 3, 3,
+        tuple(TaskCapability(f"T{i:02d}", 1, 2, True) for i in range(1, 21)),
+    )
+    market = DynamicTaskMarket(
+        {"p": firm}, lambda activities: sum(activities.values()),
+        lambda quantity: 10 - quantity, 1, 1,
+    )
+    results = run_dynamic_task_scenarios(
+        {"first": market, "second": market},
+        lambda config_id, current: {"p": ChangingPolicy()},
+        rounds=2,
+    )
+    assert [r["config_id"] for r in results] == ["first", "second"]
+    assert results[0]["trajectory"] == results[1]["trajectory"]
