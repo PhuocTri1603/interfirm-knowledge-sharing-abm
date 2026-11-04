@@ -16,13 +16,14 @@ from interfirm_abm.task_initial_profile_bridge import InitialEconomicProfile
 def build_profile_strategy_roster(
     profile: InitialEconomicProfile,
     *,
-    task_capability_factory: Callable[[InitialEconomicProfile, str], tuple[TaskCapability, ...]],
+    task_capability_factory: Callable[[InitialEconomicProfile], tuple[TaskCapability, ...]],
 ) -> dict[str, TaskBasedFirm]:
     if not callable(task_capability_factory):
         raise TypeError("researcher-supplied task capability factory is required")
+    # Technology is fixed by configuration, never by player identity.
+    tasks = tuple(task_capability_factory(profile))
     result = {}
     for strategy_id in strategy_player_ids():
-        tasks = tuple(task_capability_factory(profile, strategy_id))
         result[strategy_id] = TaskBasedFirm(
             firm_id=strategy_id,
             capital_endowment=profile.capital_endowment,
