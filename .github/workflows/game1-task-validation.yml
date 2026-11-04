@@ -75,4 +75,5 @@ jobs:
             tests/test_task_strategy_market.py \
             tests/test_task_strategy_tournament.py \
             tests/test_task_dashboard_validation.py \
-            tests/test_task_experiment_dimensions.py
+            tests/test_task_experiment_dimensions.py \
+            tests/test_task_experiment_manifest.py
