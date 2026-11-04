@@ -43,3 +43,21 @@ def test_adapter_rejects_incomplete_results():
     result["trajectory"].pop()
     with pytest.raises(ValueError, match="incomplete"):
         economic_dashboard_payload([result])
+
+
+def test_dynamic_task_scenario_dashboard_export():
+    result = {
+        "config_id": "task_sample",
+        "execution_status": "injected_task_policies_not_research_validated",
+        "rounds": 1,
+        "players": 1,
+        "trajectory": [{
+            "round": 1, "market_price": 5, "market_quantity": 2,
+            "capital_used": 1, "labor_used": 1,
+            "total_production_cost": 2, "output_concentration_hhi": 1,
+        }],
+        "ranking": [{"player_id": "p", "total_benefit": 8, "rank": 1}],
+    }
+    payload = economic_dashboard_payload([result])
+    assert payload["configurations"][0]["price_trajectory"][0]["capital_used"] == 1
+    assert "not_research_validated" in payload["status"]
