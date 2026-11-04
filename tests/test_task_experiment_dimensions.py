@@ -21,7 +21,7 @@ def test_canonical_dimensions():
 
 def test_strategy_ids_unique_and_exclude_l7():
     players = strategy_player_ids()
-    assert len(players) == len(set(players)) == 3072
+    assert len(players) == len(set(players)) == 256
     assert all("L6=" in player and "L7=" not in player and "L1=" not in player and "L2=" not in player for player in players)
 
 
@@ -40,7 +40,7 @@ def test_rejects_missing_initial_configuration():
 def test_rejects_incomplete_strategy_roster():
     roster = dict.fromkeys(strategy_player_ids()[:-1], None)
     configurations = {f"profile_{i:03d}": roster for i in range(1, 101)}
-    with pytest.raises(ValueError, match="all 3072"):
+    with pytest.raises(ValueError, match="all 256"):
         validate_experiment_rosters(configurations)
 
 
