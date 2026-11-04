@@ -65,4 +65,5 @@ jobs:
             tests/test_task_market_bridge.py \
             tests/test_task_dynamic_market.py \
             tests/test_task_site_economic_mode.py \
-            tests/test_task_economic_export.py
+            tests/test_task_economic_export.py \
+            tests/test_task_decision_rules.py
