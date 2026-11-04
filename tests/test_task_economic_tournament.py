@@ -78,3 +78,14 @@ def test_duplicate_configurations_rejected():
 def test_empty_configurations_rejected():
     with pytest.raises(ValueError, match="nonempty"):
         run_economic_sequential((), {})
+
+
+def test_input_usage_cost_and_concentration_metrics():
+    result = run_economic_configuration(
+        configuration("metrics"), {"a": FixedPolicy(1), "b": FixedPolicy(2)}, 1
+    )
+    row = result["trajectory"][0]
+    assert row["capital_used"] == 3
+    assert row["labor_used"] == 0
+    assert row["total_production_cost"] == 3
+    assert row["output_concentration_hhi"] == pytest.approx(5 / 9)
