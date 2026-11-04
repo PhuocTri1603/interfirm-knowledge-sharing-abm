@@ -69,6 +69,12 @@ def run_dynamic_task_market(
                 raise ValueError("payoff must be finite")
             profits[key] += payoff
             round_profit += payoff
+        total_revenue = price * quantity
+        total_cost = sum(costs.values())
+        if not isfinite(total_revenue) or not isfinite(total_cost) or not isfinite(round_profit):
+            raise ValueError("nonfinite market accounting")
+        if not __import__("math").isclose(round_profit, total_revenue - total_cost, rel_tol=1e-9, abs_tol=1e-8):
+            raise ValueError("market profit accounting identity failed")
         concentration = (
             sum((q / quantity) ** 2 for q in outputs.values()) if quantity > 0 else None
         )
@@ -79,10 +85,14 @@ def run_dynamic_task_market(
             "round_total_profit": round_profit,
             "capital_used": sum(v[0] for v in uses.values()),
             "labor_used": sum(v[1] for v in uses.values()),
-            "total_production_cost": sum(costs.values()),
+            "total_production_cost": total_cost,
+            "round_total_revenue": total_revenue,
             "output_concentration_hhi": concentration,
         })
         observation = MarketObservation(round_number + 1, price, quantity)
+    from math import fsum, isclose
+    if not isclose(fsum(profits.values()), fsum(row["round_total_profit"] for row in trajectory), rel_tol=1e-9, abs_tol=1e-8):
+        raise ValueError("cumulative market profit reconciliation failed")
     ranking = sorted(
         ({"player_id": key, "total_benefit": benefit} for key, benefit in profits.items()),
         key=lambda item: (-item["total_benefit"], item["player_id"]),
