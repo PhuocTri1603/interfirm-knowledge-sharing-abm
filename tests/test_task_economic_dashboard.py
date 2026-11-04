@@ -61,3 +61,20 @@ def test_dynamic_task_scenario_dashboard_export():
     payload = economic_dashboard_payload([result])
     assert payload["configurations"][0]["price_trajectory"][0]["capital_used"] == 1
     assert "not_research_validated" in payload["status"]
+
+
+def test_dashboard_exposes_player_level_series_and_rejects_incomplete_panel():
+    from interfirm_abm.task_based_firm import TaskBasedFirm, TaskCapability, TaskAllocation
+    from interfirm_abm.task_dynamic_market import DynamicTaskMarket, run_dynamic_task_market
+    class Policy:
+        def decide_tasks(self, firm, observation):
+            return tuple(TaskAllocation(f'T{i:02d}', 0, 0.05) for i in range(1, 21))
+    firm = TaskBasedFirm('p', 2, 2, tuple(TaskCapability(f'T{i:02d}', 1, 1, True) for i in range(1, 21)))
+    market = DynamicTaskMarket({'p': firm}, lambda a: sum(a.values()), lambda q: 10 - q, 1, 1)
+    result = run_dynamic_task_market(market, {'p': Policy()}, rounds=2)
+    result['config_id'] = 'fixture'
+    payload = economic_dashboard_payload([result])
+    assert len(payload['configurations'][0]['player_trajectory']) == 2
+    result['player_trajectory'].pop()
+    with pytest.raises(ValueError, match='incomplete player-level trajectory'):
+        economic_dashboard_payload([result])
