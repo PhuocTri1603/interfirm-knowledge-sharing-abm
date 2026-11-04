@@ -42,3 +42,18 @@ def test_rejects_unequal_starting_resources():
     }
     with pytest.raises(ValueError, match="common initial K and L"):
         audit_mixed_configuration(players, mechanisms, expected_players=2)
+
+
+def test_different_task_capabilities_are_rejected():
+    first = firm(P1)
+    tasks = list(first.tasks)
+    tasks[0] = TaskCapability('T01', 2, 1, True)
+    second = TaskBasedFirm(P2, 10, 10, tuple(tasks))
+    mechanisms = {P1: PlayerMechanism('shared', 'optimize', 'price'), P2: PlayerMechanism('shared', 'softmax', 'price')}
+    with pytest.raises(ValueError, match='common production technology'):
+        audit_mixed_configuration({P1: first, P2: second}, mechanisms, expected_players=2)
+
+def test_different_production_mechanisms_are_rejected():
+    mechanisms = {P1: PlayerMechanism('linear', 'optimize', 'price'), P2: PlayerMechanism('ces', 'softmax', 'price')}
+    with pytest.raises(ValueError, match='common production technology'):
+        audit_mixed_configuration({P1: firm(P1), P2: firm(P2)}, mechanisms, expected_players=2)
