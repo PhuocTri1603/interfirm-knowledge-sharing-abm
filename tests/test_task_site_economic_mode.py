@@ -37,3 +37,10 @@ def test_site_renders_player_trajectory_only_for_economic_records():
     assert 'playerPanel.hidden=!economic||!panel.length' in html
     for metric in ('cumulative_profit', 'round_profit', 'output', 'capital_used', 'labor_used'):
         assert f'value="{metric}"' in html
+
+
+def test_site_validates_economic_payload_and_displays_disclosure():
+    html = (Path(__file__).resolve().parents[1] / 'site' / 'index.html').read_text(encoding='utf-8')
+    assert 'candidate.configurations.every(c=>' in html
+    assert 'c.player_trajectory.length===candidate.rounds*candidate.players' in html
+    assert 'data.warning||' in html
