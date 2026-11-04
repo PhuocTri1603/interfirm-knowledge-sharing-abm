@@ -96,3 +96,16 @@ def test_payoff_feedback_is_delivered_after_simultaneous_decisions():
     assert sum(p for _, p in policy.received) == pytest.approx(
         result["ranking"][0]["total_benefit"]
     )
+
+
+def test_player_trajectory_reconciles_each_round_and_final_ranking():
+    firm = TaskBasedFirm('p', 3, 3, tuple(TaskCapability(f'T{i:02d}', 1, 2, True) for i in range(1, 21)))
+    market = DynamicTaskMarket({'p': firm}, lambda a: sum(a.values()), lambda q: 10 - q, 1, 1)
+    result = run_dynamic_task_market(market, {'p': ChangingPolicy()}, rounds=2)
+    panel = result['player_trajectory']
+    assert [p['round'] for p in panel] == [1, 2]
+    assert [p['capital_used'] for p in panel] == pytest.approx([1, 2])
+    assert [p['labor_used'] for p in panel] == pytest.approx([0, 0])
+    assert [p['output'] for p in panel] == pytest.approx([2, 4])
+    assert panel[0]['cumulative_profit'] == pytest.approx(panel[0]['round_profit'])
+    assert panel[-1]['cumulative_profit'] == pytest.approx(result['ranking'][0]['total_benefit'])
