@@ -36,7 +36,7 @@ def run_mixed_benchmark(
 ) -> dict:
     """Run shared-price competition, with explicit inputs and fresh policies.
 
-    Full mode requires 100 independent configurations with 3072 players each.
+    Full mode requires 100 independent configurations with 256 players each.
     Small mode is intended solely for unit/integration tests.
     """
     if require_full_experiment:
@@ -45,7 +45,7 @@ def run_mixed_benchmark(
         if set(initial_configurations) != expected_configs:
             raise ValueError("Mixed benchmark requires 100 original configuration IDs")
         if any(frozenset(roster) != expected_players for roster in initial_configurations.values()):
-            raise ValueError("Mixed benchmark requires all 3072 strategy players per configuration")
+            raise ValueError("Mixed benchmark requires all 256 strategy players per configuration")
     payload = export_strategy_configuration_tournament(
         output_path,
         initial_configurations,
