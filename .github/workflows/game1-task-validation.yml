@@ -54,4 +54,5 @@ jobs:
             tests/test_task_experiment_config.py \
             tests/test_task_experiment_pipeline.py \
             tests/test_task_economic_audit.py \
-            tests/test_task_technology_review.py
+            tests/test_task_technology_review.py \
+            tests/test_task_ar_benchmark.py
