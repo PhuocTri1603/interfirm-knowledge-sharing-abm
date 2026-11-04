@@ -1453,3 +1453,28 @@ This creates a **200-row matched panel** (100 firms × pre/post phases) and prin
 - No new production, market, welfare or learning assumptions are approved by this population-size correction.
 
 **Next implementation priority:** connect strategy IDs to agent rosters and market assignments through the existing experiment registry/pipeline; validate full 12,288-strategy coverage independently of economic execution.
+
+## Game 1 architecture decision — strategies as players, 200-round common market (2026-11-04)
+
+**Explicit researcher decision (supersedes prior fixed-firm/population framing):**
+
+1. **Strategies are market players.** The strategy catalog provides player identities rather than merely assigning strategies to a preselected 100 firms. The earlier 100-firm profiles become **candidate initial-configuration inputs**, not a fixed number of firms/players.
+2. **One common market per initial configuration.** All selected strategy-players participate in the **same market** and interact through the same market environment, not separate markets per strategy.
+3. **Exactly 200 rounds per configuration.** Players repeatedly choose actions, produce/compete and obtain payoffs. At the end, rank players by realized benefit; the exact benefit functional (terminal profit, cumulative profit, discounted payoff or other utility) must be declared before reporting a winner.
+4. **Sequential configurations.** Finish and record the 200-round market for initial configuration A; reset to the declared baseline and run configuration B, then C, etc. Track configuration ID, seed, player ID, round, economic model version, market results and ranking.
+5. **Researcher-approved concept is not yet implemented as a full market simulation.** The 100-firm benchmark remains a technical smoke test only; it must not be presented as the new Game 1.
+
+### Important catalog-level consistency issue
+
+The current catalog contains **12,288 nominal L1–L7 combinations**, but L7 (`separate`, `mixed`, `clones`, `stratified`) was originally a **market-composition regime**, not a firm decision policy. Treating every nominal combination as a distinct simultaneous market player would duplicate each L1–L6 policy across four incompatible market-level labels. **Do not silently resolve this by treating L7 as firm behavior.** For implementation, preserve all 12,288 registry IDs and flag the player-identity projection as needing reconciliation: L1–L6 yield **3,072 distinct strategy policies**, while L7 must be assigned a coherent role in the new single-common-market architecture. This is a mathematical interpretation issue, not a request to revert to 100 firms.
+
+### Executable game contract (implementation target, not claimed done)
+
+- Outer loop: initial configuration `c` (from the former 100-firm initial profiles, with explicit configuration selection).
+- Market setup: instantiate all economically coherent strategy-players and shared demand/price/factor environment for configuration `c`.
+- Inner loop: `t = 1..200`; collect each player's action and feasible production; clear or update shared market under an explicitly recorded rule; compute and persist individual payoff and common market state; update learning/technology state.
+- End of run: compute declared 200-round benefit metric, rank all players, report winner, ties, distributions and market-level outcomes; save machine-readable panel.
+- Next configuration: reset or reseed as explicitly defined; never leak end states from one configuration into another unless the experiment intentionally studies carryover.
+- A testable **simulation scaffold** may be built before all economic mechanisms are approved, but its outputs must be labeled illustrative and cannot claim valid equilibrium or scientific findings.
+
+**Theoretical orientation:** Acemoglu & Restrepo (2018), https://doi.org/10.1257/aer.20160696, for task-based production and automation; Varian, *Microeconomic Analysis*, for firm choices; Tirole (1988), *The Theory of Industrial Organization*, for shared-market strategic interaction. These references do not establish the chosen 200-round experimental design.
