@@ -53,3 +53,22 @@ def test_scenarios_reset_policy_memory():
     )
     assert [r["config_id"] for r in results] == ["first", "second"]
     assert results[0]["trajectory"] == results[1]["trajectory"]
+
+
+def test_market_accounting_identity_each_round():
+    firm = TaskBasedFirm(
+        "p", 3, 3,
+        tuple(TaskCapability(f"T{i:02d}", 1, 2, True) for i in range(1, 21)),
+    )
+    market = DynamicTaskMarket(
+        {"p": firm}, lambda activities: sum(activities.values()),
+        lambda quantity: 10 - quantity, 1, 1,
+    )
+    result = run_dynamic_task_market(market, {"p": ChangingPolicy()}, rounds=2)
+    for row in result["trajectory"]:
+        assert row["round_total_revenue"] - row["total_production_cost"] == pytest.approx(
+            row["round_total_profit"]
+        )
+    assert sum(row["round_total_profit"] for row in result["trajectory"]) == pytest.approx(
+        result["ranking"][0]["total_benefit"]
+    )
