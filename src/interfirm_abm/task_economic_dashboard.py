@@ -30,7 +30,11 @@ def economic_dashboard_payload(results: Sequence[Mapping]) -> dict:
             "id": config_id,
             "price_trajectory": [
                 {"round": point["round"], "price": point["market_price"],
-                 "market_quantity": point["market_quantity"]}
+                 "market_quantity": point["market_quantity"],
+                 "capital_used": point["capital_used"],
+                 "labor_used": point["labor_used"],
+                 "total_production_cost": point["total_production_cost"],
+                 "output_concentration_hhi": point["output_concentration_hhi"]}
                 for point in trajectory
             ],
             "top_10": ranking[:10],
