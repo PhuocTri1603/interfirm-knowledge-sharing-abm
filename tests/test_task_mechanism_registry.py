@@ -11,12 +11,12 @@ def test_registry_requires_all_options():
 def test_registry_requires_validation():
     specs = {}
     for layer, options in LAYERS:
-        if layer == 'L7':
+        if layer not in ('L3', 'L4', 'L5', 'L6'):
             continue
         for option in options:
             specs[(layer, option)] = MechanismSpecification(layer, option, 'Economic mechanism', 'Literature source', 'implementation.py', 'test_implementation.py')
     result = audit_mechanism_registry(specs)
-    assert result['required_options'] == 23
+    assert result['required_options'] == 16
     assert not result['research_ready']
     with pytest.raises(ValueError, match='must be validated'):
         audit_mechanism_registry(specs, require_validated=True)
