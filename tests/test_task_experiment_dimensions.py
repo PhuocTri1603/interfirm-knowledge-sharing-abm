@@ -8,21 +8,21 @@ from interfirm_abm.task_experiment_dimensions import (
 
 def test_canonical_dimensions():
     dimensions = experiment_dimensions()
-    assert dimensions.strategy_players == 3072
+    assert dimensions.strategy_players == 256
     assert dimensions.market_designs == 4
-    assert dimensions.catalog_combinations == 12288
+    assert dimensions.catalog_combinations == 1024
     assert dimensions.initial_configurations == 100
     assert dimensions.rounds_per_configuration == 200
-    assert dimensions.player_configuration_runs_per_design == 307200
-    assert dimensions.player_round_decisions_per_design == 61440000
-    assert dimensions.player_round_decisions_all_designs == 245760000
+    assert dimensions.player_configuration_runs_per_design == 25600
+    assert dimensions.player_round_decisions_per_design == 5120000
+    assert dimensions.player_round_decisions_all_designs == 20480000
     assert market_designs() == ("separate", "mixed", "clones", "stratified")
 
 
 def test_strategy_ids_unique_and_exclude_l7():
     players = strategy_player_ids()
     assert len(players) == len(set(players)) == 3072
-    assert all("L6=" in player and "L7=" not in player for player in players)
+    assert all("L6=" in player and "L7=" not in player and "L1=" not in player and "L2=" not in player for player in players)
 
 
 def test_validates_100_complete_configuration_rosters():
