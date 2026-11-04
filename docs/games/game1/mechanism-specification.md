@@ -1,3 +1,14 @@
+> **Design correction — 2026-11-04:** L1 and L2 are configuration-level
+> technology dimensions, **not competing-player choices**. Every strategy
+> in one configuration shares the same production technology, task
+> capabilities, and initial K/L. L3–L6 define the 256 competing
+> behavioral/decision strategies (4^4). The four L7 designs remain
+> alternative market organizations. Original 100 profiles are
+> illustrative and do not yet constitute an approved technology mapping.
+> The 23-option mechanism map below is a historical design inventory,
+> not 23 independently competing behavioral mechanisms. A full task
+> technology mapping and calibration still require researcher approval.
+
 # Game 1 — L1–L6 economic mechanism specification plan
 
 **Status:** Literature-grounded research design. These are hypotheses and
