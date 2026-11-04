@@ -6,7 +6,7 @@ production aggregator, optimization method, or economic parameter.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isfinite
+from math import isfinite, isclose, fsum
 from typing import Callable, Mapping, Protocol
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm
@@ -73,7 +73,7 @@ def run_dynamic_task_market(
         total_cost = sum(costs.values())
         if not isfinite(total_revenue) or not isfinite(total_cost) or not isfinite(round_profit):
             raise ValueError("nonfinite market accounting")
-        if not __import__("math").isclose(round_profit, total_revenue - total_cost, rel_tol=1e-9, abs_tol=1e-8):
+        if not isclose(round_profit, total_revenue - total_cost, rel_tol=1e-9, abs_tol=1e-8):
             raise ValueError("market profit accounting identity failed")
         concentration = (
             sum((q / quantity) ** 2 for q in outputs.values()) if quantity > 0 else None
@@ -90,7 +90,6 @@ def run_dynamic_task_market(
             "output_concentration_hhi": concentration,
         })
         observation = MarketObservation(round_number + 1, price, quantity)
-    from math import fsum, isclose
     if not isclose(fsum(profits.values()), fsum(row["round_total_profit"] for row in trajectory), rel_tol=1e-9, abs_tol=1e-8):
         raise ValueError("cumulative market profit reconciliation failed")
     ranking = sorted(
