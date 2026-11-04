@@ -52,11 +52,21 @@ def run_economic_configuration(
                 state.player_id, state.capital_endowment, state.labor_endowment,
                 state.cumulative_profit + result["round_payoffs"][key],
             )
+        outputs = result["player_outputs"]
+        market_quantity = result["market_quantity"]
+        concentration_hhi = (
+            sum((quantity / market_quantity) ** 2 for quantity in outputs.values())
+            if market_quantity > 0 else None
+        )
         trajectories.append({
             "round": t,
             "market_quantity": result["market_quantity"],
             "market_price": result["market_price"],
             "round_total_profit": sum(result["round_payoffs"].values()),
+            "capital_used": sum(decision.capital for decision in decisions.values()),
+            "labor_used": sum(decision.labor for decision in decisions.values()),
+            "total_production_cost": sum(result["player_costs"].values()),
+            "output_concentration_hhi": concentration_hhi,
         })
         observations = MarketObservation(
             t + 1, result["market_price"], result["market_quantity"]
