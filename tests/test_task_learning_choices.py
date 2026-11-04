@@ -80,3 +80,8 @@ def test_trial_feedback_rejects_future_round():
     rule.decide_tasks(firm, obs)
     with pytest.raises(ValueError):
         rule.observe_payoff(firm, 2, 12.5)
+
+
+def test_shared_technology_market_behavior_fixture():
+    from test_task_behavioral_comparison import test_same_technology_different_decisions_change_market_outcomes
+    test_same_technology_different_decisions_change_market_outcomes()
