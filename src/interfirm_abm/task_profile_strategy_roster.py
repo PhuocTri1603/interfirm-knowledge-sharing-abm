@@ -36,7 +36,7 @@ def build_profile_strategy_roster(
 def build_profile_configuration_rosters(
     profiles: tuple[InitialEconomicProfile, ...],
     *,
-    task_capability_factory: Callable[[InitialEconomicProfile, str], tuple[TaskCapability, ...]],
+    task_capability_factory: Callable[[InitialEconomicProfile], tuple[TaskCapability, ...]],
 ) -> dict[str, dict[str, TaskBasedFirm]]:
     if len(profiles) != 100 or len({p.configuration_id for p in profiles}) != 100:
         raise ValueError("exactly 100 unique initial profiles are required")
