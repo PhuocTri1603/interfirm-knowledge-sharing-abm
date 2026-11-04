@@ -1180,3 +1180,16 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 **References:** Varian, *Microeconomic Analysis*, 3rd ed.; Tirole, *The Theory of Industrial Organization* (1988); Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3; Sutton & Barto, *Reinforcement Learning: An Introduction*, 2nd ed. (2018). These support the general economic and learning categories, not the specific factorial architecture.
 
 **Implementation status at approval:** Documentation-only; registry and tests are proposed, not yet implemented.
+
+## Verified Strategy Registry CI — Run 41658924679 (2026-11-03)
+
+**GitHub Actions:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41658924679
+
+- Commit: `cb199051b20fc5ee9a0b336b02b44d4c0d52cfdb` on `main`.
+- `task-validation (3.11)`: **success**, `91 passed in 1.45s` (job 125996661992).
+- `task-validation (3.12)`: **success**, `91 passed in 1.89s` (job 125996660994).
+- Workflow explicitly includes `tests/test_task_layer_registry.py`.
+- The registry enumerates `12,288` nominal strategy keys across L1–L7 and `49,152` scenario–analysis lens keys across D8, **without** simulating markets or economics.
+- CI verifies implementation and enumeration only. Scientific specification/compatibility, parameter calibration, market equilibrium, welfare, learning and treatment effects remain unapproved or unimplemented.
+
+**Next technical milestone:** Experiment Registry (market, base-firm, agent/clone, replication, random seed, round, strategy and analysis-lens provenance). Treat cells as experiment designs rather than concurrent firms. Preserve separate ex ante versus ex post clustering and status flags. No unapproved economic results should be generated.
