@@ -27,7 +27,7 @@ def audit_mixed_configuration(
     firms: Mapping[str, TaskBasedFirm],
     mechanisms: Mapping[str, PlayerMechanism],
     *,
-    expected_players: int = 3072,
+    expected_players: int = 256,
 ) -> dict:
     if len(firms) != expected_players or set(firms) != set(mechanisms):
         raise ValueError("complete firm and mechanism rosters required")
