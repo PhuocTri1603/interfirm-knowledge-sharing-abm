@@ -36,7 +36,7 @@ def policies(roster):
 
 def market(roster, clearing, extra_cost=lambda key, action, round_number: 0.0):
     firms = {identity.strategy_id: make_firm(identity.strategy_id) for identity in roster}
-    return MixedMarket(firms, sum, clearing, 1.0, 1.0, extra_cost)
+    return MixedMarket(firms, lambda activity: sum(activity.values()), clearing, 1.0, 1.0, extra_cost)
 
 
 def test_full_256_players_mixed_prices_and_quantities_200_rounds():
