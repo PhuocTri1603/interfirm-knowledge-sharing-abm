@@ -33,6 +33,25 @@ jobs:
           assert len(p["configurations"][0]["player_trajectory"]) == 400
           print("Illustrative data verified; not research validated")
           PY
+      - name: Verify static dashboard files
+        run: |
+          test -s site/index.html
+          test -s site/economic-results.json
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("site/index.html").read_text(encoding="utf-8")
+          assert 'fetch("./economic-results.json"' in html
+          assert 'id="player-chart"' in html
+          assert "ILLUSTRATIVE FIXTURE ONLY" in Path("site/economic-results.json").read_text(encoding="utf-8")
+          PY
+      - name: Upload preview website bundle for review (not Pages publication)
+        uses: actions/upload-artifact@v4
+        with:
+          name: game1-illustrative-site-preview
+          path: |
+            site/index.html
+            site/economic-results.json
+          if-no-files-found: error
       - name: Upload dashboard JSON for review (not Pages publication)
         uses: actions/upload-artifact@v4
         with:
