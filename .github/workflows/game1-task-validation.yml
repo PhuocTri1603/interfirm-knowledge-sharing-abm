@@ -73,4 +73,5 @@ jobs:
             tests/test_task_adaptive_policies.py \
             tests/test_task_adaptive_market_integration.py \
             tests/test_task_strategy_market.py \
-            tests/test_task_strategy_tournament.py
+            tests/test_task_strategy_tournament.py \
+            tests/test_task_dashboard_validation.py
