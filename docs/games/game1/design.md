@@ -1340,3 +1340,12 @@ The proposed equations are **examples of families** rather than a single authori
 These references motivate microeconomic production and task-based automation; **they do not validate the specific 12-cell design or any unapproved parameterization**.
 
 **Implementation status:** Documentation-only. No new economic production code, calibration, simulation, tests or CI workflow changes in this milestone.
+
+## L1 × L2 technology review implementation — pending CI (2026-11-04)
+
+- Added `src/interfirm_abm/task_technology_review.py`: enumerates the **12 nominal L1 × L2 technology cells**, records missing economic specifications, and emits conditional research-review flags for assignment, CES domains, Leontief input requirements, hybrid task mapping and cross-task aggregation.
+- Added `tests/test_task_technology_review.py` with six unit tests for complete coverage, preservation of Leontief eligibility questions, distinct CES elasticities, task essentiality, researcher approval gate and input validation.
+- Updated `.github/workflows/game1-task-validation.yml` to run the new tests on Python 3.11 and 3.12. Trigger commit: `cb00b897cb39bea848cc685222f129a858456802`; GitHub Actions: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41765382612.
+- **CI status at documentation time: in progress.** Do not claim tests passed until logs are checked.
+- **Economic status:** data-only review; no production equations, task allocations, CES coefficients, AI eligibility interpretation, output results or equilibria have been approved or computed.
+- **Next researcher gate:** resolve within-task Leontief versus automation-ineligible tasks and define the common output/parameter normalization before any numerical production comparison.
