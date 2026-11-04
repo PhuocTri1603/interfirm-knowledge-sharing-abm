@@ -1237,3 +1237,43 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 - The data-only audit in `src/interfirm_abm/task_economic_audit.py` preserves all **12,288 nominal L1–L7 cells**, records unresolved economic specifications and flags selected cases for explicit researcher review. It does not prove incompatibility or approve any economic equations.
 - The review remains **not equivalent to scientific validation**: equilibrium definitions, technology and cost parameterization, behavioral choice, AI treatment effects and welfare measurement still require economic specification and principal researcher approval.
 - **Next research milestone:** draft a layer-by-layer economic decision table distinguishing existing approvals, unresolved model elements, proposed audit questions and literature-based theoretical rationale. Do not discard any nominal strategy cell or automatically declare it simulation-ready.
+
+## Economic Decision Table — researcher approval gate (2026-11-04)
+
+**Purpose and status:** This is a structured research-decision agenda, **not approval** of equations, parameters, equilibria or simulation results. It is derived from the previously approved D1–D8 catalog and the conservative `task_economic_audit.py` review. Preserve all **12,288 nominal L1–L7 cells**; the four D8 lenses create **49,152 potential reporting keys**, not additional simulated economies.
+
+| Layer | Researcher-approved scope | Unresolved economic specification | Primary cross-layer concern | Status |
+| --- | --- | --- | --- | --- |
+| L1 — Within-task technology | Assignment, CES, Leontief, Hybrid | Formal technology for each task; task-specific productivity, substitutability and hybrid assignment; eligibility constraints | L1 × L2: distinct within-task vs across-task elasticities | Pending researcher approval |
+| L2 — Cross-task aggregation | Linear, Leontief, CES | Final-output aggregator; task weights, units, essential tasks, substitution parameters | L1 × L2: no double-counting task output or confusing task activity with final output | Pending researcher approval |
+| L3 — Input/cost regime | Flexible, Capacity, Adjustment, Investment | Factor prices, endowments, adjustment costs, capital accumulation, discounting and timing where relevant | L3 × L6: static vs dynamic optimization and state-dependent learning | Pending researcher approval |
+| L4 — AI shock/adoption | Eligibility, Efficiency, Adoption Cost, Combined | Shock timing, treatment intensity, adoption decision and costs; separate availability from uptake | L4 × L1 × L3: feasible task automation and investment costs | Pending researcher approval |
+| L5 — Market institution | Price-taking, Cournot, Price competition, Dynamic adaptive | Demand, price mechanism, rationing where needed, timing, strategic information and solution concept | L5 × L6: computed equilibrium is not identical to learning dynamics | Pending researcher approval |
+| L6 — Decision/learning | Profit optimization, Trial-and-Error, Softmax, Rival imitation | Action space, observation set, objective/payoff, information precision, memory and updating rules | L6 × L5 × L3: coherent choice rules for market and capital regimes | Pending researcher approval |
+| L7 — Population/market composition | Separate, Mixed, Clones, Stratified | Assignment rules, ex ante strata, clone mapping, effective agent count, demand scaling and sampling unit | L7 × L5: changes to competition and market size affect comparability | Pending researcher approval |
+| D8 — Analysis lenses | Firm, Market, Welfare/Distribution, Learning/Transition | Operational metrics, denominators, baselines and missing-data treatment; welfare requires coherent demand/cost accounting | D8 reports the same runs; does not multiply economic strategies | Pending metric approval |
+
+### Review order (workflow proposal; not a new researcher decision)
+
+1. **Technology:** formalize L1 and L2 jointly, separating within-task production from final-output aggregation. Keep the existing 20-task data as capabilities, not as proof of a selected production equation.
+2. **Feasible choice:** specify L3 and L4 input, adjustment, adoption and shock rules. Do not assume that AI availability guarantees adoption.
+3. **Market and behavior:** specify L5 and L6 together, making the solution concept and learning/optimization benchmark explicit.
+4. **Experimental identification:** specify L7 composition, market/replication unit and ex ante clusters before causal comparisons; separate markets, mixed markets and clone economies must not be pooled naively.
+5. **Measurement:** specify D8 outcomes only where the model generates the necessary economic quantities. Do not equate profits with social welfare.
+
+### Audit interpretation and researcher decision rights
+
+- `task_economic_audit.py` flags selected combinations and lists required specifications. These are **review prompts**, not a proof of infeasibility, completeness or scientific validity.
+- A populated specification field is not a researcher sign-off. An executable scenario requires separate explicit approval of equations, parameter values, timing, feasible actions and relevant solution concept.
+- **No numerical calibration, economic outcomes, learning convergence, equilibrium, welfare or AI effect is established at this milestone.**
+- Each strategy retains immutable L1–L7 identifiers and explicit unresolved status; do not drop cells to make results look complete.
+
+### Theoretical anchors (scope, not evidence for simulated findings)
+
+- Varian, Hal R. (1992), *Microeconomic Analysis*, 3rd edition: production, costs, optimization and market analysis.
+- Acemoglu, Daron, and Pascual Restrepo (2018), “The Race between Man and Machine: Implications of Technology for Growth, Factor Shares, and Employment,” *American Economic Review*, 108(6), 1488–1542. https://doi.org/10.1257/aer.20160696
+- Acemoglu, Daron, and Pascual Restrepo (2019), “Automation and New Tasks: How Technology Displaces and Reinstates Labor,” *Journal of Economic Perspectives*, 33(2), 3–30. https://doi.org/10.1257/jep.33.2.3
+- Tirole, Jean (1988), *The Theory of Industrial Organization*: alternative market institutions and strategic competition.
+- Sutton, Richard S., and Andrew G. Barto (2018), *Reinforcement Learning: An Introduction*, 2nd edition: trial-and-error and action-selection algorithms; methodological reference, not a claim of economic equilibrium.
+
+**Implementation note:** This table documents research questions only. The previously verified economic-audit code and CI remain unchanged by this documentation update.
