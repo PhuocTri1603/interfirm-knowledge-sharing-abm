@@ -24,7 +24,7 @@ class MyopicBestResponse:
     initial_price: float
 
     def decide_tasks(self, firm, observation):
-        price = self.initial_price if observation.market_price is None else observation.market_price
+        price = self.initial_price if observation.last_market_price is None else observation.last_market_price
         scores = {}
         for name, plan in self.plans.items():
             output = self.market.aggregate_tasks(firm.evaluate_allocation(list(plan)))
