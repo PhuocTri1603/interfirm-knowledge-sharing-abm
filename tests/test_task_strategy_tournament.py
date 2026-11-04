@@ -6,7 +6,7 @@ from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCap
 from interfirm_abm.task_strategy_tournament import export_strategy_configuration_tournament
 
 
-PLAYER = "L1=assignment|L2=linear|L3=flexible|L4=eligibility|L5=competitive|L6=optimization"
+PLAYER = "L3=flexible|L4=eligibility|L5=competitive|L6=optimization"
 
 
 class FixedTaskPolicy:
