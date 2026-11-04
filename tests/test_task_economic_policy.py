@@ -58,3 +58,13 @@ def test_rejects_negative_inputs_and_invalid_round():
         ProductionDecision(-1, 0)
     with pytest.raises(ValueError):
         MarketObservation(0, None, None)
+
+
+def test_rejects_nonfinite_resources_and_decisions():
+    for bad in (float("nan"), float("inf"), -float("inf")):
+        with pytest.raises(ValueError):
+            PlayerState("p", bad, 1)
+        with pytest.raises(ValueError):
+            PlayerState("p", 1, 1, bad)
+        with pytest.raises(ValueError):
+            ProductionDecision(bad, 0)
