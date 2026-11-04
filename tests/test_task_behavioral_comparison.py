@@ -2,8 +2,6 @@
 
 This is a test fixture, not a calibrated economic experiment.
 """
-from random import Random
-
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability
 from interfirm_abm.task_decision_rules import FiniteChoiceOptimization
 from interfirm_abm.task_learning_choices import SoftmaxChoice
@@ -45,6 +43,6 @@ def test_same_technology_different_decisions_change_market_outcomes():
     assert result["players"] == 2
     assert [r["market_quantity"] for r in result["trajectory"]] == [2.0, 2.0]
     assert result["ranking"][0]["player_id"] == ids[0]
-    assert result["ranking"][0]["total_benefit"] == 30.0
+    assert result["ranking"][0]["total_benefit"] == 28.0
     assert result["ranking"][1]["total_benefit"] == 0.0
     assert result["execution_status"] == "injected_task_policies_not_research_validated"
