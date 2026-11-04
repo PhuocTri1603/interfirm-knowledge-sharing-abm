@@ -20,6 +20,7 @@ def test_same_original_endowments_for_all_strategy_players():
     assert {firm.capital_endowment for firm in roster.values()} == {profile.capital_endowment}
     assert {firm.labor_endowment for firm in roster.values()} == {profile.labor_endowment}
     assert all(len(firm.tasks) == 20 for firm in roster.values())
+    assert len({firm.tasks for firm in roster.values()}) == 1
 
 
 def test_missing_researcher_task_specification_fails():
