@@ -10,11 +10,11 @@ from interfirm_abm.task_experiment_manifest import (
 from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 
 
-def test_full_manifest_has_400_runs_and_3072_players():
+def test_full_manifest_has_400_runs_and_256_players():
     manifest = build_experiment_manifest()
     assert manifest["status"] == "structure_only_no_economic_inputs"
-    assert manifest["strategy_players"] == 3072
-    assert len(manifest["strategy_player_ids"]) == 3072
+    assert manifest["strategy_players"] == 256
+    assert len(manifest["strategy_player_ids"]) == 256
     assert len(manifest["runs"]) == 400
     assert len({(r["market_design"], r["configuration_id"]) for r in manifest["runs"]}) == 400
     assert all(r["rounds"] == 200 for r in manifest["runs"])
