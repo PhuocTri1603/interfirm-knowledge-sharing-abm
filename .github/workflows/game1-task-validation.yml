@@ -58,4 +58,5 @@ jobs:
             tests/test_task_ar_benchmark.py \
             tests/test_task_shared_market_game.py \
             tests/test_task_economic_policy.py \
-            tests/test_task_economic_tournament.py
+            tests/test_task_economic_tournament.py \
+            tests/test_task_economic_dashboard.py
