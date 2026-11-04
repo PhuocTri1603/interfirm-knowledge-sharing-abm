@@ -29,3 +29,29 @@ def test_registered_tournament_rejects_missing_policy():
     )
     with pytest.raises(ValueError):
         run_registered_tournament((scenario,), {}, 2)
+
+
+def test_fresh_policies_do_not_leak_learning_memory():
+    from interfirm_abm.task_registered_tournament import run_registered_tournament_with_fresh_policies
+
+    class LearningPolicy:
+        def __init__(self):
+            self.experience = 0
+
+        def decide(self, player, observation):
+            self.experience += 1
+            return ProductionDecision(1 if self.experience == 1 else 2, 0)
+
+    identifier = player_ids()[0]
+    spec = EconomicSpecification(
+        lambda p, d: d.capital, lambda p, d: 0, lambda q: 10 - q
+    )
+    scenarios = (
+        EconomicMarketConfiguration("first", {identifier: PlayerState(identifier, 2, 2)}, spec),
+        EconomicMarketConfiguration("second", {identifier: PlayerState(identifier, 2, 2)}, spec),
+    )
+    result = run_registered_tournament_with_fresh_policies(
+        scenarios, lambda config: {identifier: LearningPolicy()}, 2
+    )
+    assert [r["market_quantity"] for r in result[0]["trajectory"]] == [1, 2]
+    assert [r["market_quantity"] for r in result[1]["trajectory"]] == [1, 2]
