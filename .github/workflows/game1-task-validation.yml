@@ -49,4 +49,5 @@ jobs:
             tests/test_task_repeated_market.py \
             tests/test_task_strategy_policy.py \
             tests/test_task_policy_adapter.py \
-            tests/test_task_layer_registry.py
+            tests/test_task_layer_registry.py \
+            tests/test_task_experiment_registry.py
