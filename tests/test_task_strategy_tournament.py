@@ -52,7 +52,7 @@ def test_configuration_player_rosters_must_match(tmp_path):
     with pytest.raises(ValueError, match="same strategy players"):
         export_strategy_configuration_tournament(
             tmp_path / "out.json",
-            {"a": {PLAYER: make_firm()}, "b": {}},
+            {"a": {PLAYER: make_firm()}, "b": {PLAYER.replace("L6=optimization", "L6=softmax"): TaskBasedFirm(PLAYER.replace("L6=optimization", "L6=softmax"), 3, 3, make_firm().tasks)}},
             aggregate_tasks=sum,
             inverse_demand=lambda quantity: 10,
             capital_unit_cost=1,
