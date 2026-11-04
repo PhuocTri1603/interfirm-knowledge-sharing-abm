@@ -63,10 +63,12 @@ def run_dynamic_task_market(
         if not isfinite(price) or price < 0:
             raise ValueError("market price must be finite and nonnegative")
         round_profit = 0.0
+        realized_payoffs = {}
         for key in market.firms:
             payoff = price * outputs[key] - costs[key]
             if not isfinite(payoff):
                 raise ValueError("payoff must be finite")
+            realized_payoffs[key] = payoff
             profits[key] += payoff
             round_profit += payoff
         total_revenue = price * quantity
@@ -89,6 +91,11 @@ def run_dynamic_task_market(
             "round_total_revenue": total_revenue,
             "output_concentration_hhi": concentration,
         })
+        # Reveal realized payoff only after all simultaneous decisions are evaluated.
+        for key, policy in policies.items():
+            feedback = getattr(policy, "observe_payoff", None)
+            if feedback is not None:
+                feedback(market.firms[key], round_number, realized_payoffs[key])
         observation = MarketObservation(round_number + 1, price, quantity)
     if not isclose(fsum(profits.values()), fsum(row["round_total_profit"] for row in trajectory), rel_tol=1e-9, abs_tol=1e-8):
         raise ValueError("cumulative market profit reconciliation failed")
