@@ -56,6 +56,6 @@ def run_mixed_benchmark(
         policy_factory=specification.policy_factory,
         rounds=rounds,
     )
-    payload["market_design"] = "mixed"
-    payload["benchmark_theory"] = "simultaneous_quantities_shared_inverse_demand"
+    # The exported economic dashboard schema is preserved unchanged.
+    # Market-design provenance belongs in the accompanying experiment manifest.
     return payload
