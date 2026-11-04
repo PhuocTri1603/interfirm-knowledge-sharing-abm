@@ -16,7 +16,7 @@ def test_same_original_endowments_for_all_strategy_players():
         return tuple(TaskCapability(f"T{i:02d}", 1.0, 1.0, True) for i in range(1, 21))
     roster = build_profile_strategy_roster(profile, task_capability_factory=researcher_supplied_tasks)
     assert len(roster) == 256
-    assert len({id(firm) for firm in roster.values()}) == 3072
+    assert len({id(firm) for firm in roster.values()}) == 256
     assert {firm.capital_endowment for firm in roster.values()} == {profile.capital_endowment}
     assert {firm.labor_endowment for firm in roster.values()} == {profile.labor_endowment}
     assert all(len(firm.tasks) == 20 for firm in roster.values())
