@@ -1425,3 +1425,14 @@ This creates a **200-row matched panel** (100 firms × pre/post phases) and prin
 **Tests and CI:** `tests/test_task_ar_benchmark.py` adds six tests (matched panel, reproducibility, cost monotonicity under benchmark assumptions, labor-only fallback, accounting identity and parameter validation). Workflow updated at `bf12f42201d1f9a0afa185eec83b52f3a08e40be`; CI run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41769338408 was **queued when recorded**, not yet verified successful.
 
 **Theory:** Acemoglu & Restrepo (2018), *The Race between Man and Machine*, https://doi.org/10.1257/aer.20160696; Acemoglu & Restrepo (2019), *Automation and New Tasks*, https://doi.org/10.1257/jep.33.2.3. The implemented closure is a deliberately simplified pedagogical benchmark, not a reproduction of their full equilibrium model.
+
+## Verified executable task-based benchmark CI — Run 41769338408 (2026-11-04)
+
+- GitHub Actions: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41769338408
+- Verified status **completed/success** for commit `bf12f42201d1f9a0afa185eec83b52f3a08e40be` on `main`.
+- Python 3.11 job `126375095555`: **121 passed in 1.87s**.
+- Python 3.12 job `126375095823`: **121 passed in 1.71s**.
+- Both job logs include `tests/test_task_ar_benchmark.py`; six added tests increase the verified count from 115 to 121.
+- Executable simplified benchmark: `python -m interfirm_abm.task_ar_benchmark --output artifacts/game1_task_benchmark.csv` (100 firms, 20 tasks, two phases, illustrative fixed-price/fixed-output task assignment).
+- These tests validate software behavior under the stated illustrative assumptions, **not** competitive market equilibrium, empirical calibration, causal effects, welfare, or full Acemoglu–Restrepo replication.
+- Next implementation gate: integrate the same task technology into an explicit shared-market dynamic, keeping demand, price formation, and behavioral assumptions visible and separate from the theoretical benchmark.
