@@ -35,6 +35,8 @@ class TrialAndErrorChoice:
     exploration_probability: float
     rng: Random
     current_choice: dict[str, str] = field(default_factory=dict)
+    realized_history: dict[str, list[tuple[int, str, float]]] = field(default_factory=dict)
+    pending_round: dict[str, int] = field(default_factory=dict)
 
     def __post_init__(self):
         if not 0 <= self.exploration_probability <= 1:
@@ -48,11 +50,21 @@ class TrialAndErrorChoice:
         else:
             chosen = incumbent
         self.current_choice[firm.firm_id] = chosen
+        self.pending_round[firm.firm_id] = observation.round_number
         # Reward is externally supplied; this is an explicit diagnostic hook.
         score = float(self.reward(firm, observation, chosen, options[chosen]))
         if not isfinite(score):
             raise ValueError("trial reward must be finite")
         return options[chosen]
+
+    def observe_payoff(self, firm: TaskBasedFirm, round_number: int, payoff: float) -> None:
+        """Record own realized payoff; no update rule is imposed."""
+        if not isfinite(payoff) or self.pending_round.get(firm.firm_id) != round_number:
+            raise ValueError("payoff feedback must match a pending round and be finite")
+        self.realized_history.setdefault(firm.firm_id, []).append(
+            (round_number, self.current_choice[firm.firm_id], payoff)
+        )
+        del self.pending_round[firm.firm_id]
 
 
 @dataclass
