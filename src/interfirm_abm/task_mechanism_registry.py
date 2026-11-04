@@ -35,19 +35,19 @@ def audit_mechanism_registry(
     *,
     require_validated: bool = False,
 ) -> dict:
-    expected = {(layer, option) for layer, options in LAYERS if layer != "L7"
+    expected = {(layer, option) for layer, options in LAYERS if layer in ("L3", "L4", "L5", "L6")
                 for option in options}
     if set(specifications) != expected:
         missing = sorted(expected - set(specifications))
         extra = sorted(set(specifications) - expected)
-        raise ValueError(f"L1-L6 mechanism coverage mismatch: missing={missing}; extra={extra}")
+        raise ValueError(f"L3-L6 mechanism coverage mismatch: missing={missing}; extra={extra}")
     for key, spec in specifications.items():
         if (spec.layer, spec.option) != key:
             raise ValueError("registry key does not match mechanism identity")
     counts = {status: sum(s.status == status for s in specifications.values())
               for status in ("proposed", "implemented", "validated")}
     if require_validated and counts["validated"] != len(expected):
-        raise ValueError("all L1-L6 mechanisms must be validated before research-ready execution")
+        raise ValueError("all L3-L6 mechanisms must be validated before research-ready execution")
     return {
         "required_options": len(expected),
         "status_counts": counts,
