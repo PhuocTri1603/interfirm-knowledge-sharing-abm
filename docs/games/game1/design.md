@@ -1215,3 +1215,14 @@ Implement a **data-only strategy registry** for approved L1–L7 catalogs and D8
 - The workflow includes `tests/test_task_experiment_config.py` and validates deterministic manifest planning, subset filters, distinct run IDs, and reproducible seeds.
 - **Interpretation:** Test success verifies implemented software behavior under the covered assertions; it is not evidence of economic equilibrium, firm optimization, AI causality, calibration, welfare, or scientific findings.
 - **Next milestone:** Connect planning metadata to Experiment Registry and validate cross-layer market/population provenance, without running unsupported economic specifications.
+
+## Verified Integrated Experiment Pipeline CI — Run 41763252598 (2026-11-04)
+
+- GitHub Actions: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41763252598
+- Verified conclusion: **success** for `main` commit `3b97d529629034eef3ed0b9b5c4d99fdc44704c1`.
+- Python 3.11 job `126355597801`: **104 passed in 1.74s**.
+- Python 3.12 job `126355598013`: **104 passed in 1.57s**.
+- Integrated `tests/test_task_experiment_pipeline.py`: deterministic plan-to-scenario registration, explicit mapping of clones to base firms, optional ex ante clusters with version provenance, and rejection of incomplete mappings.
+- Compared to the previous verified run, coverage increased from 100 to 104 tests.
+- **Scope boundary:** This validates software integration and the tested data contracts, not economic production assumptions, parameter calibration, equilibria, behavioral learning, AI treatment effects, causal identification, welfare or substantive findings.
+- **Next research gate:** evaluate economic specification and compatibility of selected strategy-layer combinations before authorizing executable simulation and calibration.
