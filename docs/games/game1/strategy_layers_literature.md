@@ -1,6 +1,6 @@
 # Game 1 — 256 strategy labels: economic mechanisms and literature map
 
-**Status:** The 256 combinations are **labels**, not 256 implemented or empirically validated policies. The principal researcher must approve operational definitions, parameters, information sets and economic identification before running a research tournament.
+**Status:** The 256 combinations are **labels**, not 256 implemented or empirically validated policies. The principal researcher must approve operational definitions, parameters, information sets and economic identification before running a research tournament. **Researcher design rule (2026-11-04): every L3 × L4 × L5 × L6 combination is a distinct player identity; no combination is excluded due to conceptual overlap.**
 
 **Identity:** S001–S256 in [strategy_catalog_256.csv](strategy_catalog_256.csv), lexicographic nested product L3 × L4 × L5 × L6, in the order in the canonical `task_layer_registry.py`. Each row points to four option-level references below. L1/L2 describe production technology; L7 describes market regimes; none belongs in the count of 256 behavioral labels.
 
@@ -43,11 +43,11 @@ References: https://doi.org/10.1257/aer.20160696 ; https://doi.org/10.1257/pandp
 | competitive | price-taking benchmark; agent treats market price as exogenous to its own output | Varian (1992), *Microeconomic Analysis*, competitive firm | Clarify if this is a belief under shared endogenous pricing |
 | cournot | quantity competition; firm recognizes effect of its output on aggregate market price | Cournot (1838), *Recherches sur les principes mathématiques de la théorie des richesses*; Tirole (1988), *The Theory of Industrial Organization* | Specify rivals' quantity expectations and best-response timing |
 | price | price competition, requiring an explicit price-choice and demand-allocation mechanism | Bertrand (1883), review of Cournot; Tirole (1988) | **Incompatible with a quantity-only decision API until price actions are added** |
-| adaptive | market expectations updated from past observed prices/quantities | Evans & Honkapohja (2001), *Learning and Expectations in Macroeconomics*, Princeton UP | Specify updating rule, memory and information |
+| adaptive | choose what has worked best using only the firm's own action–payoff history; do not directly observe rivals | Erev & Roth (1998), *Predicting How People Play Games*; Sutton & Barto (2018), *Reinforcement Learning* | Specify own-history window and action-value mapping |
 
 References: https://press.princeton.edu/books/paperback/9780691096010/learning-and-expectations-in-macroeconomics ; Tirole (1988), MIT Press, ISBN 9780262200714.
 
-**Caution:** `competitive`, `cournot`, and `price` describe distinct market games, whereas `adaptive` describes belief updating that could occur in any of them. They are **not four mutually exclusive strategies on the same conceptual axis**. Before treating L5 as a strategy layer, the researcher must decide whether to separate market structure from expectations.
+**Caution:** `competitive`, `cournot`, and `price` describe distinct market games, whereas `adaptive` uses only own realized action–payoff history. **All four are retained as player-level choices, including every cross-layer combination.** Price and quantity players may coexist in the same market; a common transaction mechanism need not imply a common price or identical choice variable.
 
 ## L6 — Choice and learning rule
 
@@ -66,8 +66,8 @@ References: https://dash.harvard.edu/entities/publication/73120378-866f-6bd4-e05
 
 ## Required before full-sample execution
 
-1. Decide whether L5 market structures should be moved to L7, with `adaptive` modeled separately.
-2. Decide whether L4 adoption cost should be a crossed friction rather than a mutually exclusive technology channel.
+1. Preserve the complete 4×4×4×4 Cartesian product: 256 distinct player identities, with no exclusion filter. Resolve information tensions (e.g. Adaptive × Imitation) by explicit rules rather than deleting a combination.
+2. Preserve L4's four named options in the full player roster; document overlapping mechanisms without removing combinations.
 3. Approve exact equations for all option mechanisms, state transitions, observability and prices, keeping common conditions across strategies in each market.
 4. Run strategy-distinctness tests: at least one designed state in which each relevant option changes decisions, not merely its label.
 5. Only then execute 100 configurations × 256 validated policies × 200 rounds; include replication seeds and report confidence/robustness, not one deterministic ranking.
