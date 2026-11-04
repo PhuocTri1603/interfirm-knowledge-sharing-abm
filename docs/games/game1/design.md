@@ -1495,3 +1495,12 @@ The runner enumerates **3,072 distinct L1–L6 strategy IDs** from the existing 
 **Next gate:** implement actual task-based feasible production and heterogeneous strategy decisions within a common-market round, beginning with an explicitly defined economically coherent subset. Preserve unimplemented strategies in the roster with transparent execution-status metadata rather than silently assigning fake economics to them. Validate shared market clearing, payoff accounting and round-to-round state before interpreting any ranking.
 
 **CI:** Workflow run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41774802062 was queued when first checked; do not claim success without later verification.
+
+## CI verification — 200-round shared-market scaffold (2026-11-04)
+
+- GitHub Actions run: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/41774802062
+- Status: **completed/success**; commit `99a658f2aa0502593a54e2e83733e8356b98b108`.
+- Python 3.11 job `126392553567`: **126 passed in 2.37s**.
+- Python 3.12 job `126392553322`: **126 passed in 3.10s**.
+- Both logs include `tests/test_task_shared_market_game.py`; the test count grew from 121 to 126.
+- This validates the software scaffold and declared proxy fixtures. The shared market is not yet a validated execution of heterogeneous L1-L6 economic strategies, a task-based equilibrium, or an evidence-backed ranking of optimal policies.
