@@ -1436,3 +1436,20 @@ This creates a **200-row matched panel** (100 firms × pre/post phases) and prin
 - Executable simplified benchmark: `python -m interfirm_abm.task_ar_benchmark --output artifacts/game1_task_benchmark.csv` (100 firms, 20 tasks, two phases, illustrative fixed-price/fixed-output task assignment).
 - These tests validate software behavior under the stated illustrative assumptions, **not** competitive market equilibrium, empirical calibration, causal effects, welfare, or full Acemoglu–Restrepo replication.
 - Next implementation gate: integrate the same task technology into an explicit shared-market dynamic, keeping demand, price formation, and behavioral assumptions visible and separate from the theoretical benchmark.
+
+## Researcher correction — population size follows strategy coverage (2026-11-04)
+
+**Explicit researcher direction:** The original 100 firms were an early estimate, **not a permanent constraint**. As the research strategy catalog expanded, the simulation's population and experiment scope must adapt to represent the strategy catalog. Do not default new Game 1 experiments to 100 firms merely because earlier benchmarks used 100.
+
+**Current scope:** 12,288 nominal L1–L7 strategy configurations. Use this as the **strategy coverage target**, and support an illustrative **one-agent-per-strategy roster of 12,288 agents** where the experimental market design makes that meaningful. Do **not** conflate a strategy configuration, a unique firm, an agent, a market or a Monte Carlo replication.
+
+**Important qualification:** L7 itself encodes market-composition regimes (separate, mixed, clones, stratified). A one-agent-per-strategy roster is a catalog-level assignment proposal, **not** a claim that all 12,288 strategies can be placed simultaneously in one economically coherent market. A scenario must explicitly define market membership, compatible strategies, agent counts and the treatment of L7; the population may differ by regime and experiment.
+
+**Engineering implications:**
+- Remove fixed `100` assumptions from the default *research-scale experiment orchestration* and make population size/assignment configurable.
+- Retain the previously verified 100-firm benchmark as a **small smoke test / pedagogical benchmark**, not the canonical research population.
+- Preserve complete strategy coverage and report which cells are executable, unresolved or intentionally excluded from a particular run; do not silently pretend all 12,288 are economically executable.
+- Keep task counts, baseline conditions, random seeds and market identities explicit, and report computational scale before launching large experiments.
+- No new production, market, welfare or learning assumptions are approved by this population-size correction.
+
+**Next implementation priority:** connect strategy IDs to agent rosters and market assignments through the existing experiment registry/pipeline; validate full 12,288-strategy coverage independently of economic execution.
