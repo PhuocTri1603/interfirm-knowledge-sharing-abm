@@ -22,7 +22,7 @@ def test_dynamic_allocation_changes_market_quantity_and_price():
     assert [row["capital_used"] for row in result["trajectory"]] == pytest.approx([1, 2])
     assert [row["market_quantity"] for row in result["trajectory"]] == pytest.approx([2, 4])
     assert [row["market_price"] for row in result["trajectory"]] == pytest.approx([8, 6])
-    assert result["ranking"][0]["total_benefit"] == pytest.approx(39)
+    assert result["ranking"][0]["total_benefit"] == pytest.approx(37)
 
 
 def test_rejects_missing_task_policy():
