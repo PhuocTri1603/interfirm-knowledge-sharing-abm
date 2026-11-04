@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import isfinite
 from random import Random
+import json
+from pathlib import Path
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability
 from interfirm_abm.task_dynamic_market import DynamicTaskMarket, run_dynamic_task_market
@@ -95,3 +97,24 @@ def run_behavioral_experiment(rounds=200, seed=17, epsilon=0.1):
     }
     result["learning_action_counts"] = {k: len(v) for k, v in learner.history.items()}
     return result
+
+
+def export_behavioral_experiment(path, rounds=200, seed=17, epsilon=0.1):
+    """Export explicit mechanism comparison, kept separate from illustrative Pages data."""
+    result = run_behavioral_experiment(rounds=rounds, seed=seed, epsilon=epsilon)
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(result, indent=2), encoding="utf-8")
+    return result
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Controlled unvalidated behavioral mechanism experiment")
+    parser.add_argument("output", type=Path)
+    parser.add_argument("--rounds", type=int, default=200)
+    parser.add_argument("--seed", type=int, default=17)
+    parser.add_argument("--epsilon", type=float, default=0.1)
+    args = parser.parse_args()
+    outcome = export_behavioral_experiment(args.output, args.rounds, args.seed, args.epsilon)
+    print(json.dumps({"status": outcome["experiment_status"], "ranking": outcome["ranking"], "assumptions": outcome["assumptions"]}, indent=2))
