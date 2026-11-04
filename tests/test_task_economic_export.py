@@ -17,7 +17,7 @@ def test_end_to_end_task_export(tmp_path):
         tuple(TaskCapability(f"T{i:02d}", 1, 2, True) for i in range(1, 21)),
     )
     market = DynamicTaskMarket(
-        {"sample": firm}, sum, lambda q: 10 - q, 1, 1
+        {"sample": firm}, lambda activities: sum(activities.values()), lambda q: 10 - q, 1, 1
     )
     path = tmp_path / "economic-results.json"
     result = export_dynamic_task_results(
