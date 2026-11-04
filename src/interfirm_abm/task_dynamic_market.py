@@ -45,6 +45,7 @@ def run_dynamic_task_market(
     profits = {key: 0.0 for key in market.firms}
     observation = MarketObservation(1, None, None)
     trajectory = []
+    player_trajectory = []
     for round_number in range(1, rounds + 1):
         outputs, costs, uses = {}, {}, {}
         for key, firm in market.firms.items():
@@ -71,6 +72,13 @@ def run_dynamic_task_market(
             realized_payoffs[key] = payoff
             profits[key] += payoff
             round_profit += payoff
+            player_trajectory.append({
+                "round": round_number, "player_id": key,
+                "output": outputs[key], "capital_used": uses[key][0],
+                "labor_used": uses[key][1], "production_cost": costs[key],
+                "market_price": price, "round_profit": payoff,
+                "cumulative_profit": profits[key],
+            })
         total_revenue = price * quantity
         total_cost = sum(costs.values())
         if not isfinite(total_revenue) or not isfinite(total_cost) or not isfinite(round_profit):
@@ -107,7 +115,8 @@ def run_dynamic_task_market(
         item["rank"] = rank
     return {
         "rounds": rounds, "players": len(market.firms),
-        "trajectory": trajectory, "ranking": ranking,
+        "trajectory": trajectory, "player_trajectory": player_trajectory,
+        "ranking": ranking,
         "execution_status": "injected_task_policies_not_research_validated",
     }
 
