@@ -1,6 +1,6 @@
 """Game 1 shared-market *scaffold*, not an economically validated strategy tournament.
 
-L1-L6 combinations identify 3,072 players. L7 is a market-design label, not
+L3-L6 combinations identify 256 players. L7 is a market-design label, not
 an additional player decision. Unsupported strategy mechanisms are explicitly
 marked proxy_only; do not interpret rankings as research findings.
 """
@@ -11,15 +11,14 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from interfirm_abm.task_layer_registry import iter_strategies
+from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 
 ROUNDS = 200
 PROXY_STATUS = "proxy_only_not_economic_strategy_execution"
 
 
 def player_ids() -> tuple[str, ...]:
-    return tuple(dict.fromkeys("|".join(f"{k}={v}" for k, v in s.choices if k != "L7")
-                               for s in iter_strategies()))
+    return strategy_player_ids()
 
 
 def stable_fraction(label: str) -> float:
@@ -45,7 +44,7 @@ def run_configuration(config: InitialConfiguration, rounds: int = ROUNDS,
                       selected_players: tuple[str, ...] | None = None) -> tuple[list[dict], list[dict]]:
     """Provisional shared inverse-demand accounting with *identical* player policy.
 
-    Each player supplies fixed capacity every round; L1-L6 strategy choices are
+    Each player supplies fixed capacity every round; L3-L6 strategy choices are
     IDs only, NOT implemented decisions. Heterogeneous proxy unit costs are
     deterministic bookkeeping fixtures; they do not represent CES/Leontief/etc.
     """
