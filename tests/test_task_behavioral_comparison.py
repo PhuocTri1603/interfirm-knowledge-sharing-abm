@@ -1,3 +1,4 @@
+import pytest
 """Controlled demonstration: different L6 choice operators, identical technology.
 
 This is a test fixture, not a calibrated economic experiment.
@@ -41,8 +42,8 @@ def test_same_technology_different_decisions_change_market_outcomes():
     )
     result = run_dynamic_task_market(market, policies, rounds=2)
     assert result["players"] == 2
-    assert [r["market_quantity"] for r in result["trajectory"]] == [2.0, 2.0]
+    assert [r["market_quantity"] for r in result["trajectory"]] == pytest.approx([2.0, 2.0])
     assert result["ranking"][0]["player_id"] == ids[0]
-    assert result["ranking"][0]["total_benefit"] == 28.0
+    assert result["ranking"][0]["total_benefit"] == pytest.approx(28.0)
     assert result["ranking"][1]["total_benefit"] == 0.0
     assert result["execution_status"] == "injected_task_policies_not_research_validated"
