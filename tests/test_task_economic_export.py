@@ -36,3 +36,23 @@ def test_end_to_end_task_export(tmp_path):
     assert result["configurations"][0]["price_trajectory"][1]["market_quantity"] == pytest.approx(4)
     assert result["configurations"][0]["total_market_benefit"] == pytest.approx(37)
     assert "not_research_validated" in result["status"]
+
+
+def test_illustrative_200_round_export_is_reproducible_and_labeled(tmp_path):
+    from interfirm_abm.task_illustrative_export import export_illustrative_results
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    a = export_illustrative_results(first)
+    b = export_illustrative_results(second)
+    assert a == b
+    assert json.loads(first.read_text(encoding="utf-8")) == a
+    assert a["rounds"] == 200
+    assert a["players"] == 2
+    assert "ILLUSTRATIVE FIXTURE ONLY" in a["warning"]
+    config = a["configurations"][0]
+    assert len(config["player_trajectory"]) == 400
+    assert len(config["price_trajectory"]) == 200
+    assert len(config["top_10"]) == 2
+    assert {p["player_id"] for p in config["player_trajectory"]} == {
+        row["player_id"] for row in config["top_10"]
+    }
