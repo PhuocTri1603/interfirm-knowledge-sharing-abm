@@ -1359,3 +1359,46 @@ These references motivate microeconomic production and task-based automation; **
 - Both job logs explicitly include `tests/test_task_technology_review.py`; the new six tests increase the previous 109 to 115.
 - Scope: the 12 nominal L1 × L2 cells are preserved and review flags cover input eligibility/Leontief requirements, distinct CES elasticity domains, hybrid assignment, and cross-task essentiality. The review does **not** calibrate production functions or prove economic feasibility, substitutability or AI effects.
 - Pending researcher approval: definitions of automation-ineligible tasks under Leontief within-task technology; task/aggregate equation domains; cost and baseline normalization for comparisons.
+
+## Production Feasibility and Normalization — alternatives for researcher decision (2026-11-04)
+
+**Status: research alternatives only.** No choice below has been approved, implemented as a production model or simulated. The catalog remains 12 nominal L1×L2 technology cells and 12,288 nominal L1–L7 combinations.
+
+### F1. Within-task Leontief and capital eligibility
+
+A candidate strict two-input Leontief task is `q_j=min{aL_j L_j/bL_j, aK_j K_j/bK_j}` with positive coefficients. If eligibility prohibits all capital on task `j` and `K_j=0`, the formula implies `q_j=0`. This is a mathematical implication of essential complementary inputs, **not** an error that software should silently repair.
+
+| Alternative | Technology interpretation | Economic consequence and open question |
+| --- | --- | --- |
+| F1-A: Switching technology | Before eligibility: a separate labor-only production mode; after eligibility: another technology (possibly Leontief) | Requires explicit technology switching and associated adoption/transition costs; cannot be described as unmodified strict Leontief throughout |
+| F1-B: Strict two-input Leontief | Both capital and labor always essential | Some automation-ineligible tasks may be infeasible; clarify whether `eligibility` prohibits *all* capital or only *AI-enabled* capital |
+| F1-C: Eligibility-dependent production set | Feasible technology set changes with task state, possibly permitting different production modes | Requires explicit state-contingent production correspondence and decision/timing rules; may overlap with L1 hybrid and L4 eligibility shock |
+
+**Critical distinction:** Physical capital, AI-enabled capital and automation eligibility are not automatically the same concept. A task may require ordinary equipment while not being eligible for AI automation. The researcher must define the meaning of `K` and `eligibility` before choosing F1-A/B/C. None is preselected.
+
+### F2. Comparability/normalization across technology cells
+
+| Alternative | What is held fixed | Primary estimand or diagnostic | Limitation |
+| --- | --- | --- | --- |
+| F2-A: Fixed inputs | Same feasible K and L endowments and task-capability baseline | Difference in feasible output at fixed resources | Allocations and costs can differ; cannot infer profits or welfare |
+| F2-B: Fixed target output | Same target final output and factor prices | Conditional cost or input requirement differences | Requires a coherent cost-minimization problem and feasibility across all cells |
+| F2-C: Matched baseline calibration | Common pre-shock output or cost reference where feasible, then matched AI counterfactuals | Within-cell pre/post response conditional on calibration | May conceal structural level differences; calibration can be infeasible and must not force equality without disclosure |
+
+**Comparability contract:** Record which parameters and endowments are common, which are technology-specific, units of task service and final output, pre-shock target, normalization method, feasibility failures, and whether market demand and firm identities are held constant. Preserve both raw and normalized outcomes; never substitute normalized output for realized production.
+
+### Researcher approval questions
+
+1. Does capital `K` mean **all physical capital**, **AI-capable capital only**, or separate categories? Does `eligibility=0` prohibit AI use only, or all capital use?
+2. Should the strict Leontief task technology always require both inputs, or should eligibility alter the production mode/feasible set? Choose F1-A/B/C or refine them.
+3. What is the primary comparison: fixed-input output (F2-A), conditional cost at fixed output (F2-B), or matched-baseline AI response (F2-C)? Multiple complementary diagnostics are possible but must be labeled separately.
+4. What is the common baseline and which quantities are permitted to vary? Numerical values and normalization formulas remain pending.
+
+### Theoretical foundations and scope
+
+- Varian, Hal R. (1992), *Microeconomic Analysis*, 3rd ed.: production sets, Leontief complementarity, cost minimization and normalization.
+- Acemoglu, Daron, and Pascual Restrepo (2018), “The Race between Man and Machine: Implications of Technology for Growth, Factor Shares, and Employment,” *American Economic Review*, 108(6), 1488–1542. https://doi.org/10.1257/aer.20160696
+- Acemoglu, Daron, and Pascual Restrepo (2019), “Automation and New Tasks: How Technology Displaces and Reinstates Labor,” *Journal of Economic Perspectives*, 33(2), 3–30. https://doi.org/10.1257/jep.33.2.3
+
+The literature supports examining task feasibility, substitution and automation; it does **not** establish that F1-A/B/C or F2-A/B/C is uniquely correct for this research design.
+
+**Implementation:** Documentation-only. No new economic equations have been authorized for execution, and no new CI result is claimed.
