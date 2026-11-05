@@ -26,6 +26,7 @@ class TournamentSpecification:
     policy_factory: PolicyFactory
     rounds: int = DEFAULT_ROUNDS
     expected_configurations: int = DEFAULT_INITIAL_CONFIGURATIONS
+    require_scientific_readiness: bool = False
 
     def __post_init__(self):
         if self.rounds <= 0 or self.expected_configurations <= 0:
@@ -41,6 +42,18 @@ def run_full_tournament(
     Caller must supply all economic models. No synthetic research findings are
     created by this orchestrator.
     """
+    if specification.require_scientific_readiness:
+        from interfirm_abm.task_strategy_audit import audit_strategy_semantics
+        audit = audit_strategy_semantics()
+        if not audit["ready_for_scientific_comparison"]:
+            raise ValueError(
+                f"scientific tournament blocked: {audit['semantic_conflict_count']} "
+                "unresolved strategy semantics; requires researcher decision"
+            )
+        raise ValueError(
+            "scientific tournament blocked: injected production, clearing, "
+            "cost, and learning mechanisms have not been research-validated"
+        )
     if len(configurations) != specification.expected_configurations:
         raise ValueError(f"expected {specification.expected_configurations} configurations")
     expected_players = frozenset(strategy_player_ids())
@@ -98,4 +111,5 @@ def run_full_tournament(
         "player_trajectory": all_player_rows,
         "ranking_by_configuration": all_rankings,
         "execution_status": "economic_models_injected_not_research_validated",
+        "scientific_readiness": False,
     }
