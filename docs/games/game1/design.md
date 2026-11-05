@@ -1504,3 +1504,15 @@ The runner enumerates **3,072 distinct L1–L6 strategy IDs** from the existing 
 - Python 3.12 job `126392553322`: **126 passed in 3.10s**.
 - Both logs include `tests/test_task_shared_market_game.py`; the test count grew from 121 to 126.
 - This validates the software scaffold and declared proxy fixtures. The shared market is not yet a validated execution of heterogeneous L1-L6 economic strategies, a task-based equilibrium, or an evidence-backed ranking of optimal policies.
+
+
+## Game 1 task aggregation implementation checkpoint — 2026-11-05
+
+Following the researcher's clarification that the 20 tasks jointly contribute to final production, and instruction to continue after discussing Cobb–Douglas across tasks, the **diagnostic Game 1** now uses an equal-share, 20-task Cobb–Douglas aggregator:
+
+`Y_i = exp((1/20) * sum_{j=1}^{20} log(q_ij))` for all strictly positive task activities, and `Y_i = 0` if any task activity is zero.
+
+This is the `sigma=1` case of the existing task CES implementation in `src/interfirm_abm/task_aggregators.py`. It is applied consistently to **both** the action valuation and realized production in `src/interfirm_abm/task_multi_action_diagnostic.py`. The 100 approved firm-specific task productivity vectors and automation eligibility masks remain unchanged. Task shares `1/20` are a **baseline modeling assumption**, not parameters identified from the population CSVs. Alternative CES elasticities and task shares remain sensitivity analyses, not observed data.
+
+**Scientific caveat:** The within-task additive `a_L L + a_K K` activity convention, allocation plans, demand/clearing, input prices, and behavioral valuation are still diagnostic and have not been approved as a complete economic model. This checkpoint does not change the global `research_validated: false` gate. No inference about equilibrium, welfare or AI effects is authorized by the simulation.
+
