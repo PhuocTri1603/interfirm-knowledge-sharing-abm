@@ -1,0 +1,75 @@
+name: Game 1 100-configuration diagnostic tournament
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-100-configurations.yml'
+  workflow_dispatch:
+jobs:
+  full-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      - name: Run all 100 configurations, 256 players and 200 rounds
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "tests")
+          from test_task_full_tournament import configurations, market_factory, policy_factory
+          from interfirm_abm.task_full_tournament import TournamentSpecification, run_full_tournament
+          from interfirm_abm.task_tournament_export import export_tournament
+          from interfirm_abm.task_strategy_audit import audit_strategy_semantics
+
+          output = Path("full-diagnostic")
+          output.mkdir(exist_ok=True)
+          config_map = configurations(100)
+          summaries = []
+          total_observations = 0
+          for index, (config_id, firms) in enumerate(config_map.items(), 1):
+              result = run_full_tournament(
+                  {config_id: firms},
+                  TournamentSpecification(
+                      market_factory, policy_factory, rounds=200,
+                      expected_configurations=1,
+                  ),
+              )
+              export_tournament(result, output / config_id)
+              summaries.extend(result["configuration_summaries"])
+              total_observations += result["player_round_observations"]
+              if index % 10 == 0:
+                  print(f"Finished {index}/100 configurations", flush=True)
+          assert len(summaries) == 100
+          assert total_observations == 100 * 256 * 200
+          audit = audit_strategy_semantics()
+          manifest = {
+              "execution_status": "diagnostic_only_not_scientifically_validated",
+              "research_validated": False,
+              "fixture_source": "tests/test_task_full_tournament.py",
+              "configuration_count": 100,
+              "strategy_count": 256,
+              "rounds_per_configuration": 200,
+              "player_round_observations": total_observations,
+              "semantic_conflict_count": audit["semantic_conflict_count"],
+              "warning": "Test-only market and policy fixtures. No scientific winner or economic inference.",
+          }
+          (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+          with (output / "configuration_summaries.csv").open("w", newline="") as handle:
+              writer = csv.DictWriter(handle, fieldnames=list(summaries[0]))
+              writer.writeheader()
+              writer.writerows(summaries)
+          print(json.dumps(manifest, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-100-configurations-200-rounds-diagnostic
+          path: full-diagnostic/
+          if-no-files-found: error
+          retention-days: 14
