@@ -89,7 +89,7 @@ def market_factory(config_id, roster):
     # Demand: Q_d=max(0, intercept - slope*P). Supply is rationed at
     # a common market price; offers above it receive no sales.
     i = int(config_id[1:])
-    intercept = 850 + 5 * (i // 10)
+    intercept = 1400 + 15 * (i // 10)
     slope = 100 + (i % 10) * 3
 
     def clearing(round_number, offers):
