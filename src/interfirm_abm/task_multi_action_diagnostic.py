@@ -9,8 +9,9 @@ from __future__ import annotations
 from hashlib import sha256
 from math import fsum
 from random import Random
+from pathlib import Path
 
-from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability
+from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, load_approved_population
 from interfirm_abm.task_economic_policy import MarketObservation
 from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 from interfirm_abm.task_mixed_market import MixedMarket, Sale
@@ -29,22 +30,30 @@ ACTION_PLANS = {
 
 
 def configurations(n=100):
-    if n < 1 or n > 100:
+    """Map C000..C099 to the 100 *approved* task-based technologies.
+
+    Each configuration uses one original F001..F100 task capability schedule,
+    eligibility mask, and K/L endowments. All 256 strategy players in that
+    configuration face exactly that same technology and initial resources.
+    No synthetic technology coefficients or task eligibility are generated.
+    """
+    if type(n) is not int or not 1 <= n <= 100:
         raise ValueError("n must be in [1,100]")
+    root = Path(__file__).resolve().parents[2] / "data" / "firms"
+    population = load_approved_population(
+        root / "task_based_100_firms_profiles.csv",
+        root / "task_based_100_firms_tasks.csv",
+    )
     result = {}
-    for i in range(n):
-        # Distinct, reproducible configurations, common within each market.
-        k = 7.0 + (i % 10) * .4
-        l = 7.0 + (i // 10) * .4
-        capital_productivity = .8 + (i % 5) * .1
-        labor_productivity = .8 + (i // 5 % 5) * .1
-        tasks = tuple(
-            TaskCapability(f"T{t:02d}", labor_productivity,
-                           capital_productivity, t > 5)
-            for t in range(1, 21)
-        )
-        result[f"C{i:03d}"] = {
-            sid: TaskBasedFirm(sid, k, l, tasks)
+    for i, original in enumerate(population[:n]):
+        config_id = f"C{i:03d}"
+        result[config_id] = {
+            sid: TaskBasedFirm(
+                firm_id=sid,
+                capital_endowment=original.capital_endowment,
+                labor_endowment=original.labor_endowment,
+                tasks=original.tasks,
+            )
             for sid in strategy_player_ids()
         }
     return result
