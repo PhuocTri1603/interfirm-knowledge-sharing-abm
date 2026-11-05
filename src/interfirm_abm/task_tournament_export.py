@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import csv
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Mapping
 
@@ -47,6 +48,18 @@ def export_tournament(result: Mapping, directory: str | Path, *, overwrite: bool
         raise ValueError("player trajectory count mismatch")
     if len(tables["ranking_by_configuration"]) != n_config * n_players:
         raise ValueError("ranking count mismatch")
+    # Fail before writing when cross-table configuration coverage is inconsistent.
+    config_ids = [row["config_id"] for row in tables["configuration_summaries"]]
+    if len(set(config_ids)) != n_config:
+        raise ValueError("duplicate configuration IDs")
+    for name, expected_per_config in (
+        ("market_trajectory", n_rounds),
+        ("player_trajectory", n_players * n_rounds),
+        ("ranking_by_configuration", n_players),
+    ):
+        counts = Counter(row["config_id"] for row in tables[name])
+        if counts != dict.fromkeys(config_ids, expected_per_config):
+            raise ValueError(f"{name}: inconsistent configuration coverage")
     directory = Path(directory)
     names = [f"{name}.csv" for name in TABLES] + ["manifest.json"]
     if directory.exists() and not overwrite and any((directory / name).exists() for name in names):
