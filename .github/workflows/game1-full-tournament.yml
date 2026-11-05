@@ -6,6 +6,8 @@ on:
       - 'tests/test_task_full_tournament.py'
       - 'src/interfirm_abm/task_tournament_export.py'
       - 'tests/test_task_tournament_export.py'
+      - 'src/interfirm_abm/task_tournament_dashboard.py'
+      - 'tests/test_task_tournament_dashboard.py'
       - '.github/workflows/game1-full-tournament.yml'
   workflow_dispatch:
 jobs:
@@ -17,4 +19,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest -q tests/test_task_strategy_engine.py tests/test_task_mixed_market.py tests/test_task_full_tournament.py tests/test_task_tournament_export.py
+      - run: python -m pytest -q tests/test_task_strategy_engine.py tests/test_task_mixed_market.py tests/test_task_full_tournament.py tests/test_task_tournament_export.py tests/test_task_tournament_dashboard.py
