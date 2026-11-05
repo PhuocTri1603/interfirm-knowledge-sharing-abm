@@ -9,6 +9,8 @@ on:
       - 'src/interfirm_abm/task_tournament_dashboard.py'
       - 'tests/test_task_tournament_dashboard.py'
       - 'tests/test_task_tournament_integration.py'
+      - 'src/interfirm_abm/task_strategy_audit.py'
+      - 'tests/test_task_strategy_audit.py'
       - '.github/workflows/game1-full-tournament.yml'
       - 'site/index.html'
   workflow_dispatch:
@@ -21,7 +23,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest -q tests/test_task_strategy_engine.py tests/test_task_mixed_market.py tests/test_task_full_tournament.py tests/test_task_tournament_export.py tests/test_task_tournament_dashboard.py tests/test_task_tournament_integration.py
+      - run: python -m pytest -q tests/test_task_strategy_engine.py tests/test_task_mixed_market.py tests/test_task_full_tournament.py tests/test_task_tournament_export.py tests/test_task_tournament_dashboard.py tests/test_task_tournament_integration.py tests/test_task_strategy_audit.py
+      - name: Record strategy semantic audit
+        run: |
+          mkdir -p preview
+          python -c 'import json; from pathlib import Path; from interfirm_abm.task_strategy_audit import audit_strategy_semantics; Path("preview/strategy-audit.json").write_text(json.dumps(audit_strategy_semantics(), indent=2) + "\\n")'
       - name: Build one-configuration diagnostic dashboard preview (not research results)
         run: |
           python - <<'PY'
@@ -84,5 +90,6 @@ jobs:
           name: game1-256-player-diagnostic-preview
           path: |
             preview/economic-results.json
+            preview/strategy-audit.json
             preview/tables/
           if-no-files-found: error
