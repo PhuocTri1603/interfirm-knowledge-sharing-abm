@@ -23,14 +23,14 @@ jobs:
           import sys
           from pathlib import Path
           sys.path.insert(0, "tests")
-          from test_task_full_tournament import configurations, market_factory, policy_factory
+          from interfirm_abm.task_multi_action_diagnostic import configurations, market_factory, policy_factory
           from interfirm_abm.task_full_tournament import TournamentSpecification, run_full_tournament
           from interfirm_abm.task_tournament_export import export_tournament
           from interfirm_abm.task_strategy_audit import audit_strategy_semantics
 
           output = Path("full-diagnostic")
           output.mkdir(exist_ok=True)
-          config_map = configurations(100)
+          config_map = configurations(100)\n          # Fail fast if the multi-action market cannot settle a full round.\n          smoke_id, smoke_firms = next(iter(config_map.items()))\n          smoke = run_full_tournament(\n              {smoke_id: smoke_firms},\n              TournamentSpecification(market_factory, policy_factory, rounds=2, expected_configurations=1),\n          )\n          assert len({r["action_id"] for r in smoke["player_trajectory"]}) > 1
           summaries = []
           total_observations = 0
           for index, (config_id, firms) in enumerate(config_map.items(), 1):
@@ -52,13 +52,13 @@ jobs:
           manifest = {
               "execution_status": "diagnostic_only_not_scientifically_validated",
               "research_validated": False,
-              "fixture_source": "tests/test_task_full_tournament.py",
+              "fixture_source": "src/interfirm_abm/task_multi_action_diagnostic.py",\n              "multiple_feasible_actions": True,\n              "heterogeneous_initial_configurations": True,
               "configuration_count": 100,
               "strategy_count": 256,
               "rounds_per_configuration": 200,
               "player_round_observations": total_observations,
               "semantic_conflict_count": audit["semantic_conflict_count"],
-              "warning": "Test-only market and policy fixtures. No scientific winner or economic inference.",
+              "warning": "Illustrative demand, production and learning assumptions, not approved scientific economics. 16 unresolved semantic conflicts.",
           }
           (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
           with (output / "configuration_summaries.csv").open("w", newline="") as handle:
