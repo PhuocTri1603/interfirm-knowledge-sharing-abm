@@ -94,3 +94,14 @@ def test_unresolved_semantics_prevent_scientific_flag():
     audit = audit_strategy_semantics()
     assert audit["semantic_conflict_count"] == 16
     assert audit["ready_for_scientific_comparison"] is False
+
+
+def test_ces_reference_theory_constant_productivity_and_elasticity():
+    from interfirm_abm.task_ces_reference import ces_output, ces_mrt_ratio
+    assert ces_output(4, 9, 1, a=1, alpha=.5) == pytest.approx(6)
+    for sigma in (.5, 1., 2., 5.):
+        assert ces_output(8, 8, sigma, a=1, alpha=.5) == pytest.approx(8)
+        assert ces_output(8, 8, sigma, a=2, alpha=.5) == pytest.approx(16)
+        assert ces_mrt_ratio(8, 8, sigma) == pytest.approx(1)
+    assert ces_mrt_ratio(8, 2, .5) < ces_mrt_ratio(8, 2, 2.)
+    assert ces_output(8, 2, .5) < ces_output(8, 2, 2.)
