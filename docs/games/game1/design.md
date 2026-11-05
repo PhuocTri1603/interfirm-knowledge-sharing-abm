@@ -1516,3 +1516,12 @@ This is the `sigma=1` case of the existing task CES implementation in `src/inter
 
 **Scientific caveat:** The within-task additive `a_L L + a_K K` activity convention, allocation plans, demand/clearing, input prices, and behavioral valuation are still diagnostic and have not been approved as a complete economic model. This checkpoint does not change the global `research_validated: false` gate. No inference about equilibrium, welfare or AI effects is authorized by the simulation.
 
+
+
+## Researcher decision: Acemoglu–Restrepo task execution — 2026-11-05
+
+The principal researcher explicitly instructed us to discard the old within-task additive K+L production function and use the Acemoglu–Restrepo task-based foundation. The Game 1 task feasibility implementation now **rejects simultaneous positive K and L within the same task**. An ineligible task is labor-only; an eligible task may be carried out with labor-only `q=a_L L` or capital-only `q=a_K K`. A firm can still use both factors across different tasks. Diagnostic candidate plans were updated to obey this constraint.
+
+The 20-task equal-weight Cobb–Douglas final-output aggregator remains separate. The existing 100-firm productivity and eligibility CSVs are unchanged.
+
+**Scope and theory:** Pure-mode execution is a discrete implementation of task assignment by comparative cost, inspired by Acemoglu–Restrepo. It is not a claim to reproduce every assumption or equilibrium result of their continuous-task models. In particular, cost-minimizing task assignment under shared factor endowments, endogenous factor prices, automation-frontier changes, adoption costs, and labor-market equilibrium remain unresolved. The diagnostic market is not yet scientifically validated; `research_validated: false` remains mandatory.
