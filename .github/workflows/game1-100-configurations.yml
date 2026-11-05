@@ -4,6 +4,9 @@ on:
     branches: [game1-economic-policy-interface]
     paths:
       - '.github/workflows/game1-100-configurations.yml'
+      - 'tests/test_game1_validation_gates.py'
+      - 'src/interfirm_abm/task_ces_reference.py'
+      - 'src/interfirm_abm/task_multi_action_diagnostic.py'
   workflow_dispatch:
 jobs:
   full-diagnostic:
