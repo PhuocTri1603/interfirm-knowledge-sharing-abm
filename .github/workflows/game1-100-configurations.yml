@@ -10,6 +10,8 @@ on:
       - 'src/interfirm_abm/task_strategy_audit.py'
       - 'src/interfirm_abm/task_ces_reference.py'
       - 'src/interfirm_abm/task_multi_action_diagnostic.py'
+      - 'src/interfirm_abm/task_based_firm.py'
+      - 'tests/test_task_based_firm.py'
   workflow_dispatch:
 jobs:
   full-diagnostic:
@@ -24,7 +26,7 @@ jobs:
       - name: Verify Python syntax before simulation
         run: python -m compileall -q src/interfirm_abm scripts
       - name: Verify Game 1 mechanisms and readiness gates
-        run: python -m pytest -q tests/test_game1_validation_gates.py tests/test_task_strategy_engine.py
+        run: python -m pytest -q tests/test_game1_validation_gates.py tests/test_task_strategy_engine.py tests/test_task_based_firm.py
       - name: Run all 100 configurations, 256 players and 200 rounds
         run: |
           python - <<'PY'
