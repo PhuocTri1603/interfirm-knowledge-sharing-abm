@@ -36,6 +36,8 @@ jobs:
                                       expected_configurations=1),
           )
           write_tournament_dashboard(result, "preview/economic-results.json")
+          from interfirm_abm.task_tournament_export import export_tournament
+          export_tournament(result, "preview/tables")
           print("Wrote 1 configuration x 256 players x 200 rounds diagnostic JSON")
           PY
       - name: Validate diagnostic preview disclosure
@@ -48,6 +50,10 @@ jobs:
           assert len(data["configurations"]) == 1
           assert len(data["configurations"][0]["player_trajectory"]) == 51200
           assert "ILLUSTRATIVE" in data["warning"]
+          from pathlib import Path
+          manifest = json.loads(Path("preview/tables/manifest.json").read_text())
+          assert manifest["player_round_observations"] == 51200
+          assert manifest["research_validated"] is False
           print("Diagnostic preview validated; NOT scientific results")
           PY
       - name: Build static website preview bundle
@@ -73,5 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: game1-256-player-diagnostic-preview
-          path: preview/economic-results.json
+          path: |
+            preview/economic-results.json
+            preview/tables/
           if-no-files-found: error
