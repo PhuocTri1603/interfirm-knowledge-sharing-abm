@@ -65,3 +65,21 @@ def test_duplicate_task_allocation_rejected():
     allocations = [TaskAllocation(firm.tasks[0].task_id, 0, 0) for _ in range(20)]
     with pytest.raises(ValueError, match="Exactly one"):
         firm.evaluate_allocation(allocations)
+
+
+def test_acemoglu_restrepo_pure_mode_rejects_mixed_inputs():
+    firm = population()[0]
+    eligible = next(t for t in firm.tasks if t.automation_eligible)
+    allocations = [TaskAllocation(t.task_id, 1.0 if t == eligible else 0.0,
+                                  1.0 if t == eligible else 0.0) for t in firm.tasks]
+    with pytest.raises(ValueError, match="Simultaneous labor and capital"):
+        firm.evaluate_allocation(allocations)
+
+
+def test_acemoglu_restrepo_capital_mode_uses_capital_productivity():
+    firm = population()[0]
+    eligible = next(t for t in firm.tasks if t.automation_eligible)
+    allocations = [TaskAllocation(t.task_id, 0.0, 1.0 if t == eligible else 0.0)
+                   for t in firm.tasks]
+    result = firm.evaluate_allocation(allocations)
+    assert result[eligible.task_id] == pytest.approx(eligible.capital_productivity)
