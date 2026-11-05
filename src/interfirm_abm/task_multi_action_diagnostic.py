@@ -80,7 +80,7 @@ def valuation(identity, firm, info, action):
     activity = firm.evaluate_allocation(list(action.allocation))
     output = fsum(activity.values())
     cost = fsum(a.capital + a.labor for a in action.allocation)
-    anticipated_price = info.market.average_price if info.market.average_price is not None else 2.0
+    anticipated_price = info.market.last_market_price if info.market.last_market_price is not None else 2.0
     price = action.offered_price if action.offered_price is not None else anticipated_price
     return price * output - cost
 
@@ -119,7 +119,7 @@ def policy_factory(config_id, market):
                  if sid != firm.firm_id and p.own_history]
         if not peers:
             # First-round bootstrap; subsequent rounds use realized peer outcomes.
-            return ({firm.firm_id: "balanced"}, {firm.firm_id: 0.})
+            return ({firm.firm_id: "balanced_p1.5" if "L5=price" in firm.firm_id else "balanced"},\n                    {firm.firm_id: 0.})
         return ({sid: p.own_history[-1].action_id for sid, p in peers},
                 {sid: p.own_history[-1].profit for sid, p in peers})
 
