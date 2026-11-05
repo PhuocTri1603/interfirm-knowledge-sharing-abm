@@ -47,7 +47,7 @@ jobs:
           path: diagnostic-source
       - name: Generate explicitly unvalidated Game 1 preview
         run: |
-          python -m pip install -e "./diagnostic-source"
+          python -m pip install -e "./diagnostic-source[dev]"
           cd diagnostic-source
           python - <<'PY'
           import sys
