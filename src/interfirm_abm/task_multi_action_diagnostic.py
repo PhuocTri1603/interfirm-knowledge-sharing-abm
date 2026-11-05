@@ -1,7 +1,7 @@
 """Illustrative multi-action Game 1 scenario; NOT researcher-approved economics.
 
 Replaces the single-action integration-test fixture for diagnostic runs.
-Explicit assumptions: discrete feasible K/L plans, linear task aggregation,
+Explicit assumptions: discrete feasible K/L plans, equal-weight Cobb-Douglas task aggregation,
 linear inverse demand, proportional rationing, and myopic price expectations.
 """
 from __future__ import annotations
@@ -12,6 +12,7 @@ from random import Random
 from pathlib import Path
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, load_approved_population
+from interfirm_abm.task_aggregators import task_ces
 from interfirm_abm.task_economic_policy import MarketObservation
 from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 from interfirm_abm.task_mixed_market import MixedMarket, Sale
@@ -20,6 +21,17 @@ from interfirm_abm.task_strategy_engine import (
 )
 
 ROSTER = strategy_roster()
+TASK_WEIGHTS = {f"T{j:02d}": 1.0 / 20 for j in range(1, 21)}
+
+
+def aggregate_20_tasks(activity):
+    """20-task Cobb-Douglas baseline (CES sigma=1), equal task shares.
+
+    This selects only the across-task aggregator. Within-task production,
+    demand, costs and learning parameters remain diagnostic assumptions.
+    """
+    return task_ces(activity, TASK_WEIGHTS, sigma=1.0)
+
 ACTION_PLANS = {
     "labor_low": (.0, .25),
     "labor_high": (.0, .45),
@@ -87,7 +99,7 @@ def action_factory(identity, firm, info):
 def valuation(identity, firm, info, action):
     # Illustrative one-period expected margin, not a solved equilibrium.
     activity = firm.evaluate_allocation(list(action.allocation))
-    output = fsum(activity.values())
+    output = aggregate_20_tasks(activity)
     cost = fsum(a.capital + a.labor for a in action.allocation)
     anticipated_price = info.market.last_market_price if info.market.last_market_price is not None else 2.0
     price = action.offered_price if action.offered_price is not None else anticipated_price
@@ -116,7 +128,7 @@ def market_factory(config_id, roster):
                           price)
                 for key, offer in offers.items()}
 
-    return MixedMarket(roster, lambda activity: fsum(activity.values()),
+    return MixedMarket(roster, aggregate_20_tasks,
                        clearing, 1., 1., lambda key, action, round_number: 0.)
 
 
