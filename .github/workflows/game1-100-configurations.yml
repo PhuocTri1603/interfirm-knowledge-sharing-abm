@@ -30,7 +30,14 @@ jobs:
 
           output = Path("full-diagnostic")
           output.mkdir(exist_ok=True)
-          config_map = configurations(100)\n          # Fail fast if the multi-action market cannot settle a full round.\n          smoke_id, smoke_firms = next(iter(config_map.items()))\n          smoke = run_full_tournament(\n              {smoke_id: smoke_firms},\n              TournamentSpecification(market_factory, policy_factory, rounds=2, expected_configurations=1),\n          )\n          assert len({r["action_id"] for r in smoke["player_trajectory"]}) > 1
+          config_map = configurations(100)
+          # Fail fast if the multi-action market cannot settle a full round.
+          smoke_id, smoke_firms = next(iter(config_map.items()))
+          smoke = run_full_tournament(
+              {smoke_id: smoke_firms},
+              TournamentSpecification(market_factory, policy_factory, rounds=2, expected_configurations=1),
+          )
+          assert len({r["action_id"] for r in smoke["player_trajectory"]}) > 1
           summaries = []
           total_observations = 0
           for index, (config_id, firms) in enumerate(config_map.items(), 1):
@@ -52,7 +59,9 @@ jobs:
           manifest = {
               "execution_status": "diagnostic_only_not_scientifically_validated",
               "research_validated": False,
-              "fixture_source": "src/interfirm_abm/task_multi_action_diagnostic.py",\n              "multiple_feasible_actions": True,\n              "heterogeneous_initial_configurations": True,
+              "fixture_source": "src/interfirm_abm/task_multi_action_diagnostic.py",
+              "multiple_feasible_actions": True,
+              "heterogeneous_initial_configurations": True,
               "configuration_count": 100,
               "strategy_count": 256,
               "rounds_per_configuration": 200,
