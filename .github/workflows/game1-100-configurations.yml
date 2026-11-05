@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/game1-100-configurations.yml'
       - 'tests/test_game1_validation_gates.py'
+      - 'tests/test_task_strategy_engine.py'
+      - 'src/interfirm_abm/task_strategy_engine.py'
+      - 'src/interfirm_abm/task_strategy_audit.py'
       - 'src/interfirm_abm/task_ces_reference.py'
       - 'src/interfirm_abm/task_multi_action_diagnostic.py'
   workflow_dispatch:
@@ -21,7 +24,7 @@ jobs:
       - name: Verify Python syntax before simulation
         run: python -m compileall -q src/interfirm_abm scripts
       - name: Verify Game 1 mechanisms and readiness gates
-        run: python -m pytest -q tests/test_game1_validation_gates.py
+        run: python -m pytest -q tests/test_game1_validation_gates.py tests/test_task_strategy_engine.py
       - name: Run all 100 configurations, 256 players and 200 rounds
         run: |
           python - <<'PY'
@@ -74,7 +77,7 @@ jobs:
               "rounds_per_configuration": 200,
               "player_round_observations": total_observations,
               "semantic_conflict_count": audit["semantic_conflict_count"],
-              "warning": "Illustrative demand, production and learning assumptions, not approved scientific economics. 16 unresolved semantic conflicts.",
+              "warning": "Illustrative demand, production and learning assumptions, not approved scientific economics. Strategy semantic conflicts are reported separately.",
           }
           (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
           with (output / "configuration_summaries.csv").open("w", newline="") as handle:
