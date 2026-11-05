@@ -61,12 +61,15 @@ jobs:
           mkdir -p preview-site
           cp site/index.html preview-site/index.html
           cp preview/economic-results.json preview-site/economic-results.json
+          cp -R preview/tables preview-site/tables
           python - <<'PY'
           from pathlib import Path
           html = Path("preview-site/index.html").read_text(encoding="utf-8")
           assert 'fetch("./economic-results.json"' in html
           assert 'id="player-chart"' in html
           assert Path("preview-site/economic-results.json").is_file()
+          assert Path("preview-site/tables/manifest.json").is_file()
+          assert "id=\"diagnostic-downloads\"" in html
           print("Static preview website bundle is ready")
           PY
       - name: Upload diagnostic website preview (not published)
