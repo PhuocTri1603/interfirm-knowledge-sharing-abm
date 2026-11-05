@@ -67,3 +67,16 @@ def test_dashboard_rejects_unapproved_status():
     data["execution_status"] = "validated"
     with pytest.raises(ValueError, match="provenance"):
         tournament_dashboard_payload(data)
+
+
+def test_reject_inconsistent_profit_ledger():
+    data = example()
+    data['player_trajectory'][2]['cumulative_profit'] = 999
+    with pytest.raises(ValueError, match='cumulative profit'):
+        tournament_dashboard_payload(data)
+
+def test_reject_invalid_transaction_price():
+    data = example()
+    data['market_trajectory'][0]['average_transaction_price'] = float('nan')
+    with pytest.raises(ValueError, match='transaction price'):
+        tournament_dashboard_payload(data)
