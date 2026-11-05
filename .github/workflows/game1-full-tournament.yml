@@ -10,6 +10,7 @@ on:
       - 'tests/test_task_tournament_dashboard.py'
       - 'tests/test_task_tournament_integration.py'
       - '.github/workflows/game1-full-tournament.yml'
+      - 'site/index.html'
   workflow_dispatch:
 jobs:
   full-tournament:
