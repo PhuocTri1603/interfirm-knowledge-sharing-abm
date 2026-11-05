@@ -1,6 +1,8 @@
 """Task-based production feasibility for the approved 100-firm population.
 
-Task execution follows an Acemoglu–Restrepo-inspired pure-mode baseline:\none task uses labor or eligible capital, never both simultaneously.\nTask aggregation, optimal choice, and AI adoption remain separate layers.
+Task execution follows an Acemoglu–Restrepo-inspired pure-mode baseline:
+one task uses labor or eligible capital, never both simultaneously.
+Task aggregation, optimal choice, and AI adoption remain separate layers.
 """
 from __future__ import annotations
 
@@ -72,7 +74,9 @@ class TaskBasedFirm:
             if allocation.task_id not in capabilities:
                 raise ValueError(f"Unknown task: {allocation.task_id}")
             task = capabilities[allocation.task_id]
-            if allocation.capital > 0 and allocation.labor > 0:\n                raise ValueError(f"Simultaneous labor and capital prohibited for {task.task_id}")\n            if allocation.capital > 0 and not task.automation_eligible:
+            if allocation.capital > 0 and allocation.labor > 0:
+                raise ValueError(f"Simultaneous labor and capital prohibited for {task.task_id}")
+            if allocation.capital > 0 and not task.automation_eligible:
                 raise ValueError(f"Automation not eligible for {task.task_id}")
             used_labor += allocation.labor
             used_capital += allocation.capital
