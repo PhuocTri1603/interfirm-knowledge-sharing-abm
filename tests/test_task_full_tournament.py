@@ -81,3 +81,23 @@ def test_reject_incomplete_player_roster():
             configs,
             TournamentSpecification(market_factory, policy_factory, rounds=1),
         )
+
+
+def test_scientific_mode_blocks_unresolved_strategy_semantics():
+    with pytest.raises(ValueError, match="16 unresolved strategy semantics"):
+        run_full_tournament(
+            configurations(1),
+            TournamentSpecification(
+                market_factory, policy_factory, rounds=1,
+                expected_configurations=1, require_scientific_readiness=True,
+            ),
+        )
+
+
+def test_diagnostic_mode_never_claims_scientific_readiness():
+    result = run_full_tournament(
+        configurations(1),
+        TournamentSpecification(market_factory, policy_factory, rounds=1, expected_configurations=1),
+    )
+    assert result["scientific_readiness"] is False
+    assert result["execution_status"] == "economic_models_injected_not_research_validated"
