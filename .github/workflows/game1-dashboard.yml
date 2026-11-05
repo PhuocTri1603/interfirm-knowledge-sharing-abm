@@ -40,6 +40,21 @@ jobs:
           test -s site/index.html
           test -s site/data.json
           python -c 'import json; d=json.load(open("site/data.json")); assert d["players"]==3072 and d["rounds"]==200 and len(d["configurations"])==3'
+      - name: Validate optional economic results before Pages upload
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from interfirm_abm.task_dashboard_validation import validate_economic_dashboard
+
+          path = Path("site/economic-results.json")
+          if not path.exists():
+              print("No economic-results.json published; site will label its illustrative proxy.")
+          else:
+              data = json.loads(path.read_text(encoding="utf-8"))
+              validate_economic_dashboard(data, expected_players=3072, expected_rounds=200)
+              print("Optional economic-results.json validated for deployment.")
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
