@@ -127,9 +127,8 @@ def policy_factory(config_id, market):
         peers = [(sid, p) for sid, p in policies.items()
                  if sid != firm.firm_id and p.own_history]
         if not peers:
-            # First-round bootstrap; subsequent rounds use realized peer outcomes.
-            return ({firm.firm_id: "balanced_p1.5" if "L5=price" in firm.firm_id else "balanced"},
-                    {firm.firm_id: 0.})
+            # No realized peers exist in round one; do not invent self-as-peer.
+            return ({}, {})
         return ({sid: p.own_history[-1].action_id for sid, p in peers},
                 {sid: p.own_history[-1].profit for sid, p in peers})
 
