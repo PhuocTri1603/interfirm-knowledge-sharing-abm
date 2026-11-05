@@ -69,8 +69,8 @@ def test_four_learning_mechanisms_and_history_feedback():
         if identity.L5 == "adaptive" and identity.L6 == "imitation":
             continue  # unresolved semantic conflict; do not silently certify
         policy = policy_factory("C000", market_factory("C000", roster))[identity.strategy_id]
-        action = policy.decide_action(firm, MarketObservation(1, None, None))
-        policy.observe_payoff(firm, 1, 1.25)
+        action = policy.decide_action(roster[identity.strategy_id], MarketObservation(1, None, None))
+        policy.observe_payoff(roster[identity.strategy_id], 1, 1.25)
         assert policy.pending_action is None
         assert policy.own_history[-1].action_id == action.action_id
         assert policy.own_history[-1].profit == 1.25
