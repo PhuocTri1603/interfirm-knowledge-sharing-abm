@@ -228,3 +228,32 @@ def test_adaptive_imitation_round_one_does_not_fabricate_peer():
     assert info.peer_payoffs == {}
     action = p.decide_action(roster[identity.strategy_id], MarketObservation(1, None, None))
     assert action.action_id
+
+
+def test_cobb_douglas_20_task_aggregation_matches_geometric_mean():
+    from interfirm_abm.task_multi_action_diagnostic import aggregate_20_tasks, TASK_WEIGHTS, valuation
+    from interfirm_abm.task_strategy_engine import DecisionInformation
+    from math import prod
+    assert len(TASK_WEIGHTS) == 20
+    assert set(TASK_WEIGHTS) == {f"T{i:02d}" for i in range(1, 21)}
+    assert fsum(TASK_WEIGHTS.values()) == pytest.approx(1.)
+    equal = {task: 4. for task in TASK_WEIGHTS}
+    assert aggregate_20_tasks(equal) == pytest.approx(4.)
+    mixed = {task: float(i) for i, task in enumerate(TASK_WEIGHTS, 1)}
+    assert aggregate_20_tasks(mixed) == pytest.approx(prod(mixed.values()) ** (1 / 20))
+    assert aggregate_20_tasks({**equal, "T01": 0.}) == 0.
+    assert aggregate_20_tasks({k: 2 * v for k, v in mixed.items()}) == pytest.approx(
+        2 * aggregate_20_tasks(mixed)
+    )
+    roster = configurations(1)["C000"]
+    market = market_factory("C000", roster)
+    assert market.aggregate_tasks(mixed) == pytest.approx(aggregate_20_tasks(mixed))
+    identity = strategy_roster()[0]
+    firm = roster[identity.strategy_id]
+    info = DecisionInformation(MarketObservation(1, None, None), ())
+    action = next(iter(action_factory(identity, firm, info).values()))
+    activity = firm.evaluate_allocation(list(action.allocation))
+    expected = 2. * aggregate_20_tasks(activity) - fsum(
+        a.capital + a.labor for a in action.allocation
+    )
+    assert valuation(identity, firm, info, action) == pytest.approx(expected)
