@@ -105,3 +105,81 @@ def test_ces_reference_theory_constant_productivity_and_elasticity():
         assert ces_mrt_ratio(8, 8, sigma) == pytest.approx(1)
     assert ces_mrt_ratio(8, 2, .5) < ces_mrt_ratio(8, 2, 2.)
     assert ces_output(8, 2, .5) < ces_output(8, 2, 2.)
+
+
+def test_all_approved_technologies_are_loaded_without_mutation():
+    """Verify the exact approved 100-by-20 capability matrix, not just count."""
+    from pathlib import Path
+    from interfirm_abm.task_based_firm import load_approved_population
+    root = Path(__file__).resolve().parents[1] / "data" / "firms"
+    originals = load_approved_population(
+        root / "task_based_100_firms_profiles.csv",
+        root / "task_based_100_firms_tasks.csv",
+    )
+    actual = configurations(100)
+    assert len(actual) == len(originals) == 100
+    assert len({original.tasks for original in originals}) == 100
+    for i, original in enumerate(originals):
+        roster = actual[f"C{i:03d}"]
+        assert len(roster) == 256
+        for sid, player in roster.items():
+            assert player.firm_id == sid
+            assert player.capital_endowment == original.capital_endowment
+            assert player.labor_endowment == original.labor_endowment
+            assert player.tasks == original.tasks
+
+
+def test_payoff_and_ranking_reconcile_across_players_and_market():
+    """Check accounting identities, cumulative profits, and rankings end-to-end."""
+    from collections import defaultdict
+    from interfirm_abm.task_full_tournament import TournamentSpecification, run_full_tournament
+    configs = configurations(2)
+    result = run_full_tournament(
+        configs, TournamentSpecification(
+            market_factory, policy_factory, rounds=3, expected_configurations=2
+        ),
+    )
+    assert result["player_round_observations"] == 2 * 256 * 3
+    by_round = defaultdict(list)
+    by_player = defaultdict(list)
+    for row in result["player_trajectory"]:
+        assert isfinite(row["round_profit"])
+        assert row["produced_quantity"] >= row["sold_quantity"] >= 0
+        assert row["revenue"] == pytest.approx(
+            row["sold_quantity"] * row["realized_unit_price"]
+        )
+        assert row["round_profit"] == pytest.approx(
+            row["revenue"] - row["production_and_extra_cost"]
+        )
+        by_round[(row["config_id"], row["round"])].append(row)
+        by_player[(row["config_id"], row["player_id"])].append(row)
+    assert len(by_round) == 6
+    assert len(by_player) == 512
+    for rows in by_player.values():
+        assert [r["round"] for r in rows] == [1, 2, 3]
+        running = 0.
+        for row in rows:
+            running += row["round_profit"]
+            assert row["cumulative_profit"] == pytest.approx(running)
+    for row in result["market_trajectory"]:
+        players = by_round[(row["config_id"], row["round"])]
+        assert len(players) == 256
+        for market_key, player_key in (
+            ("quantity_sold", "sold_quantity"),
+            ("quantity_produced", "produced_quantity"),
+            ("total_revenue", "revenue"),
+            ("total_cost", "production_and_extra_cost"),
+            ("total_profit", "round_profit"),
+        ):
+            assert row[market_key] == pytest.approx(fsum(p[player_key] for p in players))
+    rankings = defaultdict(list)
+    for row in result["ranking_by_configuration"]:
+        rankings[row["config_id"]].append(row)
+        final = by_player[(row["config_id"], row["player_id"])][-1]["cumulative_profit"]
+        assert row["total_benefit"] == pytest.approx(final)
+    for rows in rankings.values():
+        assert len(rows) == 256
+        assert [r["rank"] for r in rows] == list(range(1, 257))
+        assert [r["total_benefit"] for r in rows] == sorted(
+            (r["total_benefit"] for r in rows), reverse=True
+        )
