@@ -74,6 +74,10 @@ jobs:
           assert len(payload["configurations"][0]["player_trajectory"]) == 51200
           assert payload["preview_only"] is False
           assert "ILLUSTRATIVE" in payload["warning"]
+          audit = json.loads((target / "strategy-audit.json").read_text())
+          assert audit["strategy_count"] == 256
+          assert audit["semantic_conflict_count"] == 16
+          assert audit["ready_for_scientific_comparison"] is False
           print("Game 1 diagnostic preview ready, separate from the existing public dashboard")
           PY
       - uses: actions/configure-pages@v5
