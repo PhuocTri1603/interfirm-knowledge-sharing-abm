@@ -1,7 +1,7 @@
 """Illustrative multi-action Game 1 scenario; NOT researcher-approved economics.
 
 Replaces the single-action integration-test fixture for diagnostic runs.
-Explicit assumptions: discrete feasible pure-mode K/L plans, equal-weight Cobb-Douglas task aggregation,
+Explicit assumptions: strategy-generated feasible pure-mode K/L plans, equal-weight Cobb-Douglas task aggregation,
 linear inverse demand, proportional rationing, and myopic price expectations.
 """
 from __future__ import annotations
@@ -13,6 +13,7 @@ from pathlib import Path
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, load_approved_population
 from interfirm_abm.task_aggregators import task_ces
+from interfirm_abm.task_strategy_actions import build_actions, score_action
 from interfirm_abm.task_economic_policy import MarketObservation
 from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 from interfirm_abm.task_mixed_market import MixedMarket, Sale
@@ -31,14 +32,6 @@ def aggregate_20_tasks(activity):
     demand, costs and learning parameters remain diagnostic assumptions.
     """
     return task_ces(activity, TASK_WEIGHTS, sigma=1.0)
-
-ACTION_PLANS = {
-    "labor_low": (.0, .25),
-    "labor_high": (.0, .45),
-    "capital_low": (.25, .0),
-    "capital_high": (.45, .0),
-    "balanced": (.20, .20),
-}
 
 
 def configurations(n=100):
@@ -72,48 +65,11 @@ def configurations(n=100):
 
 
 def action_factory(identity, firm, info):
-    result = {}
-    for name, (k, l) in ACTION_PLANS.items():
-        # Acemoglu–Restrepo pure modes: each task uses only one input.
-        # The balanced plan allocates eligible tasks to capital and the
-        # remaining tasks to labor; no task mixes both factors.
-        if name == "balanced":
-            allocation = tuple(
-                TaskAllocation(task.task_id,
-                               0.0 if task.automation_eligible else l,
-                               k if task.automation_eligible else 0.0)
-                for task in firm.tasks
-            )
-        elif k:
-            allocation = tuple(
-                TaskAllocation(task.task_id,
-                               0.0 if task.automation_eligible else .25,
-                               k if task.automation_eligible else 0.0)
-                for task in firm.tasks
-            )
-        else:
-            allocation = tuple(TaskAllocation(task.task_id, l, 0.0) for task in firm.tasks)
-        try:
-            activity = firm.evaluate_allocation(list(allocation))
-        except ValueError:
-            continue
-        for price in ((1.5, 2.0, 2.5) if identity.L5 == "price" else (None,)):
-            suffix = "" if price is None else f"_p{price:.1f}"
-            key = name + suffix
-            result[key] = Action(key, allocation, offered_price=price)
-    if len(result) < 2:
-        raise ValueError("Each strategy requires at least two feasible actions")
-    return result
+    return build_actions(identity, firm, info)
 
 
 def valuation(identity, firm, info, action):
-    # Illustrative one-period expected margin, not a solved equilibrium.
-    activity = firm.evaluate_allocation(list(action.allocation))
-    output = aggregate_20_tasks(activity)
-    cost = fsum(a.capital + a.labor for a in action.allocation)
-    anticipated_price = info.market.last_market_price if info.market.last_market_price is not None else 2.0
-    price = action.offered_price if action.offered_price is not None else anticipated_price
-    return price * output - cost
+    return score_action(identity, firm, info, action, aggregate_20_tasks)
 
 
 def market_factory(config_id, roster):
