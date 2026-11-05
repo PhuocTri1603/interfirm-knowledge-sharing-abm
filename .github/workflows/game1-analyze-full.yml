@@ -1,0 +1,28 @@
+name: Analyze Game 1 full diagnostic data
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-analyze-full.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download completed 100-configuration data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p downloaded
+          gh run download 41965861687 -n game1-100-configurations-200-rounds-diagnostic -D downloaded
+      - name: Analyze all 100 configurations
+        run: python scripts/analyze_game1_full_diagnostic.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-diagnostic-strategy-analysis
+          path: analysis/diagnostic_comparison.json
+          if-no-files-found: error
