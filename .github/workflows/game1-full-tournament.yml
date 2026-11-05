@@ -49,6 +49,25 @@ jobs:
           assert "ILLUSTRATIVE" in data["warning"]
           print("Diagnostic preview validated; NOT scientific results")
           PY
+      - name: Build static website preview bundle
+        run: |
+          mkdir -p preview-site
+          cp site/index.html preview-site/index.html
+          cp preview/economic-results.json preview-site/economic-results.json
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("preview-site/index.html").read_text(encoding="utf-8")
+          assert 'fetch("./economic-results.json"' in html
+          assert 'id="player-chart"' in html
+          assert Path("preview-site/economic-results.json").is_file()
+          print("Static preview website bundle is ready")
+          PY
+      - name: Upload diagnostic website preview (not published)
+        uses: actions/upload-artifact@v4
+        with:
+          name: game1-256-player-website-preview
+          path: preview-site/
+          if-no-files-found: error
       - name: Upload diagnostic dashboard preview (not published)
         uses: actions/upload-artifact@v4
         with:
