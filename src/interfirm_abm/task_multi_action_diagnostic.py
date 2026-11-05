@@ -1,7 +1,7 @@
 """Illustrative multi-action Game 1 scenario; NOT researcher-approved economics.
 
 Replaces the single-action integration-test fixture for diagnostic runs.
-Explicit assumptions: discrete feasible K/L plans, equal-weight Cobb-Douglas task aggregation,
+Explicit assumptions: discrete feasible pure-mode K/L plans, equal-weight Cobb-Douglas task aggregation,
 linear inverse demand, proportional rationing, and myopic price expectations.
 """
 from __future__ import annotations
@@ -74,15 +74,25 @@ def configurations(n=100):
 def action_factory(identity, firm, info):
     result = {}
     for name, (k, l) in ACTION_PLANS.items():
-        if k and any(not task.automation_eligible for task in firm.tasks):
-            # Non-eligible tasks receive labor, never capital.
+        # Acemoglu–Restrepo pure modes: each task uses only one input.
+        # The balanced plan allocates eligible tasks to capital and the
+        # remaining tasks to labor; no task mixes both factors.
+        if name == "balanced":
             allocation = tuple(
-                TaskAllocation(task.task_id, l if not task.automation_eligible else l,
-                               k if task.automation_eligible else 0)
+                TaskAllocation(task.task_id,
+                               0.0 if task.automation_eligible else l,
+                               k if task.automation_eligible else 0.0)
+                for task in firm.tasks
+            )
+        elif k:
+            allocation = tuple(
+                TaskAllocation(task.task_id,
+                               0.0 if task.automation_eligible else .25,
+                               k if task.automation_eligible else 0.0)
                 for task in firm.tasks
             )
         else:
-            allocation = tuple(TaskAllocation(task.task_id, l, k) for task in firm.tasks)
+            allocation = tuple(TaskAllocation(task.task_id, l, 0.0) for task in firm.tasks)
         try:
             activity = firm.evaluate_allocation(list(allocation))
         except ValueError:
