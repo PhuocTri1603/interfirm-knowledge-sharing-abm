@@ -111,8 +111,9 @@ class ComposedStrategyPolicy:
     selected_action: Action | None = None
 
     def _information(self, observation: MarketObservation, firm: TaskBasedFirm) -> DecisionInformation:
-        # Adaptive is strictly own-history: no direct peer information.
-        if self.identity.L5 == "adaptive":
+        # Researcher-approved Adaptive × Imitation observes own payoff history
+        # for evaluation and lagged peer actions/payoffs for imitation.
+        if self.identity.L5 == "adaptive" and self.identity.L6 != "imitation":
             return DecisionInformation(observation, tuple(self.own_history))
         if self.peer_provider is None:
             return DecisionInformation(observation, tuple(self.own_history))
@@ -160,17 +161,26 @@ class ComposedStrategyPolicy:
                     chosen = key
                     break
         elif method == "imitation":
-            # No invented peer observations: own-history fallback for Adaptive × Imitation.
             if info.peer_actions is None or info.peer_payoffs is None:
-                if self.identity.L5 != "adaptive":
-                    raise ValueError("imitation requires peer observations")
-                chosen = min(keys, key=lambda k: (-scores[k], k))
-            else:
-                observed = [(info.peer_payoffs[peer], action_id) for peer, action_id in info.peer_actions.items()
-                            if peer in info.peer_payoffs and action_id in actions]
-                if not observed:
+                raise ValueError("imitation requires peer observations")
+            observed = [(info.peer_payoffs[peer], action_id) for peer, action_id in info.peer_actions.items()
+                        if peer in info.peer_payoffs and action_id in actions
+                        and isfinite(info.peer_payoffs[peer])]
+            if not observed:
+                # First round has no prior peer outcomes. Initialize from own
+                # candidate valuation; never manufacture a peer or label the
+                # initialization decision as observed imitation.
+                if not info.own_history and not info.peer_actions and not info.peer_payoffs:
+                    chosen = min(keys, key=lambda k: (-scores[k], k))
+                else:
                     raise ValueError("no observable peer action matches candidate set")
-                chosen = sorted(observed, key=lambda pair: (-pair[0], pair[1]))[0][1]
+            else:
+                # Imitate the best *observed* peer payoff. Own adaptive scores
+                # resolve equal-payoff peer candidates, making own learning
+                # operational without replacing imitation with optimization.
+                best = max(payoff for payoff, _ in observed)
+                eligible = {action_id for payoff, action_id in observed if payoff == best}
+                chosen = min(eligible, key=lambda k: (-scores[k], k))
         else:
             raise ValueError("unknown choice rule")
         self.pending_action = chosen
