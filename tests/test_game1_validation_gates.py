@@ -66,8 +66,6 @@ def test_four_learning_mechanisms_and_history_feedback():
     roster = configurations(1)["C000"]
     firm = next(iter(roster.values()))
     for identity in strategy_roster():
-        if identity.L5 == "adaptive" and identity.L6 == "imitation":
-            continue  # unresolved semantic conflict; do not silently certify
         policy = policy_factory("C000", market_factory("C000", roster))[identity.strategy_id]
         action = policy.decide_action(roster[identity.strategy_id], MarketObservation(1, None, None))
         policy.observe_payoff(roster[identity.strategy_id], 1, 1.25)
@@ -89,11 +87,12 @@ def test_reproducibility_and_seed_sensitivity():
     assert any(x.L6 in ("softmax", "trial_error") for x in strategy_roster())
 
 
-def test_unresolved_semantics_prevent_scientific_flag():
+def test_approved_adaptive_imitation_semantics_resolved_without_economic_certification():
     from interfirm_abm.task_strategy_audit import audit_strategy_semantics
     audit = audit_strategy_semantics()
-    assert audit["semantic_conflict_count"] == 16
-    assert audit["ready_for_scientific_comparison"] is False
+    assert audit["semantic_conflict_count"] == 0
+    assert audit["resolved_adaptive_imitation_count"] == 16
+    assert audit["ready_for_scientific_comparison"] is True
 
 
 def test_ces_reference_theory_constant_productivity_and_elasticity():
@@ -183,3 +182,49 @@ def test_payoff_and_ranking_reconcile_across_players_and_market():
         assert [r["total_benefit"] for r in rows] == sorted(
             (r["total_benefit"] for r in rows), reverse=True
         )
+
+
+def test_all_sixteen_adaptive_imitation_use_peers_and_own_history():
+    """Peer payoff determines imitation; own realized history breaks peer ties."""
+    from interfirm_abm.task_strategy_engine import Action
+    roster = configurations(1)["C000"]
+    obs = MarketObservation(2, 2.0, 10.0)
+    ids = [x for x in strategy_roster() if x.L5 == "adaptive" and x.L6 == "imitation"]
+    assert len(ids) == 16
+    for identity in ids:
+        firm = roster[identity.strategy_id]
+        def candidates(identity, firm, info):
+            assert info.peer_actions is not None
+            assert info.peer_payoffs is not None
+            return {
+                "a": Action("a", tuple(TaskAllocation(t.task_id, .1, 0) for t in firm.tasks)),
+                "b": Action("b", tuple(TaskAllocation(t.task_id, .2, 0) for t in firm.tasks)),
+            }
+        def value(identity, firm, info, action):
+            return 0.0
+        def peers(firm, obs):
+            return {"peer_a": "a", "peer_b": "b"}, {"peer_a": 8.0, "peer_b": 8.0}
+        p = ComposedStrategyPolicy(
+            identity, candidates, value, DecisionParameters(0, 1),
+            Random(1), peers,
+        )
+        p.own_history = [OwnOutcome(1, "a", -5.), OwnOutcome(1, "b", 7.)]
+        assert p.decide_action(firm, obs).action_id == "b"
+        p.observe_payoff(firm, 2, 3.)
+        assert p.own_history[-1].profit == 3.
+        def unequal(firm, obs):
+            return {"peer_a": "a", "peer_b": "b"}, {"peer_a": 10., "peer_b": 2.}
+        p.peer_provider = unequal
+        assert p.decide_action(firm, MarketObservation(3, 2.0, 10.0)).action_id == "a"
+
+
+def test_adaptive_imitation_round_one_does_not_fabricate_peer():
+    roster = configurations(1)["C000"]
+    identity = next(x for x in strategy_roster()
+                    if x.L5 == "adaptive" and x.L6 == "imitation")
+    p = policy_factory("C000", market_factory("C000", roster))[identity.strategy_id]
+    info = p._information(MarketObservation(1, None, None), roster[identity.strategy_id])
+    assert info.peer_actions == {}
+    assert info.peer_payoffs == {}
+    action = p.decide_action(roster[identity.strategy_id], MarketObservation(1, None, None))
+    assert action.action_id
