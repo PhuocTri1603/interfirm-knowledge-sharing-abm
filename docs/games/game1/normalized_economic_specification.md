@@ -433,3 +433,22 @@ Approved direction: each of 100 original profiles is mapped once to one of G1 (0
 The task-essentiality question is now **CLOSED (approved B)**. Still open: (1) reconcile the earlier exact production families/L1–L2 design with the proposed task CES; (2) approve task weights omega_cj and reference construction q0_cj/Y0_c; (3) select numerical sigma levels and an evidence-based or scenario-based allocation design for 100 configurations; (4) approve whether within-task pure-mode is the official baseline; (5) implement and execute T1–T8 after explicit approval.
 
 **A5 status: theoretical interpretation approved, full A5 gate remains OPEN. No executable code or data changed. research_validated: false.**
+
+
+## A5 researcher approval — equal structural weights for 20 tasks (2026-11-06)
+
+**APPROVED:** For the primary Game 1 production specification, all twenty production activities have equal CES aggregation weights `omega_cj = 1/20 = 0.05` for every original technology configuration c and task j. This is a **research design assumption**, not an empirical estimate or an assertion that each task accounts for 5% of realized output. The 20 weights sum to one and are held constant across configurations, strategies, rounds and paired sigma counterfactuals. Unequal-weight sensitivity is **not** currently approved and must not be silently added.
+
+For sigma_c != 1:
+`Y_ict = Y0_c * [(1/20) * sum_{j=1}^{20} (q_icjt/q0_cj)^((sigma_c-1)/sigma_c)]^(sigma_c/(sigma_c-1))`.
+For sigma_c = 1:
+`Y_ict = Y0_c * prod_{j=1}^{20} (q_icjt/q0_cj)^(1/20)`.
+
+Consequences:
+- Equal structural weights do not imply equal realized output contributions, equal task marginal products, equal costs or equal optimal task allocations.
+- In the normalized specification, with x_j>0 and sigma!=1, `partial Y/partial q_j = (Y0_c/q0_cj)*(1/20)*[mean_k x_k^rho]^(1/rho-1)*x_j^(rho-1)`; task-specific q0 and x cause heterogeneous marginal products despite equal weights.
+- At x_j=1 for every task, Y=Y0 for all sigma; this is the normalization anchor, not a calibration of Y0 or q0.
+- At sigma>1, zero activity in some tasks may be consistent with positive final output; sigma<=1 with any zero gives zero final output.
+- The equality constraint must be tested to numerical tolerance and must not be replaced by data-driven weights or realized-output shares.
+
+**A5 remaining researcher approvals:** q0_cj and Y0_c reference construction; numeric sigma levels, unequal group capacities and assignments or pre-registered scenario design; exact-family/L1–L2 reconciliation; pure-mode baseline approval. **Implementation:** not authorized; do not change simulation source or input CSVs. **Status:** A5 open; research_validated: false.
