@@ -565,3 +565,20 @@ Separate **exogenous technology** from **endogenous decision policy**. Within a 
 **Scientific status:** The current L3–L6 implementation is diagnostic, not calibrated: L3 investment does not accumulate capital; L4 productivity thresholds are illustrative; L5 Cournot is a heuristic and price offers may be nonbinding; L6 imitation uses lagged action IDs, not exact rival allocations. Existing runner fixes sigma=1 and has not implemented approved q0 reference and heterogeneous sigma. These are separate economic validation gates.
 
 **No code or data changes.** Next research decisions: sigma numerical levels/strata and counterfactual plan; then, with authorization, behavioral-equivalence tests and normalized CES integration. `research_validated: false`.
+
+
+## A5 — empirical observational behavior equivalence audit of existing diagnostic artifact (2026-11-06)
+
+**Source:** Existing GitHub Actions diagnostic artifact ID `13429476261`, available as `github-actions-artifact-13429476261.zip`, 100 `C000..C099/player_trajectory.csv` files; each has 256 players × 200 rounds, 5,120,000 player-round records in total. All files were read successfully and each configuration has exactly 256 players × 200 rows. This was **read-only analysis** of an existing diagnostic artifact; no model rerun, code modification or new scientific validation.
+
+**Method:** For each player and each configuration, hash the 200-round ordered sequence of `(action_id, offered_price, capital_used, labor_used)` using exact serialized CSV values. Two players are in the same *observed-action-summary* equivalence class only if these 200-round sequences match in **all 100 configurations**. Output and profit are excluded from the decision signature; these are realized outcomes, not decisions. In each configuration, also count distinct full signatures, action-ID-only sequences, and round-1 signatures. Store audit output separately as `game1_behavioral_equivalence_audit.json` in the analysis working directory.
+
+**Results:**
+- 256 unique strategy IDs produce **194 distinct observed-action-summary sequence classes across all 100 configurations**.
+- 159 singleton classes, 8 classes of size 2, 27 classes of size 3. Thus 97 strategy IDs belong to 35 non-singleton classes, with 62 IDs beyond one representative per class.
+- Within a single configuration: minimum 66 distinct sequences, maximum 122, mean 83.87, median 81.0, out of 256 players.
+- Example of globally coincident sequences in this diagnostic artifact: `L3=flexible|L4=eligibility|L6=optimization` combined with `L5=competitive`, `L5=cournot` or `L5=adaptive`.
+
+**Interpretation boundary (critical):** These data do **not** contain the 20-task allocation vector for each chosen action, so equality of `capital_used` and `labor_used` totals cannot establish identical task-level allocations. Equality of these four observed fields is therefore **coarse observational equivalence**, not proof of full decision equivalence, theoretical policy equivalence, equal payoff or economic redundancy. Conversely, different observed sequences demonstrate differences under at least one recorded context but do not isolate the causal role of a layer because players interact in the same market and have potentially different lagged histories and random streams. The artifact uses the older diagnostic sigma=1 production and unapproved market assumptions, not the now-approved normalized A5 heterogeneous-sigma model.
+
+**Next required test before strategy deduplication:** instrument or locally compute full per-task allocation vectors and action scores/selected actions under **identical controlled firm states, market observations, own histories, peer histories and random draws**, across all 256 policies and multiple representative configurations/seeds; distinguish observational equality, decision-function equality and payoff equality. Do not delete or merge strategy IDs based on this coarse 194-class result. `research_validated: false`.
