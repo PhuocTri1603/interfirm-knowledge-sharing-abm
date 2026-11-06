@@ -69,6 +69,18 @@ class OwnOutcome:
     profit: float
 
 
+def choose_self_imitation(own_history: tuple[OwnOutcome, ...], available_actions, fallback: str) -> str:
+    """Repeat the available own action with highest realized profit; no peer data."""
+    available = set(available_actions)
+    observed = [outcome for outcome in own_history if outcome.action_id in available]
+    if not observed:
+        if fallback not in available:
+            raise ValueError("fallback must be an available action")
+        return fallback
+    best = max(outcome.profit for outcome in observed)
+    return min(outcome.action_id for outcome in observed if outcome.profit == best)
+
+
 @dataclass(frozen=True)
 class DecisionInformation:
     market: MarketObservation
@@ -154,14 +166,8 @@ class ComposedStrategyPolicy:
             # Self-imitation: repeat the available action with the highest
             # realized profit in this firm's own completed history.
             # Ties are deterministic; the first round uses own valuations.
-            own_available = [outcome for outcome in info.own_history
-                             if outcome.action_id in actions]
-            if own_available:
-                best = max(outcome.profit for outcome in own_available)
-                chosen = min(outcome.action_id for outcome in own_available
-                             if outcome.profit == best)
-            else:
-                chosen = min(keys, key=lambda k: (-scores[k], k))
+            preferred = min(keys, key=lambda k: (-scores[k], k))
+            chosen = choose_self_imitation(info.own_history, keys, preferred)
         else:
             raise ValueError("unknown choice rule")
         self.pending_action = chosen
