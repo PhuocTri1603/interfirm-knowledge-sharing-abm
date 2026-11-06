@@ -5,12 +5,14 @@ No market-price/profit validation is implied.
 """
 import math
 import unittest
+from pathlib import Path
 
 from interfirm_abm.task_a5_normalized import (
     A5Technology, TASK_IDS, SIGMA_SCENARIOS, paired_technologies,
     reference_for_profile, technology_for_profile,
 )
-from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability
+from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCapability, load_approved_population
+from interfirm_abm.task_experiment_dimensions import strategy_player_ids
 
 
 def fixture():
@@ -25,6 +27,26 @@ class TestA5(unittest.TestCase):
     def setUp(self):
         self.firm = fixture()
         self.reference = reference_for_profile(self.firm)
+
+    def test_T1_all_100_profiles_and_256_player_roster(self):
+        root = Path(__file__).resolve().parents[1] / "data" / "firms"
+        population = load_approved_population(
+            root / "task_based_100_firms_profiles.csv",
+            root / "task_based_100_firms_tasks.csv",
+        )
+        roster = strategy_player_ids()
+        self.assertEqual(len(population), 100)
+        self.assertEqual(len(roster), 256)
+        self.assertEqual(len(set(roster)), 256)
+        for index, firm in enumerate(population):
+            self.assertEqual(firm.firm_id, f"F{index+1:03d}")
+            self.assertEqual(len(firm.tasks), 20)
+            techs = paired_technologies(firm)
+            for sigma, tech in techs.items():
+                self.assertAlmostEqual(tech.output_index(tech.reference), 1.)
+                labor_plan = [TaskAllocation(k, firm.labor_endowment / 20., 0.)
+                              for k in TASK_IDS]
+                self.assertAlmostEqual(tech.output_from_allocation(firm, labor_plan), 1.)
 
     def test_reference_and_tasks_partial_T1(self):
         self.assertEqual(len(self.reference), 20)
