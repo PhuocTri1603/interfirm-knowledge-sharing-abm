@@ -9,6 +9,7 @@ from interfirm_abm.task_a6_market import (
 )
 from interfirm_abm.task_a5_normalized import technology_for_profile
 from interfirm_abm.task_strategy_engine import strategy_roster
+from interfirm_abm.task_l34_economics import L34Parameters
 
 
 class TestA6(unittest.TestCase):
@@ -17,6 +18,7 @@ class TestA6(unittest.TestCase):
         cls.firm = approved_profiles()[0]
         # Testing-only demand; do NOT treat these numbers as researcher baseline.
         cls.p = A6Parameters(10.0, 0.01, 0.15, 1.0, 0.5, 11)
+        cls.l34 = L34Parameters(2.0, 0.1, 0.2, 0.5)  # test scenario, not approved calibration
 
     def test_reference_anchor_all_sigma(self):
         self.assertEqual(reference_market_quantity(self.firm), 256)
@@ -31,7 +33,7 @@ class TestA6(unittest.TestCase):
                          rank_softmax(b, 1., random.Random(4)))
 
     def test_single_round_full_roster_and_accounting(self):
-        result = run_a6_market(self.firm, 1., self.p, rounds=1)
+        result = run_a6_market(self.firm, 1., self.p, l34_parameters=self.l34, rounds=1)
         self.assertEqual(len(result["players"]), 256)
         self.assertEqual(len(result["ranking"]), 256)
         self.assertFalse(result["research_validated"])
@@ -51,15 +53,15 @@ class TestA6(unittest.TestCase):
         # No action can yield positive predicted net profit at the tiny prior
         # for all profiles, but a forced low actual price tests accounting.
         p = A6Parameters(0.0001, 100., .1, 1., .5, 11)
-        result = run_a6_market(self.firm, 2., p, rounds=2)
+        result = run_a6_market(self.firm, 2., p, l34_parameters=self.l34, rounds=2)
         self.assertEqual(len(result["players"]), 512)
         self.assertTrue(all(x["profit"] <= 0 for x in result["players"]))
         self.assertTrue(all(v <= 2 for v in result["feedback_counts"].values()))
 
     def test_three_sigma_paired_determinism(self):
         for sigma in (0.5, 1., 2.):
-            first = run_a6_market(self.firm, sigma, self.p, rounds=2)
-            second = run_a6_market(self.firm, sigma, self.p, rounds=2)
+            first = run_a6_market(self.firm, sigma, self.p, l34_parameters=self.l34, rounds=2)
+            second = run_a6_market(self.firm, sigma, self.p, l34_parameters=self.l34, rounds=2)
             self.assertEqual(first["market"], second["market"])
             self.assertEqual(first["ranking"], second["ranking"])
 
@@ -75,7 +77,7 @@ class TestA6(unittest.TestCase):
             # Otherwise shutdown correctly bypasses L6 choice, making this test vacuous.
             profitable = A6Parameters(10.0, 0.01, 0.15, 1.0, 0.5, 11,
                                       wage=1e-6, rental=1e-6)
-            result = run_a6_market(self.firm, 1., profitable, rounds=3, identities=identities)
+            result = run_a6_market(self.firm, 1., profitable, l34_parameters=self.l34, rounds=3, identities=identities)
         self.assertEqual(len(seen), 3)
         self.assertTrue(all(row["action"] != "shutdown" for row in result["players"]))
         self.assertEqual(len(seen[0]), 0)
