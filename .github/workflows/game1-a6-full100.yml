@@ -1,0 +1,28 @@
+name: Game 1 A6 full 100 configurations payoff
+on:
+  push:
+    branches:
+      - game1-economic-policy-interface
+    paths:
+      - 'scripts/run_game1_a6_full100.py'
+      - '.github/workflows/game1-a6-full100.yml'
+  workflow_dispatch:
+jobs:
+  full100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      - name: Run existing A6 model over all 100 configurations
+        run: python -u scripts/run_game1_a6_full100.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-a6-full100-payoff
+          path: artifacts/game1_a6_full100/
+          if-no-files-found: warn
+          retention-days: 30
