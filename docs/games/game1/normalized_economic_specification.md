@@ -130,3 +130,53 @@ At the start of round t, a player may observe its own endowments, technology as 
 5. Are linear inverse demand and equal task weights retained only as baseline diagnostic scenarios, or accepted as the main theoretical specification?
 
 **No economic parameter or implementation is modified by this register.** Continue to label research_validated: false.
+
+
+## Research decision C — configuration-specific task substitution (approved 2026-11-06)
+
+**Approved research choice:** Substitutability among the 20 tasks is heterogeneous across the 100 technological configurations. Each configuration c has its own **across-task** substitution elasticity sigma_c > 0, held common to all 256 strategy identities in that configuration. This decision supersedes the earlier universal sigma=1 interpretation. It does **not** approve numerical sigma_c values, the distribution or assignment algorithm, task weights, reference activities, changes to the 100 existing technology profiles, or a code deployment.
+
+### Mathematical technology specification
+
+For c in {1,...,100}, i in {1,...,256}, j in {1,...,20}, t in {1,...,200}, define normalized activity x_icjt=q_icjt/q0_cj with q0_cj>0. Candidate across-task CES:
+
+Y_ict = Y0_c * (sum_{j=1}^{20} omega_cj * x_icjt^rho_c)^(1/rho_c),
+rho_c = (sigma_c-1)/sigma_c,
+sigma_c>0, omega_cj>0, sum_j omega_cj=1, Y0_c>0.
+
+For sigma_c=1 use the continuous geometric-mean limit Y_ict=Y0_c*product_j x_icjt^omega_cj. The x terms are dimensionless; Y has final-output units. The elasticity is **between task activities**, not automatically the elasticity between capital and labor within a task. Pure-mode within-task technology and automation eligibility remain separate provisional rules.
+
+### Economic interpretation and zero-task cases
+
+- 0<sigma_c<1: relatively complementary task activities; with any x_j=0, Y=0 in this CES form.
+- sigma_c=1: Cobb–Douglas across tasks; any x_j=0 implies Y=0.
+- sigma_c>1: more substitutable tasks; with some x_j=0, Y can remain positive if at least one other task has positive activity. All x_j=0 implies Y=0.
+- sigma_c approaches zero from above: minimum normalized task activity (Leontief limit under positive weights); sigma_c tends to infinity: weighted arithmetic aggregate of normalized activities (perfect-substitutes limit). These are mathematical limiting cases, not approved finite parameter values.
+- For fixed sigma_c, CES is homogeneous of degree one in x. With q0_cj and Y0_c fixed, doubling every task activity doubles final output. This does not by itself establish returns to scale in owned capital stock or investment.
+- A zero-task rule is economically consequential: sigma_c>1 permits production without some tasks. If all 20 tasks must be indispensable, the research design must address that contradiction before assigning high-sigma configurations.
+
+### Construction of 100 configurations: design controls, not fabricated values
+
+Preserve the 100 existing F001–F100 task capability profiles, endowments, and automation eligibility. Add a separate, auditable mapping from configuration ID C000–C099 to sigma_c, referencing the existing F profile. Within each configuration, all strategies face the same sigma_c, weights and reference scales. A change in sigma_c changes the final-output aggregation function, **not** task-specific capital or labor productivity coefficients or AI eligibility.
+
+For a clean causal analysis of substitution effects, simply assigning different sigma_c values to the 100 already heterogeneous profiles is **not sufficient**: differences in endowments, task productivity and eligibility will confound sigma comparisons. Pre-specify at least one controlled counterfactual/sensitivity design holding each base profile fixed while varying sigma; this would be additional scenario runs, not a redefinition of the 100 primary configurations. Record base profile, sigma, weights, references and random seed in every output.
+
+### Reference-scale comparability
+
+A proposed calibration convention is to choose positive q0_cj and Y0_c so that at x_j=1 for every task, Y=Y0_c for every sigma_c. This anchors the same reference bundle, but **does not guarantee identical production for nonreference bundles**. Any additional equal-output or equal-cost benchmark normalization must be declared and tested, not assumed. Do not change q0 independently of Y0/technology and claim invariance.
+
+### Numerical and research verification
+
+1. Validate exactly 20 unique task IDs, strictly positive finite sigma_c, q0_cj, Y0_c and omega_cj, weights summing to one, nonnegative finite q_j.
+2. At sigma_c=1, compare with the weighted geometric mean; at sigma_c near one, test numerical continuity (use a stable log-sum-exp or equivalent algorithm).
+3. Check Y=Y0_c when all x_j=1, Y>=0, monotonicity in task activity, and degree-one homogeneity.
+4. Check zero-task behavior separately for sigma<1, sigma=1 and sigma>1; compare near-Leontief and near-linear limits.
+5. Check dimensional invariance under consistent rescaling of task units and references, and compare all 256 players under a common configuration technology.
+6. Record sigma_c in market/player/ranking results; run controlled counterfactuals holding the same task profiles and endowments fixed before interpreting substitution effects.
+7. Re-run A1–A6 accounting, market and behavioral checks after any approved implementation. Do not interpret existing full-sample profits/rankings as results of configuration-specific sigma.
+
+### Implementation boundary and unresolved decisions
+
+The current executable `task_multi_action_diagnostic.py` still sets `TASK_WEIGHTS=1/20` and `sigma=1.0` for every configuration. `task_aggregators.py` already accepts a sigma parameter but does not apply the proposed q0/Y0 normalization. No executable files are modified by this decision record.
+
+Pending researcher decisions: (a) sigma_c sampling/assignment (fixed grid, empirical calibration, or structured scenario design), (b) whether weights remain equal across tasks, (c) construction of q0_cj and Y0_c, (d) whether high-sigma task omission is economically acceptable, and (e) whether any additional nested CES or mixed within-task capital/labor substitution is needed. **research_validated: false.**
