@@ -947,3 +947,24 @@ A6 deliberately excludes endogenous investment stocks, adjustment costs, adoptio
 **Contradiction gate (OPEN):** Existing A6 D4 excludes investment/adoption/adjustment charges and dynamic stocks, while approved B requires economically literal mechanisms. Likewise A5 technology is common and frozen across all 256 players within each market, whereas endogenous L4 eligibility/efficiency may change a player's effective task technology. The principal researcher must explicitly resolve these contradictions before implementation. Do not claim a common technology after players adopt different technologies; alternatively treat a common pre-adoption technology as the initial shared baseline, with player-specific endogenous states clearly labeled. No assumption is approved here.
 
 **Single consolidated researcher decision to request next:** whether to authorize the **minimal necessary exception** to D4 and frozen-technology restrictions for literal L3/L4, retaining fixed common initial technology and a single shared accounting framework, while leaving all magnitudes/equations OPEN for subsequent specification. Without that decision, step 2B cannot advance to economic equations or executable code. `research_validated: false`.
+
+
+## A6 step 2B — Researcher approval of minimal L3/L4 exception (2026-11-06)
+
+**APPROVED:** Principal researcher explicitly authorizes the smallest necessary exceptions to the former frozen-technology/no-extra-cost A6 restriction so the literal L3/L4 mechanisms approved under option B can be modeled. The approval covers **scope only**, not economic equations, numeric magnitudes, or specific transition assumptions.
+
+**Binding scope:**
+1. Retain all 256 L3×L4×L5×L6 strategy identities and a common *initial* 20-task technology/endowment profile for all players in each profile–sigma market.
+2. Allow economically necessary state transitions for L3 capital/capacity investment and adjustment, and L4 task eligibility, capital-task efficiency, and adoption, with the minimum corresponding resource/accounting effects.
+3. Player-specific technology/capacity may diverge **after** decisions; do not describe the entire trajectory as common frozen technology.
+4. Retain approved D1–D3 common-market quantity clearing and utilized-factor-service costs; distinguish capital investment expenditure from capital-service rental and do not charge the same resource twice.
+5. Keep a single shared state/accounting framework, a single L6 action-feedback layer, public-only lagged P,Q and own private history; do not introduce extra learning layers, peer-level observability, unapproved shocks, or new player identities.
+6. Preserve the A5 normalized initial reference and sigma comparisons; endogenous task technology requires an explicit rule for whether the normalization anchor remains frozen at the original pre-treatment q0 (OPEN, not yet decided).
+
+**Explicitly NOT approved:** functional forms for investment/adjustment/adoption costs, capital accumulation/depreciation, eligibility transition/irreversibility, efficiency shock magnitudes or persistence, per-task capacity, timing/order of simultaneous decisions, financial budgets/borrowing, or demand calibration. The previous D4 zero-extra-cost baseline is superseded **only for the minimum costs necessary for literal L3/L4**; it remains the comparison benchmark, not a claim that all costs are zero.
+
+### Next checklist gate — specify minimal economic equations, no code yet
+
+Draft one parsimonious shared state vector and round timeline, then propose equations for (i) resource allocation and capacity, (ii) adjustment/investment stock law and expenditure, (iii) eligibility/efficiency/adoption and their payment timing, and (iv) production/cost/profit identities. Flag every new assumption and numeric parameter as PROPOSED until separately approved. Explicitly test dimensional consistency and potential duplicate charging. Only after the researcher approves equations/assumptions may the A6 runner be refactored and tested.
+
+**Status:** Step 2 L3/L4 semantic choice B approved; minimal scope exception approved; equations and parameters still OPEN. No simulation code change, no full-sample run, and `research_validated: false`.
