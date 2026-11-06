@@ -500,3 +500,33 @@ For c,i,j,t let m_icjt in {L,K}. If m=L: q_icjt=aL_cj*l_icjt, k_icjt=0. If m=K: 
 The reference bundle remains labor-only with l0_cj=Lbar_c/20, q0_cj=aL_cj*l0_cj, k0_cj=0. This **reference normalization** does not constrain strategy allocations to equal labor or prohibit capital execution. Across-task sigma describes substitution between production activities, not mixing capital and labor within a task.
 
 **Implementation checks required after authorization:** exactly one execution mode per task/round; capital mode only for eligible tasks; no positive labor in capital mode and vice versa; shared resource caps; zero task activity behavior under sigma<=1 and sigma>1; fixed technology across 256 strategy players within a configuration; consistent reference construction. No simulation code or CSV changes authorized in this approval. **A5 remains OPEN** pending sigma assignment, legacy technology-family/L1–L2 reconciliation and executable validation. `research_validated: false`.
+
+
+## A5 — compatibility audit of legacy four families, L1/L2 and approved task CES (2026-11-06)
+
+**Status: analytical reconciliation proposed; researcher approval required before any architecture change.** This section is not an approval to modify 256 strategy identities, code, or original 100 profiles.
+
+### Mathematical mapping on approved normalized task activities
+
+Let `x_j=q_j/q0_cj`, `omega_j=1/20`, and `Y0_c=1`. The equal-weight generalized mean `M_rho(x)=[(1/20)sum_j x_j^rho]^(1/rho)`, with `rho=(sigma-1)/sigma`, has the following exact/limiting cases:
+
+- Cobb–Douglas: `sigma=1` (`rho=0`), `Y=prod_j x_j^(1/20)`, exact continuous limit.
+- Leontief: `sigma -> 0+` (`rho -> -infinity`), `Y=min_j x_j`, limiting case.
+- Linear: `sigma -> +infinity` (`rho -> 1-`), `Y=(1/20)sum_j x_j`, limiting case.
+- Finite positive sigma other than 1: genuine CES, not exact Leontief or linear. The original candidate `weighted_leontief=min(q_j/omega_j)` is **not** automatically equivalent to the normalized CES limit `min(q_j/q0_j)`; reference units and coefficients must be reconciled.
+
+**Zero task nuance:** at finite sigma<=1, a zero positively weighted task gives zero output; for sigma>1, some zero tasks can coexist with positive output. At the Leontief limit, zero of any task gives zero output; at the linear limit, only all-zero activity forces zero output.
+
+### Architectural conflict identified from canonical design.md
+
+The historical strategy design explicitly assigns L1/D1 to **within-task technology** (Assignment, CES, Leontief, Hybrid) and L2/D2 to **cross-task aggregation** (Linear, Leontief, CES). Subsequent architecture reinterprets strategy IDs as market players facing the **same initial configuration**. The approved A5 baseline now fixes **pure-mode** within tasks and **configuration-specific cross-task CES** (including sigma=1) for all 256 players in each configuration.
+
+Thus the older interpretation of L1/L2 as firm-selected production functions cannot be retained *unchanged* alongside the A5 common-technology rule. In particular, L1's mixed CES/Leontief/Hybrid task technologies conflict with the approved pure-mode task execution, while L2's firm-selected aggregators conflict with a common configuration-level CES. Treating these as independent strategy choices would confound technology differences with behavioral strategy differences.
+
+### Recommended resolution — **not yet approved**
+
+Separate **exogenous technology** from **endogenous decision policy**. Within a configuration c, fix task coefficients, K/L constraints, eligibility, approved pure-mode execution, reference bundle and common CES aggregator sigma_c. Compare behavioral strategies on this common production possibility set. Keep the original four functional families as mathematical benchmark/limiting representations and, only if separately approved, as **distinct technology-regime counterfactual experiments**, not as strategy-specific technology switches within the same controlled comparison.
+
+**Governance caveat:** This resolution requires an explicit researcher-approved migration plan for L1/L2 labels and the existing 256 strategy registry; do not silently delete, relabel or count duplicate strategies as independent economic behaviors. If maintaining all four exact technology families as concurrent strategy alternatives is mandatory, the above common-technology resolution cannot be adopted without revisiting A5. Any 256-strategy comparison must document what actually differs between strategies.
+
+**A5 closure:** mathematical relationship **explained**, architecture compatibility **not yet approved**. Pending researcher choice between (a) common configuration-level technology and remapping legacy L1/L2 or (b) retaining legacy firm-specific technology families and revisiting common-technology interpretation. No code/data modified. `research_validated: false`.
