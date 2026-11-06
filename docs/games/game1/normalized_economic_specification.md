@@ -968,3 +968,56 @@ A6 deliberately excludes endogenous investment stocks, adjustment costs, adoptio
 Draft one parsimonious shared state vector and round timeline, then propose equations for (i) resource allocation and capacity, (ii) adjustment/investment stock law and expenditure, (iii) eligibility/efficiency/adoption and their payment timing, and (iv) production/cost/profit identities. Flag every new assumption and numeric parameter as PROPOSED until separately approved. Explicitly test dimensional consistency and potential duplicate charging. Only after the researcher approves equations/assumptions may the A6 runner be refactored and tested.
 
 **Status:** Step 2 L3/L4 semantic choice B approved; minimal scope exception approved; equations and parameters still OPEN. No simulation code change, no full-sample run, and `research_validated: false`.
+
+
+## A6 step 2C — Proposed single shared dynamic economic system for literal L3/L4 (2026-11-06)
+
+**PROPOSAL ONLY; NOT RESEARCHER-APPROVED EQUATIONS.** This is a parsimonious common state/transition/accounting contract for all 16 L3×L4 pairs, not eight separate economic models. Preserve all 256 L3×L4×L5×L6 player IDs, common initial technology per profile–sigma, lagged public information only, and A5 normalized 20-task CES. All parameters, timing and state transition choices marked OPEN require principal-researcher approval. No simulation code changes. `research_validated: false`.
+
+### Shared state, actions and feasible production
+
+For player i, task j=1..20 and period t, define shared state `S_it=(K_it, x_i,t-1, e_ijt, aK_ijt, z_ijt)`, where K is productive capital capacity, x is previous task K/L allocation, e is binary task capital eligibility, aK is task capital productivity, and z is adoption status. Baseline task labor productivity aL_ij and labor endowment Lbar_i remain fixed. Initial states are identical for all players within the same profile–sigma market. **OPEN:** whether adoption status z is required separately from e (remove if redundant).
+
+Choose `d_it=(l_ijt,k_ijt,I_it,u_ijt)` with nonnegative task allocations, investment I and adoption decisions u. Feasibility: `sum_j l_ijt <= Lbar_i`, `sum_j k_ijt <= K_it`, and capital execution requires e_ijt=1 at the moment of production. Each task uses labor OR capital, not both. Task output is `q_ijt=aL_ij*l_ijt` in labor mode or `q_ijt=aK_ijt*k_ijt` in eligible capital mode.
+
+Normalized output is `Y_it=CES_sigma(q_ijt/q0_ij; weights 1/20)` with `q0_ij=aL_ij*Lbar_i/20`, frozen at the initial reference. Sigma=1 uses the continuous Cobb–Douglas limit. **OPEN:** freeze q0 across endogenous adoption/investment transitions (recommended for comparability; not yet approved).
+
+### Minimal common transition and accounting equations (proposals)
+
+- Capital: `K_i,t+1=(1-delta)*K_it+I_it`. **OPEN:** delta, investment units, whether I becomes usable only at t+1, and investment financing/budget. Avoid charging both full investment principal and an overlapping rental user cost if r already represents the same capital financing/depreciation service.
+- Eligibility: `e_ij,t+1=max(e_ijt, uE_ijt)`, where uE is an eligibility-adoption decision. **OPEN:** irreversible versus reversible, which tasks can transition, whether all are potentially eligible, and activation timing.
+- Efficiency: `aK_ij,t+1=aK_ijt*(1+g_ijt*uG_ijt)` as a simple candidate law. **OPEN:** g, whether upgrades are one-off, caps and persistence; no productivity multiplier A shock.
+- Adoption: one common ledger `z_ij,t+1=max(z_ijt,uE_ijt,uG_ijt)` and one payment event per newly adopted task, e.g. `C_adopt_it=f*sum_j max(0,z_ij,t+1-z_ijt)`. **OPEN:** whether adoption is per task or firm, cost f, and eligibility/efficiency payment separation. L4 combined must not duplicate payments.
+- Adjustment: `C_adj_it=(gamma/2)*||x_it-x_i,t-1||^2` is a **candidate functional form only**. **OPEN:** gamma, scaling of K versus L, and whether adjustment is a cost or a feasibility limit. Previous allocations are required only if this channel is active.
+- Investment expenditure: `C_inv_it=pI*I_it` is a **candidate cash-flow convention**, not automatically an economic profit cost if rented capital services `r*sum k` already internalize financing. **OPEN:** whether the outcome is operating profit, cash flow or discounted economic value; choose exactly one coherent capital accounting treatment.
+
+### Unified market accounting (preserve approved D1–D3)
+
+All players choose simultaneously using only lagged public P,Q and private own state/history. `Q_t=sum_i Y_it`, `P_t=max(0,a_c-b_c*Q_t)`; revenue `R_it=P_t*Y_it`. Baseline operating cost `C_oper_it=w*sum_j l_ijt+r*sum_j k_ijt`. A general cash-flow identity, **not yet approved as the tournament objective**, is `CF_it=R_it-C_oper_it-C_adj_it-C_adopt_it-C_inv_it`. **OPEN:** investment/rental consistency, whether stock value/salvage is needed, and whether final ranking uses cash flow or economic profit. Shutdown of production does not necessarily imply zero investment/adoption expense if those actions are allowed; the original D5 zero-payoff shutdown outside option must be reconciled explicitly.
+
+### L3/L4 are action-set and transition switches, not independent models
+
+| Layer | Option | Shared-model interpretation | Economic gap still OPEN |
+| --- | --- | --- | --- |
+| L3 | flexible | Reallocate l,k within endowments | Difference from common constraints |
+| L3 | capacity | Bind task/installed capacity in addition to common K cap | Exact capacity object and law |
+| L3 | adjustment | Activate previous-allocation adjustment channel | Cost versus constraint, scaling |
+| L3 | investment | Activate I and capital transition | Budget, timing, capital accounting |
+| L4 | eligibility | Activate eligibility transitions uE | Eligibility set, persistence, adoption cost |
+| L4 | efficiency | Activate productivity transition uG | Gain magnitude, persistence, payment |
+| L4 | adoption_cost | Activate adoption/payment channel | What adoption enables without duplicating eligibility/efficiency |
+| L4 | combined | Combine applicable eligibility, efficiency and adoption channels | Single shared adoption ledger; no double payment |
+
+**Semantic blocker:** `L4.adoption_cost` cannot be economically distinct merely by adding a cost to an otherwise identical non-adoption action. Specify what technology/service adoption buys. `L3.capacity` likewise needs a constraint different from the K/L endowment already shared by every player.
+
+### Contradiction / double-count checklist
+
+1. Fixed initial technology **versus** endogenous post-decision player-specific technology: compare paired sigma scenarios using the same initial profile and common exogenous settings; report realized heterogeneity.
+2. Capital expenditure `pI I` **versus** rental `r sum k`: identify economic interpretation and ensure no double charge; optionally track cash flow and operating profit separately, but choose tournament ranking explicitly.
+3. L3 adjustment and investment: a change in capacity and a change in utilization are not the same action; count their charges only where applicable.
+4. L4 eligibility/efficiency/adoption_cost/combined: shared adoption state, one payment per event; no cost-only strategy with no corresponding benefit.
+5. Zero-profit shutdown/reentry: clarify whether no-production firms may still invest/adopt, and whether zero-payoff outside option means **no action**.
+6. CES normalization: retain initial q0 to avoid endogenous rebasing; verify nonnegative and finite output for sigma<1 and zero tasks.
+7. No future leakage: transitions at t+1 are not observable as current market information to other players; chosen-action realized feedback updates once.
+
+**Decision status:** The principal researcher approved literal L3/L4 meanings and the minimal exception scope, but **has not approved any of the proposed equations, state variables, timing or parameters in this section**. Next step: resolve capital accounting, L3 capacity and L4 adoption_cost semantics before selecting numeric calibration. Do not implement the proposed equations without approval.
