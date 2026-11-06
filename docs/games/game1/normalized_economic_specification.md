@@ -1288,3 +1288,16 @@ Candidate common stock transition: `K_i,t+1=(1-delta)K_it+I_it`, where `K_i1=K_i
 **Required internal screen:** (1) direct contribution to the charter's central research question and the specific role of Game 1/2/3; (2) credible economic mechanism/theoretical necessity; (3) material improvement to explanatory power or scientific validity; (4) complexity and extra parameters/assumptions; (5) whether it biases the desired result. If weak or not material, omit the proposal. Still flag genuine mathematical contradictions, economic incoherence, invalid inference, or implementation defects as necessary corrections rather than optional enhancements.
 
 **Governance:** Researcher remains sole authority for approving research assumptions and theoretical redirection. No code changes or new numeric parameters by this governance note. `research_validated: false`.
+
+
+## Charter-first A6 scope audit — no new mechanisms (2026-11-06)
+
+**Audit status only — no new researcher approval or code changes.** Cross-checked against `docs/theoretical_charter.md` (central research purpose; Game 1/2/3 separation; economics-first; theory-led scope; no unapproved redirection).
+
+**Retain as Game 1 economic foundation:** heterogeneous initial technology configurations, 20 production tasks, fixed K and L feasibility, normalized CES/scenario comparison, AI-induced changes in feasible production/relative input substitutability, economically interpretable prices/costs/payoffs, common initial conditions and paired comparisons. The 256-identity registry is an existing experimental design, not by itself a scientific contribution or proof that 256 distinct behaviors exist.
+
+**Do not revive for Game 1:** additional capital purchases, stock accumulation, depreciation, financing, salvage/terminal stock bonuses; these arose from an invalid interpretation of L3 investment. Do not add further investment parameters or timing gates.
+
+**Scope and identification concern (material):** L5/L6 learning/forecasting policies inside the Game 1 tournament can confound measured performance of production/resource allocation strategies with forecasting/learning performance. The charter assigns competition and learning to Game 2. This does NOT automatically cancel previously approved 256 identities; it means Game 1 economic conclusions should distinguish production effects from behavioral effects and avoid claiming a causal technology mechanism based solely on an overall winner. Researcher approval required before changing the registry or moving layers between games.
+
+**Minimum pending scientific work:** (1) verify that the proposed 20-task production and common K/L constraints define a feasible, economically meaningful Game 1 environment; (2) separate approved mechanisms from diagnostic heuristics in L3/L4; (3) identify the Game 1 outcome that tests technology/resource allocation without terminal-capital accounting; (4) run targeted economic consistency checks before any broad 256-strategy tournament. No new numeric calibrations or feature requests justified by this audit. `research_validated: false`.
