@@ -242,3 +242,64 @@ D. Define the number of base configurations and independent seeds in the counter
 E. Decide whether the 100 main configurations should be balanced across groups or intentionally reflect a documented distribution.
 
 **Current code remains a diagnostic universal sigma=1 benchmark. No code modifications or new simulation results were made. research_validated: false.**
+
+
+## Research decision — technology-stratified sigma assignment (approved 2026-11-06)
+
+**Approved:** Assign the 100 existing base technology configurations to sigma groups using pre-simulation stratification on initial K/L, task productivity and automation capability. This supersedes an unstratified or purely random assignment. **Not approved:** any numeric sigma values, group counts, concrete C000–C099 assignments, new data or code changes.
+
+### 1. Pre-treatment profile and data provenance
+
+Use the existing 100 F001–F100 records in `data/firms/task_based_100_firms_profiles.csv` and `data/firms/task_based_100_firms_tasks.csv`. Each original profile maps to exactly one primary configuration. Derive covariates using **only original initial attributes**, never simulated profits, winning strategy, post-adoption choices or endogenous prices.
+
+For base profile c define:
+
+- Capital/labor intensity: `KL_c = Kbar_c/Lbar_c` if Lbar>0. For robust comparisons with zero endowments, retain separate `log1p(Kbar)` and `log1p(Lbar)` and an explicit zero-endowment flag; do not silently divide by zero. Because K and L have different units, the ratio requires a stated capital-service/labor unit convention.
+- Labor task productivity summary: `muL_c = (1/20) sum_j log(aL_cj)`; capital productivity summary: `muK_c = (1/20) sum_j log(aK_cj)`. The logs require a declared positive reference unit; alternatively use log of dimensionless productivity relative to common reference coefficients. Record task-level dispersion (standard deviation of those logs), not just their means.
+- Automation eligibility share: `E_c = (1/20) sum_j 1[e_cj=1]`. This is an eligibility indicator, **not** the realized automation rate.
+- Potential relative task efficiency: summarize `log((aK_cj/aK_ref)/(aL_cj/aL_ref))` only after specifying consistent reference input units. Do not compare raw capital and labor productivity numerically as if their units were identical.
+
+These variables represent **stratification covariates**, not additional production inputs. Keep the original 20 task records unchanged.
+
+### 2. Assignment procedure (to be executed only after researcher approves group counts)
+
+1. Freeze and fingerprint the 100 original profiles and derived covariate table.
+2. Pre-register the primary covariates: capital/labor intensity or separate endowment logs, mean task productivity for labor and capital, and automation eligibility share. Dispersion and relative efficiency are diagnostics/optional secondary covariates.
+3. Standardize covariates over the 100 base profiles, recording the centering and scaling constants. For constant covariates, omit from the balance objective and report the reason.
+4. Construct a reproducible stratified allocation to G1 (sigma<1), G2 (sigma=1), G3 (sigma>1). Candidate algorithm: constrained minimization of between-group standardized mean differences, subject to pre-approved group capacities, with deterministic seed and documented tie-breaking. A blocked assignment or seeded optimization is acceptable; it must not use any simulation outcome.
+5. Preserve all 100 unique profile IDs exactly once. The same original profile is not reassigned across groups in the primary experiment. Record each group assignment and its reproducible algorithm version.
+6. Only **after** group assignment is frozen, map approved numerical sigma values or an approved within-group sampling rule to each configuration. The sigma values must satisfy the group inequalities and be identical for all 256 strategy players within each configuration.
+7. Publish a balance report before running any new economic simulation. Reject or flag unacceptable imbalance by a pre-registered criterion; do not reassign based on payoff outcomes.
+
+This design balances **observable initial covariates**, not necessarily all task-level technology differences. It does not itself identify the effect of sigma across distinct configurations.
+
+### 3. Balance metrics and acceptance protocol
+
+For each covariate z and group pair (g,h), compute standardized mean difference:
+`SMD_gh(z) = (mean_g(z)-mean_h(z))/sd_all(z)`, with sd_all(z)>0. Report all three pairwise comparisons G1/G2, G1/G3, G2/G3, the maximum absolute SMD, and group means/SDs. Inspect distribution overlap, range, quantiles, and imbalance in automation share and productivity dispersion. Any numeric SMD threshold is a **proposed research tolerance** requiring approval; it is not an automatic proof of balance. Group sizes and optimization objective/weights also require approval.
+
+### 4. Paired counterfactual identification
+
+The primary grouped experiment describes strategy performance under heterogeneous technology; the **paired counterfactual** isolates sigma within the same original profile. For selected c and approved levels sigma_a,sigma_b:
+`DeltaPi_cs(a,b) = Pi_cs(sigma_b; F_c, seed)-Pi_cs(sigma_a; F_c, seed)`.
+Hold fixed F_c (K/L, 20 task productivities, eligibility), omega, q0, Y0, exogenous demand/cost rules, roster and initial learning states; couple exogenous random draws using documented common random numbers. Allow endogenous task allocations, output, clearing prices, sales, beliefs and learning to respond to changed sigma. Label these as **additional scenarios**, never replace or mix them into the 100 primary configurations.
+
+Because 256 strategies interact in one market, do not treat strategy-round outcomes as independent replications. For uncertainty, use independent simulation seeds and/or base-profile clusters and report the unit of replication. Keep any comparisons between G1/G2/G3 in the primary run descriptive unless supported by the within-profile design.
+
+### 5. Required mapping and audit fields
+
+Planned (not created) mapping columns: `config_id, original_profile_id, Kbar, Lbar, KL_defined, logK, logL, mean_log_aL, mean_log_aK, sd_log_aL, sd_log_aK, eligibility_share, sigma_group, sigma_value, assignment_seed, assignment_algorithm, covariate_version, source_fingerprint, approval_status`.
+
+Planned balance output: `covariate, group, n, mean, sd, min, p25, median, p75, max` and `covariate, group_pair, SMD`.
+
+Planned counterfactual output: `base_config_id, strategy_id, sigma_scenario, seed, 200_round_cumulative_profit, market_output, realized_price, total_sales, total_cost, total_profit, parameter_fingerprint`.
+
+### 6. Explicit unresolved research choices
+
+- Group capacities: equal/nearly equal versus justified unequal proportions; no 34/33/33 choice is implied by this approval.
+- Numeric sigma levels or range/sampling method inside G1 and G3; G2 remains exactly 1.
+- Relative weights of balancing covariates, SMD tolerance and randomization/optimization procedure.
+- Task reference q0_cj, final output reference Y0_c, task weights omega_cj and the high-sigma zero-task implication.
+- Number of paired profiles, counterfactual sigma levels and independent seeds.
+
+**Implementation boundary:** No source code, CSV input, sigma assignment table, workflow or model output changed by this documentation update. Existing runs use sigma=1 for all configurations. `research_validated: false`.
