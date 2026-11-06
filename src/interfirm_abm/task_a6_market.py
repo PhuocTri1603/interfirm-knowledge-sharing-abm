@@ -18,6 +18,7 @@ from interfirm_abm.task_strategy_engine import strategy_roster, OwnOutcome, choo
 from interfirm_abm.task_strategy_actions import build_actions
 from interfirm_abm.task_strategy_engine import DecisionInformation
 from interfirm_abm.task_economic_policy import MarketObservation
+from interfirm_abm.task_l34_economics import L34Parameters, effective_firm, capacity_limited, economic_extra_cost
 
 
 @dataclass(frozen=True)
@@ -83,12 +84,14 @@ def _candidate_plans(identity, firm, observation):
     return {k: action.allocation for k, action in build_actions(identity, firm, info).items()}
 
 
-def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
+def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rounds=1, identities=None):
     """Execute one shared-technology market with explicit (unapproved) calibration.
 
     This is an implementation/invariant-test runner, not a validated baseline.
     It can run all 256 players; historical strategy IDs are preserved.
     """
+    if not isinstance(l34_parameters, L34Parameters):
+        raise ValueError('explicit L3/L4 economic parameters required')
     if sigma not in SIGMA_SCENARIOS or rounds < 1:
         raise ValueError("unsupported sigma or rounds")
     identities = tuple(strategy_roster() if identities is None else identities)
@@ -105,7 +108,7 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
         seed = int.from_bytes(sha256(f"{parameters.seed}|{firm.firm_id}|{sid}|a6-paired".encode()).digest()[:8], "big")
         states[sid] = dict(identity=identity, rng=Random(seed), profit=0.0,
                            last_q=1.0, price_belief=prior_price, scores={},
-                           feedback_count=0, history=[])
+                           feedback_count=0, history=[], previous_plan=None, adopted=frozenset())
     market_history = []
     rows = []
     for t in range(1, rounds + 1):
@@ -115,14 +118,21 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
         selected = {}
         for sid, state in states.items():
             identity = state["identity"]
-            candidates = _candidate_plans(identity, firm, observation)
+            production_firm = effective_firm(firm, identity.L4, l34_parameters)
+            candidates = _candidate_plans(identity, production_firm, observation)
+            if identity.L3 == "capacity":
+                candidates = {key: capacity_limited(plan, production_firm, firm, l34_parameters)
+                              for key, plan in candidates.items()}
             rival_q = max(0.0, (qref - 1.0) if last is None else last["quantity"] - state["last_q"])
             own_belief = state["price_belief"] if identity.L5 == "adaptive" else (
                 prior_price if last is None else last["price"])
             scores, predicted_profits = {}, {}
             for key, plan in candidates.items():
-                q = technology.output_from_allocation(firm, list(plan))
-                cost = _plan_cost(plan, parameters)
+                # A5 references remain fixed to the original configuration.
+                q = technology.output_index(production_firm.evaluate_allocation(list(plan)))
+                adjustment, adoption, _ = economic_extra_cost(
+                    identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters)
+                cost = _plan_cost(plan, parameters) + adjustment + adoption
                 if identity.L5 == "cournot" or identity.L5 == "price":
                     predicted_price = max(0.0, own_belief - prior_slope * (rival_q + q - qref))
                 else:
@@ -158,17 +168,22 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
             plan = candidates[chosen] if chosen is not None else reference_allocation(firm)
             if chosen is None:
                 plan = tuple(TaskAllocation(k, 0.0, 0.0) for k in TASK_IDS)
-            q = technology.output_from_allocation(firm, list(plan))
-            cost = _plan_cost(plan, parameters)
-            selected[sid] = (chosen, q, cost)
+            q = technology.output_index(production_firm.evaluate_allocation(list(plan)))
+            adjustment, adoption, unlocks = economic_extra_cost(
+                identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters)
+            cost = _plan_cost(plan, parameters) + adjustment + adoption
+            selected[sid] = (chosen, q, cost, plan, unlocks, adjustment, adoption)
         total_q = fsum(v[1] for v in selected.values())
         price = max(0.0, parameters.demand_intercept - parameters.demand_slope * total_q)
         total_profit = 0.0
-        for sid, (chosen, q, cost) in selected.items():
+        for sid, (chosen, q, cost, plan, unlocks, adjustment, adoption) in selected.items():
             profit = price * q - cost
             state = states[sid]
             state["profit"] += profit
             state["last_q"] = q
+            if chosen is not None:
+                state["previous_plan"] = plan
+                state["adopted"] = state["adopted"] | unlocks
             if state["identity"].L5 == "adaptive":
                 state["price_belief"] = 0.5 * state["price_belief"] + 0.5 * price
             # Exactly one realized feedback for chosen production action.
@@ -177,7 +192,8 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
                 state["feedback_count"] += 1
             total_profit += profit
             rows.append(dict(round=t, strategy_id=sid, action=chosen or "shutdown",
-                             quantity=q, cost=cost, price=price, profit=profit,
+                             quantity=q, cost=cost, adjustment_cost=adjustment,
+                             adoption_cost=adoption, price=price, profit=profit,
                              cumulative_profit=state["profit"]))
         market_history.append(dict(round=t, quantity=total_q, price=price, profit=total_profit))
     ranking = sorted(((sid, state["profit"]) for sid, state in states.items()),
