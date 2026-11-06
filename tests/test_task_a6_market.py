@@ -71,8 +71,13 @@ class TestA6(unittest.TestCase):
             seen.append(tuple(history))
             return actual(history, available, fallback)
         with patch("interfirm_abm.task_a6_market.choose_self_imitation", side_effect=record):
-            result = run_a6_market(self.firm, 1., self.p, rounds=3, identities=identities)
+            # Low factor prices ensure that participation is profitable under the fixed initial price belief.
+            # Otherwise shutdown correctly bypasses L6 choice, making this test vacuous.
+            profitable = A6Parameters(10.0, 0.01, 0.15, 1.0, 0.5, 11,
+                                      wage=1e-6, rental=1e-6)
+            result = run_a6_market(self.firm, 1., profitable, rounds=3, identities=identities)
         self.assertEqual(len(seen), 3)
+        self.assertTrue(all(row["action"] != "shutdown" for row in result["players"]))
         self.assertEqual(len(seen[0]), 0)
         self.assertTrue(all(outcome.round_number < 2 for outcome in seen[1]))
         self.assertTrue(all(outcome.round_number < 3 for outcome in seen[2]))
