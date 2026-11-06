@@ -1174,3 +1174,20 @@ More generally, `Score_i = sum_{t=1}^{200} d_t CF_it + d_T V_T(K_i,201)`, where 
 **First** decide a *terminal capital valuation rule* (e.g. residual capital at its purchase-price units, or an independently specified salvage-value function) and discounting convention **without setting numerical values**. **Second** approve transition timing, the frozen reference normalization, and adjustment form. **Third** approve the remaining capacity initialization, eligibility/efficiency scope and adoption payment event. **Finally** select any required numeric parameters and test feasibility, accounting, no-double-counting and 256-strategy distinctness. These are proposals, not approvals. Do not implement before the researcher's explicit equation-level authorization.
 
 **Status:** Terminal-value inclusion APPROVED; valuation function, discounting, transition/cost equations and parameters OPEN. `research_validated: false`.
+
+
+## A6 step 2H — Researcher approval: terminal owned capital at purchase price (2026-11-06)
+
+**APPROVED:** Select terminal valuation option **A**: `V_T(K_i,201)=p_I*K_i,201`, where `p_I` is the capital purchase price in the same monetary units as investment expenditure. Do not introduce a separate salvage-price coefficient. The principal researcher has **not** approved a numeric `p_I`, depreciation `delta`, or discounting rule. No simulation code changes. `research_validated: false`.
+
+**Interpretation and limitations:** This is a modeling assumption that remaining owned productive capital is worth its purchase-price units at the terminal date, not an empirical assertion about resale markets. Capital stocks and investment expenditure must have compatible units. If the same capital stock has depreciation, terminal value applies only to the surviving stock. If the initial K stock is common across strategies, a common initial-endowment value may be omitted for within-market ranking but must be acknowledged in cross-profile comparisons. Do not treat terminal valuation as a refund of every historical investment purchase.
+
+### Discounting — next substantive choice (NOT YET APPROVED)
+
+**Option A — No discounting (minimal experimental baseline):** `Score_i=sum_{t=1}^{200} CF_it + p_I*K_i,201`. This introduces no new time-preference parameter. It treats all rounds' monetary payoffs at the same weight, a deliberate assumption, not a general economic truth.
+
+**Option B — Constant discount factor:** `Score_i=sum_{t=1}^{200} beta^(t-1)*CF_it + beta^200*p_I*K_i,201`, with `0<beta<=1`. This explicitly values future cash flows and terminal capital less when beta<1, but requires approval of beta and a sensitivity check. The timing convention is cash flow at end of each period t, terminal capital at the end of round 200; if beta is used, its exponents must be aligned consistently.
+
+**Accounting warning:** The no-discounting formula is the special case beta=1 of the constant-discount specification. Either choice must remain compatible with a single owned-capital cash ledger: `CF=P*Y-w*sum l-C_adj-C_adopt-p_I I`, without charging imputed `r*sum k` a second time. The approved terminal valuation does not settle the capital stock law, financing limits, or whether terminal investment can be bought and immediately salvaged.
+
+**Current decision ledger:** L3 capacity task-output bound APPROVED; L4 adoption_cost paid eligibility unlock APPROVED; owned-capital cash-flow convention APPROVED; ranking includes terminal stock APPROVED; terminal valuation at `p_I K_201` APPROVED. Discounting A/B, stock/cost/technology transition equations and numeric parameters remain OPEN. No code or CI change. `research_validated: false`.
