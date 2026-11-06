@@ -1042,3 +1042,22 @@ Preserve baseline operating-accounting identity `pi_oper_it=P_t*Y_it-w*sum l_ijt
 ### Release gate
 
 These proposals isolate the minimal economic choices without introducing arbitrary numerical parameters. Principal researcher must approve (i) task-specific capacity bound and its initialization, (ii) what the adoption fee buys and its distinction from combined, and (iii) capital ownership/payoff accounting before dynamic L3/L4 equations can be finalized. Do not convert these proposals into A6 code or mark the checklist closed on the basis of documentation alone. `research_validated: false`.
+
+
+## A6 step 2D — Researcher approval: L3 Capacity A (2026-11-06)
+
+**APPROVED:** L3 `capacity` imposes an additional task-specific **output/throughput cap** `0 <= q_ijt <= h_ij`, alongside the common total labor/capital endowment constraints. L3 `flexible` has no such additional task-specific output cap. This replaces the alternative task-specific K/L input caps (option B), which are **not approved**. Keep the full 256 strategy identities.
+
+**Still OPEN:** How `h_ij` is determined from the common pre-treatment configuration without arbitrary calibration; whether it is constant or can change through L3 investment; whether capacity is defined in task-output units before CES normalization; how to ensure a nontrivial binding case without inventing an h ratio. Do not choose any h value or equation until researcher approval. A constraint is not itself a new operating cost.
+
+### Next economic decision — L4 adoption_cost
+
+The researcher has **not yet approved** what payment buys. Economically meaningful alternatives to present for decision:
+
+- **A (single capability activation):** An adoption payment unlocks an otherwise unavailable *task-level capital eligibility* option. Once activated, it remains available subject to an approved persistence rule. Must distinguish from L4 eligibility (potentially free activation) and combined.
+- **B (efficiency upgrade):** An adoption payment unlocks a *task-level capital productivity upgrade*. Must distinguish from L4 efficiency (potentially free upgrade) and combined.
+- **C (shared activation for both):** A single payment unlocks a specified combination of eligibility and efficiency at the task level, using one adoption ledger and no duplicate charging. Must distinguish from combined, potentially by policy timing/action set or explicit restrictions, without inventing them.
+
+These are **decision alternatives, not approvals**. No fee `f`, efficiency gain `g`, adoption timing, persistence, eligibility scope, or adoption cost function is approved. The original L4 `combined` label must remain coherent under whichever alternative is chosen; require a strategy-distinctness test before claiming 256 economically distinct behaviors.
+
+**Status:** Capacity A approved and documented; adoption semantics and capital accounting still OPEN; no code or test changed; `research_validated: false`.
