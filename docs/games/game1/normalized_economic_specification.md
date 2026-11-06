@@ -899,3 +899,31 @@ A6 deliberately excludes endogenous investment stocks, adjustment costs, adoptio
 **Recommendation for simplicity:** Option A, provided the researcher explicitly accepts that Game 1 then compares decision heuristics under fixed technology, not endogenous AI investment/adoption. Do not silently rename the strategy IDs: preserve historical IDs, use separate display descriptions/aliases only after approval.
 
 **Next engineering gate after decision:** Unit-test L3×L4 for feasibility, factor-price-aware task-mode logic where relevant, controlled behavioral differences, stable candidate identities, absence of unapproved thresholds and no hidden information. Then audit L5/L6 and D5 before interpreting 200-round or full-sample outcomes. **Step 2 audit completed; economic-semantic decision OPEN; code integration NOT AUTHORIZED by this document.**
+
+
+## A6 step 2 — Researcher approval: L3/L4 option B (2026-11-06)
+
+**APPROVED BY PRINCIPAL RESEARCHER:** Preserve the literal economic meaning of L3/L4 instead of relabeling their existing diagnostic heuristics as the scientific mechanisms. Keep all 256 L3×L4×L5×L6 player identities, including every intersection. This **supersedes the preceding audit's recommendation A**, not the factual audit. Continue checklist work, but **do not add unapproved economic assumptions or numerical parameters**. `research_validated: false`.
+
+### Binding semantic requirements (mechanisms, not yet parameterized)
+
+- **L3 flexible:** Reallocation of K/L subject to resource feasibility; distinguish from other mechanisms by the feasible intertemporal action set.
+- **L3 capacity:** Explicit installed-capacity/endowment constraint rather than simply weighting high-productivity tasks. Specify how it differs from the common K/L endowment caps before implementation.
+- **L3 adjustment:** Real reallocation friction/cost or adjustment constraint that depends on a prior allocation. Arbitrary history-count rotation does not satisfy this label.
+- **L3 investment:** Explicit investment decision and capital/capacity law of motion, including economic resource/budget consequences and any irreversibility if claimed. Prioritizing automation-eligible tasks alone does not satisfy this label.
+- **L4 eligibility:** Actual transition in task capital eligibility, not simply selecting from already eligible tasks.
+- **L4 efficiency:** Actual productivity change for capital-executable tasks, not a raw aK>aL rule.
+- **L4 adoption_cost:** Explicit adoption payment/state or a researcher-approved equivalent economic cost mechanism, not arbitrary productivity thresholds.
+- **L4 combined:** Coherent combination of the above channels, with explicit accounting and no double counting.
+
+**Design consequence:** Option B requires revisiting the former minimal A6 exclusion of investment stock, adjustment/adoption charges and technology transitions **only to the extent needed to implement the approved literal L3/L4 meanings**. This is a conflict to resolve, not permission to invent cost functions, depreciation rates, investment returns, technology shocks, adoption schedules or new learning layers. Maintain A5 normalized CES and the D1–D6 accounting/information rules unless the researcher explicitly amends them. Separate resource investment from AI technology changes; do not silently reintroduce multiplicative A or infer AI raises productivity when a different channel is approved.
+
+### Checklist and release gates
+
+1. **Completed:** Audit L3/L4 diagnostic implementation; identify mislabeling and semantic conflicts; record explicit approval of B.
+2. **NEXT — minimal mechanism contract (specification only):** For each of eight L3/L4 options, state the smallest economically valid state variable, action, transition, feasible constraint and accounting effect; show interactions and identify shared states to avoid duplicates. Mark any equation or magnitude not already approved as **OPEN**.
+3. **NEXT — contradiction gate:** Reconcile L3/L4 with D4 no-extra-cost baseline and the fixed shared-technology assumption; distinguish within-market common exogenous technology from player-specific endogenous technology states, and preserve the approved profile-sigma paired comparisons. If literal mechanisms cannot be implemented under existing assumptions, seek explicit amendment rather than coding a substitute heuristic.
+4. **After approval of the necessary economic equations and parameters:** Refactor the A6-specific action generator and market runner, retain historical diagnostics, and add controlled mechanism-distinctness, feasibility, accounting and no-double-count tests.
+5. **Later:** D5 and L5/L6 completion, 200-round verification, 100×3×256×200 per seed and robustness; no full sample or ranking until gates close.
+
+**Current status:** B approved at the semantic level. Its dynamic economic implementation and any relaxation of D4 or technology restrictions are **NOT YET APPROVED**. No source code or CI changes authorized by this approval alone. `research_validated: false`.
