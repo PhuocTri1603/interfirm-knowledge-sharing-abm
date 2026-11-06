@@ -811,3 +811,45 @@ Do not add a separate participation-reinforcement value engine, duplicated rewar
 ### Implementation acceptance boundary
 
 The verified A5 Actions run #42186866398 passed **10 unit/smoke tests**, not the A6 economic integration or 300 full market runs. Old 5.12m diagnostic observations are historical; no final 15.36m A6 experiment, profit rankings, equilibrium or welfare claims are established here. The current five-item Game 1 completion checklist remains **0/5** until the outstanding economically meaningful choices are approved, code is integrated, CI and robustness pass, and outputs are reviewed.
+
+
+## A6 — Minimal executable-model contract and pre-code consistency gate (2026-11-06)
+
+**Research governance:** This section consolidates existing approvals; it is not an approval of missing economic parameters. Preserve the full historical decision log above. Do not modify the legacy diagnostic or present it as an approved experiment. `research_validated: false`.
+
+### A. State, production, market, and payoff (approved)
+
+For each original profile c=1..100 and each paired scenario sigma in {0.5,1,2}, reset one market with 256 immutable L3×L4×L5×L6 strategy identities and run 200 simultaneous rounds. Each strategy faces the same 20 task coefficients, initial K/L endowments and automation eligibility within a profile-sigma market. In each task use **one** execution mode: labor q_j=aL_j*l_j, k_j=0, or eligible capital q_j=aK_j*k_j, l_j=0. Enforce nonnegative allocations and total labor/capital caps. Freeze q0_j=aL_j*Lbar/20 and equal weights 1/20. Output is the normalized composite-good quantity
+
+`y_i = CES_sigma(q_ij/q0_j; omega_j=1/20)`, `Y0=1`.
+
+No productivity multiplier A change is introduced. For each round, all strategies choose without knowing the current clearing price. Total quantity `Q=sum_i y_i`; actual price `P=max(0,a_c-b_c*Q)`, with `a_c,b_c>0`; sold quantity equals output even if P=0. Utilized-service cost `C_i=w*sum_j l_ij+r*sum_j k_ij`; approved minimal baseline `r=1,w/r=1` and sensitivity `w/r=0.5,2`. No extra fixed/adoption/adjustment charge in the baseline. Realized profit `pi_i=P*y_i-C_i`; final comparison `Pi_i=sum_t pi_it`. Shutdown is a feasible zero-allocation choice with y=C=pi=0; no forced exit, no reentry cost/delay.
+
+**Unit caveat:** y and Q are configuration-specific normalized-composite-good quantities, not directly comparable physical goods across profiles. Demand intercept/slope and factor prices must be defined in matching abstract-money units. The absence of extra costs is a deliberate model restriction, not a claim about real-world firms.
+
+### B. Minimal information and behavior (approved concepts, not yet fully numeric)
+
+Before round t, players see only lagged public P,Q and their own private actions/outcomes and own technology; no individual peer action/payoff or current-round P. L5 is an **evaluation/belief layer**, not a second learner: competitive assumes locally invariant predicted price; cournot incorporates predicted own-quantity price impact; target-price ranks positive-output candidates lexicographically by predicted-price distance from the approved markup-cost target, then predicted profit; adaptive updates its price expectation from lagged observed P. L6 is the **sole action-selection/feedback layer**: optimization, epsilon trial-and-error, temperature Softmax, or imitation of lagged aggregate output trend. Realized chosen-action outcomes update only that action, once; no unchosen realized payoff updates. Rank-based Softmax preserves lexicographic production-candidate ordering. Shutdown is outside the target-price distance ranking. Reentry remains possible. Preserve all 256 IDs; audit observational or functional equivalence rather than deleting IDs.
+
+**Do not introduce:** separate participation reinforcement, second payoff ledger, individual-rival imitation, reserve-price rationing, inventory, investment stocks, adoption/adjustment costs, forced convergence, global Nash-equilibrium solver, or any unapproved learning states. Earlier elaborate D6.3.4 proposals are explicitly excluded from the baseline.
+
+### C. Contradiction audit
+
+| Issue | Finding | Required resolution |
+| --- | --- | --- |
+| Demand scale versus 256 normalized producers | **OPEN ECONOMIC PARAMETER**: `a_c,b_c` are not numerically approved; arbitrary legacy intercepts may force P=0 or render learning comparisons meaningless. | Specify a pre-treatment demand normalization and a compact sensitivity grid before A6 market runs. |
+| Reference market quantity | **OPEN OPERATIONAL CONVENTION**: `qbar_i` and `Qref` lack a reproducible feasible construction. | Specify a fixed reference feasible plan independent of realized strategies/outcomes; ensure consistent dimensions and no price lookahead. |
+| Target-price versus shutdown | **OPEN BEHAVIORAL RULE**: shutdown has undefined price distance; a lexicographic production score cannot directly compare to zero-profit shutdown. | Approve one minimal participation rule that uses predicted net benefit without adding a second learning engine; keep production ranking conditional on participation. |
+| Learning numeric scale | **OPEN BEHAVIORAL PARAMETERS**: eta, epsilon, temperature, phi, initial scores, tie rule and possible reentry exploration are not approved. | Pre-register a minimal set, use rank-only sampling when possible to avoid arbitrary monetary scaling, and run a small sensitivity grid. |
+| Public-only information versus legacy imitation | **CODE CONFLICT**: existing `peer_provider` can supply private individual peer actions/payoffs. | Replace with lagged aggregate P,Q trend; test all 16 L5-adaptive × L6-imitation intersections and forbid hidden peer fields. |
+| L5 adaptive versus L6 learning | **CODE CONFLICT**: legacy adaptive valuation uses own payoff history as a substitute for price belief updating. | Separate price-belief state from chosen-action feedback; one update each and one realized profit accumulation. |
+| L5 target-price versus legacy price offers | **CODE CONFLICT**: existing `price` L5 sets offered reserve prices. | Preserve historical IDs/results, implement target-price only in the new economic runner, and assert one actual uniform transaction price. |
+| A5 normalized CES versus diagnostic output | **CODE INTEGRATION GAP**: approved normalized technology is not yet the full A6 market runner. | Wire normalized y consistently into candidate prediction, actual Q, revenue, and profits; do not reuse historical diagnostic payoffs. |
+| 256 strategy IDs versus 256 distinct economic functions | **EMPIRICAL/SEMANTIC TEST NEEDED**: unique IDs need not yield unique decisions. | Compare complete task allocations and selected actions under controlled identical states; do not silently deduplicate. |
+| Three sigma scenarios versus historic sigma groups | **RESOLVED**: fully crossed 100×3 markets, not one group per original profile. | Couple random streams across sigma, keep original profiles frozen and separate old diagnostic runs. |
+
+### D. Pre-code release gate
+
+**Specification consistent at the level of approved accounting identities, production rules and information boundaries. NOT READY for a scientifically interpretable full A6 run:** unresolved demand scale, feasible market reference, shutdown choice and learning numeric rules materially change incentives/outcomes. They must be explicitly decided or authorized as transparent scenario assumptions before implementation. Engineering details that do not change economic behavior need not be separately approved.
+
+**After the four substantive gates close:** implement a new A6-specific runner without overwriting historical diagnostics; first run one-round accounting/no-leakage/zero-price/shutdown tests, then all 16 adaptive×imitation policy cases and reproducibility checks, then one-profile three-sigma smoke test, then 100×3×256×200 per seed with paired random streams. Report price/output/profit identities, cumulative-profit ranking, profile-paired sigma differences and independent-run uncertainty. CI success alone does not set `research_validated: true`.
