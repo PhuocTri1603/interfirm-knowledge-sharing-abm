@@ -14,7 +14,7 @@ from random import Random
 
 from interfirm_abm.task_a5_normalized import SIGMA_SCENARIOS, technology_for_profile, TASK_IDS
 from interfirm_abm.task_based_firm import TaskAllocation, load_approved_population
-from interfirm_abm.task_strategy_engine import strategy_roster
+from interfirm_abm.task_strategy_engine import strategy_roster, OwnOutcome, choose_self_imitation
 from interfirm_abm.task_strategy_actions import build_actions
 from interfirm_abm.task_strategy_engine import DecisionInformation
 from interfirm_abm.task_economic_policy import MarketObservation
@@ -26,7 +26,7 @@ class A6Parameters:
     demand_slope: float
     epsilon: float
     temperature: float
-    imitation_probability: float
+    imitation_probability: float  # legacy API compatibility only; ignored by approved self-imitation
     seed: int
     wage: float = 1.0
     rental: float = 1.0
@@ -119,7 +119,7 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
             rival_q = max(0.0, (qref - 1.0) if last is None else last["quantity"] - state["last_q"])
             own_belief = state["price_belief"] if identity.L5 == "adaptive" else (
                 prior_price if last is None else last["price"])
-            scores, predicted_profits, outputs = {}, {}, {}
+            scores, predicted_profits = {}, {}
             for key, plan in candidates.items():
                 q = technology.output_from_allocation(firm, list(plan))
                 cost = _plan_cost(plan, parameters)
@@ -128,7 +128,6 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
                 else:
                     predicted_price = own_belief
                 predicted_profits[key] = predicted_price * q - cost
-                outputs[key] = q
                 if identity.L5 == "price":
                     target = 1.1 * cost / q if q > 0 else float("inf")
                     scores[key] = (-abs(predicted_price - target), predicted_profits[key])
@@ -151,12 +150,9 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
                 elif identity.L6 == "softmax":
                     chosen = rank_softmax(scores, parameters.temperature, rng)
                 elif identity.L6 == "imitation":
-                    # Lagged public aggregate Q trend only, no rival-level data.
-                    if len(market_history) >= 2 and rng.random() < parameters.imitation_probability:
-                        rising = market_history[-1]["quantity"] > market_history[-2]["quantity"]
-                        chosen = max(ordered, key=lambda k: (outputs[k] if rising else -outputs[k], k))
-                    else:
-                        chosen = preferred
+                    # Approved Game 1 rule: repeat own best realized action.
+                    # Only completed-round own history is available here.
+                    chosen = choose_self_imitation(tuple(state["history"]), ordered, preferred)
                 else:
                     raise ValueError("unknown L6")
             plan = candidates[chosen] if chosen is not None else reference_allocation(firm)
@@ -177,7 +173,7 @@ def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
                 state["price_belief"] = 0.5 * state["price_belief"] + 0.5 * price
             # Exactly one realized feedback for chosen production action.
             if chosen is not None:
-                state["history"].append((t, chosen, profit))
+                state["history"].append(OwnOutcome(t, chosen, profit))
                 state["feedback_count"] += 1
             total_profit += profit
             rows.append(dict(round=t, strategy_id=sid, action=chosen or "shutdown",
