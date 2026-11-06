@@ -1,23 +1,27 @@
 # Game 1 — 256 strategy labels: economic mechanisms and literature map
 
-**Status:** The 256 combinations are **labels**, not 256 implemented or empirically validated policies. The principal researcher must approve operational definitions, parameters, information sets and economic identification before running a research tournament. **Researcher design rule (2026-11-04): every L3 × L4 × L5 × L6 combination is a distinct player identity; no combination is excluded due to conceptual overlap.**
+**Status (2026-11-06):** All 256 identities are registered; several option-level economic meanings have been approved, but 256 fully implemented and scientifically validated policies **do not yet exist**. This document is synchronized to the later authoritative decisions in `normalized_economic_specification.md`. Unapproved operating equations and numerical parameters remain OPEN. **Researcher design rule (2026-11-04): every L3 × L4 × L5 × L6 combination is a distinct player identity; no combination is excluded due to conceptual overlap.**
 
 **Identity:** S001–S256 in [strategy_catalog_256.csv](strategy_catalog_256.csv), lexicographic nested product L3 × L4 × L5 × L6, in the order in the canonical `task_layer_registry.py`. Each row points to four option-level references below. L1/L2 describe production technology; L7 describes market regimes; none belongs in the count of 256 behavioral labels.
 
-## L3 — Resource and adjustment constraints
+## Game boundary and precedence
+
+**Game 1:** each firm learns from its **own** decisions, outcomes and history, plus approved common market signals. **Game 2:** firms may additionally observe individual rivals and use those observations in decisions. Game 1 must retain self-learning across rounds. The researcher-approved 256-player design is L3 × L4 × L5 × L6, with no excluded combinations. Later explicit researcher corrections supersede older speculative descriptions, especially any L3 capital-purchase interpretation. Do not treat an option name or diagnostic code as proof of implemented economic behavior.
+
+## L3 — Resource allocation and adjustment constraints
 
 **Economic question:** Which resource or adjustment friction bounds the firm's feasible action set?
 
-| Code | Proposed interpretation, **not yet approved** | Economic anchor | Modeling gap |
+| Code | Current economic interpretation and approval | Economic anchor | Still OPEN |
 |---|---|---|---|
-| flexible | K/L can be reallocated within endowment without extra adjustment friction | Varian (1992), *Microeconomic Analysis*, production and cost theory | Specify feasibility, timing and opportunity cost |
-| capacity | binding installed capacity/endowment constrains task activity | Varian (1992), *Microeconomic Analysis*, constrained cost minimization | Define capacity constraints per task versus firm |
-| adjustment | changing K/L allocation across rounds incurs convex or fixed adjustment costs | Abel & Eberly (1994), *A Unified Model of Investment Under Uncertainty*, AER 84(5), 1369–1384 | Define adjustment cost and state persistence |
-| investment | firm can expand productive capacity with an investment decision subject to irreversibility/uncertainty | Dixit & Pindyck (1994), *Investment under Uncertainty*, Princeton UP; Abel & Eberly (1994) | Define budget, capital law of motion and irreversibility |
+| flexible | **Approved meaning:** reallocate existing K/L across tasks within common fixed endowments, without extra task-capacity or adjustment restriction | Varian (1992), production/cost theory | Common actionable allocation rule |
+| capacity | **Approved:** extra task throughput bound `0 <= q_ijt <= h_ij`, beyond common K/L limits | Varian (1992), constrained production | Pre-treatment `h_ij` initialization and binding cases |
+| adjustment | **Approved conceptual distinction:** genuine friction/cost or feasibility limit when reallocating existing K/L across rounds; the rotating task-weight heuristic is **not** this mechanism | Adjustment-friction literature, including Abel & Eberly (1994), as analogy rather than capital-acquisition requirement | Exact minimal friction rule and initial reference allocation |
+| investment | **Approved, controlling interpretation:** prioritize reallocating **existing fixed K** to tasks **already capital-eligible** when the decision is made; **no purchase or accumulation of K** | Varian (1992), scarce-input allocation and opportunity cost; task automation framework of Acemoglu & Restrepo (2018) | Exact priority decision rule; no new investment-stock, depreciation, financing or terminal-value model |
 
-References: https://www.nber.org/papers/w4296 ; https://press.princeton.edu/books/hardcover/9780691034102/investment-under-uncertainty
+Historical references for adjustment-friction context (not authorization to purchase K): https://www.nber.org/papers/w4296 ; https://press.princeton.edu/books/hardcover/9780691034102/investment-under-uncertainty
 
-**Caution:** These options mix baseline feasibility and intertemporal frictions; they are not necessarily mutually exclusive in a real firm. Treating them as four mutually exclusive experiment regimes is a **research design choice**, not a proposition from the literature.
+**Common feasibility:** `sum_j k_ijt <= K_i` and `sum_j l_ijt <= Lbar_i` for all L3 options. L3 `investment` is a historical strategy ID only, not an asset purchase. L4 determines effective capital eligibility; L3 chooses allocation. Four alternative policies are a research design, not an exhaustive theory of firms.
 
 ## L4 — Automation channel
 
@@ -25,10 +29,10 @@ References: https://www.nber.org/papers/w4296 ; https://press.princeton.edu/book
 
 | Code | Proposed interpretation, **not yet approved** | Economic anchor | Modeling gap |
 |---|---|---|---|
-| eligibility | automation makes previously labor-only tasks capital-feasible | Acemoglu & Restrepo (2018), *The Race between Man and Machine*, AER 108(6), 1488–1542 | Define eligibility transition and task index |
-| efficiency | productivity rises in tasks already executable by capital | Acemoglu & Restrepo (2018), *Modeling Automation*, AEA Papers and Proceedings 108, 48–53 | Define capital task-efficiency shock |
-| adoption_cost | adoption entails a fixed/sunk cost, creating an investment threshold | Dixit & Pindyck (1994); Abel & Eberly (1994) | Define fixed cost and adoption persistence |
-| combined | allow eligibility, efficiency and adoption cost together | Acemoglu & Restrepo (2018) **plus** investment-friction literature | Combination is a model synthesis, not a separate published theory |
+| eligibility | AI enables capital execution in previously labor-only tasks; approved conceptual channel | Acemoglu & Restrepo (2018), *The Race between Man and Machine* | Eligibility transition scope and timing |
+| efficiency | AI raises capital-task productivity in eligible tasks; approved conceptual channel | Acemoglu & Restrepo (2018), *Modeling Automation* | Gain function, timing and persistence |
+| adoption_cost | **Approved:** real payment **in exchange for unlocking capital eligibility in a previously labor-only task**, not a fee without benefit | Acemoglu & Restrepo (2018), automation; adoption-cost literature | Amount, charging unit, activation and persistence |
+| combined | Combines eligibility, efficiency and adoption-cost channels; retain distinct identity, avoid double-charging unlocks | Acemoglu & Restrepo (2018) plus adoption frictions; model synthesis | Precise event/fee overlap and transition rule |
 
 References: https://doi.org/10.1257/aer.20160696 ; https://doi.org/10.1257/pandp.20181020 ; https://www.nber.org/papers/w4296
 
@@ -40,10 +44,10 @@ References: https://doi.org/10.1257/aer.20160696 ; https://doi.org/10.1257/pandp
 
 | Code | Proposed interpretation, **not yet approved** | Economic anchor | Modeling gap |
 |---|---|---|---|
-| competitive | price-taking benchmark; agent treats market price as exogenous to its own output | Varian (1992), *Microeconomic Analysis*, competitive firm | Clarify if this is a belief under shared endogenous pricing |
-| cournot | quantity competition; firm recognizes effect of its output on aggregate market price | Cournot (1838), *Recherches sur les principes mathématiques de la théorie des richesses*; Tirole (1988), *The Theory of Industrial Organization* | Specify rivals' quantity expectations and best-response timing |
-| price | price competition, requiring an explicit price-choice and demand-allocation mechanism | Bertrand (1883), review of Cournot; Tirole (1988) | **Incompatible with a quantity-only decision API until price actions are added** |
-| adaptive | choose what has worked best using only the firm's own action–payoff history; do not directly observe rivals | Erev & Roth (1998), *Predicting How People Play Games*; Sutton & Barto (2018), *Reinforcement Learning* | Specify own-history window and action-value mapping |
+| competitive | Price-taking expectation: firm does not internalize own output's effect on market price | Varian (1992), competitive firm | Operational forecast rule in common market |
+| cournot | Firm internalizes own output's effect on aggregate price, **without observing individual rival actions** in Game 1 | Cournot (1838); Tirole (1988) | Own-impact expectation under approved aggregate information |
+| price | Explicit price-offer strategy; requires an economically coherent sales/allocation mechanism | Bertrand (1883); Tirole (1988) | How offers transact with quantity strategies; current quantity-only runner insufficient |
+| adaptive | Adapt choices using **own realized action–payoff history only** | Erev & Roth (1998); Sutton & Barto (2018) | Consistent action-value update and distinction from L6 selection |
 
 References: https://press.princeton.edu/books/paperback/9780691096010/learning-and-expectations-in-macroeconomics ; Tirole (1988), MIT Press, ISBN 9780262200714.
 
@@ -55,22 +59,22 @@ References: https://press.princeton.edu/books/paperback/9780691096010/learning-a
 
 | Code | Proposed interpretation, **not yet approved** | Economic anchor | Modeling gap |
 |---|---|---|---|
-| optimization | choose feasible action with highest expected payoff under an explicit information set | Varian (1992), *Microeconomic Analysis* | Finite-choice versus global optimum, forecasting beliefs |
-| trial_error | experiment with actions and update choice using realized own outcomes | Erev & Roth (1998), *Predicting How People Play Games: Reinforcement Learning in Experimental Games with Unique, Mixed Strategy Equilibria*, AER 88(4), 848–881 | Specify reinforcement/aspiration update; random exploration alone is insufficient |
+| optimization | Choose highest estimated payoff among **available feasible candidates**; do not claim global optimum | Varian (1992) | Candidate set and payoff estimation |
+| trial_error | Explore alternatives and update choices from **own realized outcomes** | Erev & Roth (1998) | Genuine own-feedback update; random exploration alone insufficient |
 | softmax | probabilistic logit choice weighted by expected utilities/values | McFadden (1974), *Conditional Logit Analysis of Qualitative Choice Behavior*, in *Frontiers in Econometrics*; Sutton & Barto (2018), *Reinforcement Learning*, 2nd ed. | Specify value learning and temperature; softmax alone is a selection rule, not learning |
-| imitation | use observed peers' choices/payoffs to guide own action | Ellison & Fudenberg (1993), *Rules of Thumb for Social Learning*, JPE 101(4), 612–643 | Specify peer observability and imitation criterion |
+| imitation | **UNRESOLVED conflict:** existing code imitates observed peers, but Game 1 **prohibits rival-specific observations**. Retain label and all 64 associated identities; do **not** silently redefine or implement peer imitation as Game 1 self-learning | Ellison & Fudenberg (1993) is a **Game 2 social-learning reference**, not evidence for own-only imitation | Researcher must approve an own-information-consistent meaning or defer this mechanism's operationalization; no assumed peer data |
 
 References: https://dash.harvard.edu/entities/publication/73120378-866f-6bd4-e053-0100007fdf3b ; https://www.jstor.org/stable/2646959 ; https://www.andrew.cmu.edu/user/alm3/presentations/mcfadden1974.pdf
 
-**Caution:** McFadden motivates probabilistic utility choice; it does **not** by itself validate a particular dynamic learning update. Ellison–Fudenberg studies social learning, not necessarily copying the highest-profit competitor. These mappings are theoretical starting points.
+**Critical boundary:** Game 1 cannot expose individual peer actions/payoffs even when L6=`imitation` or L5=`adaptive`. The current engine's `peer_provider` imitation is a **code/spec mismatch**, not an approved Game 1 rule. McFadden motivates choice probabilities, not a dynamic value update. The full registry stays intact while the conflict is unresolved.
 
 ## Required before full-sample execution
 
 1. Preserve the complete 4×4×4×4 Cartesian product: 256 distinct player identities, with no exclusion filter. Resolve information tensions (e.g. Adaptive × Imitation) by explicit rules rather than deleting a combination.
 2. Preserve L4's four named options in the full player roster; document overlapping mechanisms without removing combinations.
-3. Approve exact equations for all option mechanisms, state transitions, observability and prices, keeping common conditions across strategies in each market.
+3. Operationalize only researcher-approved mechanisms, with common feasible endowments and own-information-only learning in Game 1. Resolve the L6 imitation conflict without assuming rival observations.
 4. Run strategy-distinctness tests: at least one designed state in which each relevant option changes decisions, not merely its label.
-5. Only then execute 100 configurations × 256 validated policies × 200 rounds; include replication seeds and report confidence/robustness, not one deterministic ranking.
+5. Only then execute 100 configurations × 256 validated policies × 200 rounds; include replication seeds and report confidence/robustness, not one deterministic ranking. `research_validated: false` until tests and scientific checks actually pass.
 
 ## Core bibliographic references
 
