@@ -1324,3 +1324,19 @@ Candidate common stock transition: `K_i,t+1=(1-delta)K_it+I_it`, where `K_i1=K_i
 The Game 1 A6 runner now calls the **same** `choose_self_imitation` selection function as the composable strategy engine. It repeats the available action with the highest **own realized profit** in completed prior rounds; on no available historical action, it falls back to the current own candidate valuation. The old A6 aggregate-market trend imitation rule is removed. The historical `A6Parameters.imitation_probability` field remains temporarily for compatibility with existing callers but **does not affect choices**; it is not a scientific parameter of approved self-imitation.
 
 The Game 1 `DecisionInformation` interface no longer accepts `peer_actions` or `peer_payoffs`, and `ComposedStrategyPolicy` / `compose_all_policies` no longer accept a `peer_provider`. Aggregate past market price/quantity and own previous production are permitted; these do not reveal a named rival's action or payoff. Tests have been updated for the interface boundary and A6 completed-round own-history behavior. No claim of passing CI or full economic validation is made without an actual test run. L3/L4 economic mechanisms remain partially diagnostic. `research_validated: false`.
+
+
+## L3/L4 executable economic mechanisms — explicit scenario inputs (2026-11-06)
+
+Researcher approved **explicit, non-default numerical inputs** for L3/L4. The A6 runner now requires `l34_parameters=L34Parameters(capacity_ratio, adjustment_unit_cost, efficiency_gain, adoption_fee)`. These numbers are supplied per experiment; values in unit tests are illustrative only and must never be represented as an approved baseline.
+
+- **L3 Flexible:** may change existing K/L allocations between available task modes without an extra adjustment fee.
+- **L3 Capacity:** a task's realized activity is bounded by `capacity_ratio * (original task labor productivity * L_endowment / 20)`; input allocations are scaled down to satisfy the cap. This is a **task-throughput cap**, not new investment or additional K.
+- **L3 Adjustment:** per-period cost `adjustment_unit_cost * sum_j (|L_j,t - L_j,t-1| + |K_j,t - K_j,t-1|)` when a previous selected production plan exists. Labor and capital units must be made comparable before empirical calibration. Shutdown/reentry treatment requires additional scenario validation.
+- **L3 Investment:** existing K is preferentially assigned to capital-capable tasks; no capital purchases or stock growth. The allocation heuristic remains provisional, not an optimized investment rule.
+- **L4 Eligibility:** capital becomes feasible for all tasks without a separate adoption fee in this option.
+- **L4 Efficiency:** capital-task productivity is multiplied by `1 + efficiency_gain`; original automation eligibility remains unchanged.
+- **L4 Adoption Cost:** capital becomes feasible for all tasks; the first use of capital on each previously ineligible task incurs `adoption_fee` exactly once per strategy per configuration.
+- **L4 Combined:** the same eligibility expansion and one-time task fee as Adoption Cost, plus the efficiency gain. The fee is not double counted.
+
+All 256 players share the original task reference and sigma within a run; no rival-specific data is supplied. Fees and adjustment costs enter both expected and realized profits. The legacy action-candidate heuristics remain **diagnostic**; these mechanisms are implemented in A6 but full behavioral/economic validation, including sensitivity, calibrated dimensions and full-sample 100×256×200, remains outstanding. `research_validated: false`.
