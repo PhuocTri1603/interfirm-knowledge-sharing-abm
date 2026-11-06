@@ -180,3 +180,65 @@ A proposed calibration convention is to choose positive q0_cj and Y0_c so that a
 The current executable `task_multi_action_diagnostic.py` still sets `TASK_WEIGHTS=1/20` and `sigma=1.0` for every configuration. `task_aggregators.py` already accepts a sigma parameter but does not apply the proposed q0/Y0 normalization. No executable files are modified by this decision record.
 
 Pending researcher decisions: (a) sigma_c sampling/assignment (fixed grid, empirical calibration, or structured scenario design), (b) whether weights remain equal across tasks, (c) construction of q0_cj and Y0_c, (d) whether high-sigma task omission is economically acceptable, and (e) whether any additional nested CES or mixed within-task capital/labor substitution is needed. **research_validated: false.**
+
+
+## Research decision B — stratified sigma assignment and paired counterfactuals (approved 2026-11-06)
+
+**Decision approved:** Use technology groups and controlled counterfactual tests for across-task substitution elasticity. This specifies experimental architecture only. Numeric elasticity levels, group sizes, assignment to C000–C099, weighting, and task reference calibration are **not yet approved**. No simulation code or data files change.
+
+### Main experiment: 100 configurations
+
+Maintain the canonical one-to-one mapping C000–C099 to existing F001–F100 task technology profiles, endowments, and automation eligibility. Each configuration has one shared sigma_c across all 256 strategy identities for all 200 rounds. Group labels:
+
+- G1 complementary: 0 < sigma_c < 1.
+- G2 Cobb–Douglas benchmark: sigma_c = 1.
+- G3 relatively substitutable: sigma_c > 1.
+
+These are **theoretical strata**, not yet numeric bins with assigned counts. Do not fabricate sigma values or assume 100 is divisible into equal-sized groups. To ensure all three groups are represented, an assignment plan must explicitly state counts and values and be approved before implementation. The baseline 100 configurations remain 100, not 100 multiplied by the number of sigma scenarios.
+
+### Controlled paired counterfactuals (separate experiment)
+
+For each selected base configuration c, run the **same** initial technology profile, K/L endowments, task eligibility, weights, task references, demand parameters, learning parameters, strategy roster, and accounting rules under at least two pre-specified sigma conditions. For any strategy s, define DeltaPi_cs(a,b)=Pi_cs(sigma_b)-Pi_cs(sigma_a), with Pi cumulative realized profit over 200 rounds. The paired comparison is a model-based intervention on across-task substitutability, **not an empirical causal estimate**.
+
+Use common random-number streams / paired seeds where feasible, preserving the same exogenous stochastic draws across scenarios. The **endogenous** K/L choices, market price, sales, profits, beliefs, and learning must be allowed to change in response to sigma; fixing them would block the economic mechanisms being studied. When simulation paths consume random draws differently, document the randomization coupling and conduct additional independent-seed robustness checks.
+
+A controlled sigma comparison is not obtained by comparing a G1 configuration against a different G3 configuration: those also differ in initial endowments, task productivity and eligibility. Main-experiment group contrasts are descriptive unless further identified by a controlled design.
+
+### Data contract for a future mapping (not created yet)
+
+For each primary configuration, a future mapping table should include:
+config_id, original_profile_id, sigma_group, sigma_value, sigma_assignment_rule, task_weight_scheme, task_reference_scheme, output_reference_scheme, source_or_rationale, approval_status.
+
+For each counterfactual scenario, additionally include:
+base_config_id, scenario_id, counterfactual_sigma, paired_seed_id, fixed_parameters_fingerprint, changed_parameters, and output artifact IDs.
+
+The mapping should be auditable, deterministic after approval, and independent of observed strategy payoffs. Do not choose sigma assignments by maximizing simulated profits or creating desired winners.
+
+### Candidate estimands and analysis plan
+
+1. Within-configuration strategy comparison: Pi_cs(sigma_c) and rank with ties, not only a single winner.
+2. Paired sigma effect for a fixed base technology: DeltaPi_cs(a,b) above.
+3. Heterogeneous paired effect by strategy layer L3/L4/L5/L6, while accounting for the 256 strategy identities' interactions in a shared market.
+4. Market-level paired differences: total output, price, quantity sold, aggregate profit, and distributional measures. Since strategies interact in a common market, outcomes are **not independent observations across players**; aggregate or cluster uncertainty at the market-run/configuration level.
+5. Multiple random seeds, sensitivity to selected sigma levels, and checks that the reference bundle remains anchored consistently.
+6. Do not treat 200 periods within a run or 256 strategies sharing one market as 51,200 independent experimental replications.
+
+### Acceptance and numerical verification
+
+- Validate all sigma_c are finite and >0, and each is common to the 256 players in its configuration.
+- Validate the group membership inequalities; benchmark group has sigma=1 exactly.
+- Preserve 100 primary configurations, 20 tasks, 256 strategies, 200 periods; counterfactual runs must be labeled separately, not mixed into primary 5.12m observations.
+- CES reference anchor: when x_j=1 for all j, Y=Y0 for all sigma. Test continuity near sigma=1, limits, monotonicity, homogeneity and sigma-dependent zero-task behavior.
+- Keep common task technology and K/L constraints fixed in each paired comparison; record all permitted changes and seed coupling.
+- Report market-level and strategy-level outcomes, ties, confidence intervals over independent runs/configurations when justified, and robustness to alternative group boundaries and sigma levels.
+- Verify no simultaneous alteration of cost, market clearing, or L3–L6 learning rules in a sigma-only counterfactual.
+
+### Remaining approvals before implementation
+
+A. Choose sigma values or a justified generation rule inside G1/G2/G3, and group counts/assignment for the 100 existing profiles.
+B. Choose task weights omega_cj (equal or heterogeneous), task references q0_cj, and output reference Y0_c.
+C. Confirm that in G3 some tasks may be skipped while still producing positive final output; this is an implication of the proposed CES with sigma>1.
+D. Define the number of base configurations and independent seeds in the counterfactual experiment.
+E. Decide whether the 100 main configurations should be balanced across groups or intentionally reflect a documented distribution.
+
+**Current code remains a diagnostic universal sigma=1 benchmark. No code modifications or new simulation results were made. research_validated: false.**
