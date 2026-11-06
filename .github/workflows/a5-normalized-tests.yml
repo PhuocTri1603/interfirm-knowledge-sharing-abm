@@ -1,0 +1,28 @@
+name: A5 normalized technology checks
+
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'src/interfirm_abm/task_a5_*.py'
+      - 'src/interfirm_abm/task_based_firm.py'
+      - 'src/interfirm_abm/task_mixed_market.py'
+      - 'src/interfirm_abm/task_multi_action_diagnostic.py'
+      - 'tests/test_task_a5_normalized.py'
+      - 'data/firms/task_based_100_firms_*.csv'
+      - '.github/workflows/a5-normalized-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  a5-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify A5 T1-T8 production and diagnostic integration
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p 'test_task_a5_normalized.py' -v
