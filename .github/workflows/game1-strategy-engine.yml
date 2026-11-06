@@ -11,6 +11,7 @@ on:
       - 'src/interfirm_abm/task_l34_economics.py'
       - 'tests/test_task_l34_economics.py'
       - 'tests/test_task_a6_market.py'
+      - 'scripts/run_game1_a6_pilot.py'
       - '.github/workflows/game1-strategy-engine.yml'
   workflow_dispatch:
 jobs:
@@ -30,3 +31,10 @@ jobs:
           assert len(r) == len(set(x.strategy_id for x in r)) == 256
           print("256 distinct strategy identities verified")
           PY
+      - name: Pilot 1 configuration x 256 strategies x 200 rounds (illustrative only)
+        run: python scripts/run_game1_a6_pilot.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-a6-pilot-1x256x200
+          path: artifacts/game1_a6_pilot/
+          if-no-files-found: error
