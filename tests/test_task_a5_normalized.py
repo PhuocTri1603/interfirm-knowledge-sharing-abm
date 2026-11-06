@@ -26,7 +26,7 @@ class TestA5(unittest.TestCase):
         self.firm = fixture()
         self.reference = reference_for_profile(self.firm)
 
-    def test_T1_reference_and_tasks(self):
+    def test_reference_and_tasks_partial_T1(self):
         self.assertEqual(len(self.reference), 20)
         self.assertEqual(set(self.reference), set(TASK_IDS))
         self.assertTrue(all(v > 0 for v in self.reference.values()))
@@ -71,7 +71,7 @@ class TestA5(unittest.TestCase):
         self.assertAlmostEqual(low, 0.5, places=2)
         self.assertAlmostEqual(high, 1.25, places=4)
 
-    def test_T4_invalid_values_and_stability(self):
+    def test_T3_invalid_values_and_stability(self):
         for sigma in (0., -1., float("nan"), float("inf")):
             with self.assertRaises(ValueError):
                 A5Technology(self.reference, sigma)
@@ -84,7 +84,7 @@ class TestA5(unittest.TestCase):
             A5Technology(self.reference, 1.).output_index(invalid)
         self.assertEqual(A5Technology(self.reference, 2.).output_index({k: 0. for k in TASK_IDS}), 0.)
 
-    def test_T5_shared_reference_and_T6_paired_counterfactual(self):
+    def test_shared_reference_partial_T5_T6(self):
         treatments = paired_technologies(self.firm)
         self.assertEqual(tuple(treatments), SIGMA_SCENARIOS)
         self.assertTrue(all(t.reference == self.reference for t in treatments.values()))
@@ -92,7 +92,7 @@ class TestA5(unittest.TestCase):
         self.assertTrue(all(abs(t.output_index(self.reference) - 1.) < 1e-10
                             for t in treatments.values()))
 
-    def test_T7_rank_changes_with_sigma_are_possible(self):
+    def test_T3_rank_changes_with_sigma_are_possible(self):
         # Technology counterfactual can change output comparisons, not assumed winner.
         balanced = dict(self.reference)
         specialized = {k: v * (0.1 if i < 10 else 3.)
@@ -101,6 +101,18 @@ class TestA5(unittest.TestCase):
                         A5Technology(self.reference, 0.5).output_index(balanced))
         self.assertGreater(A5Technology(self.reference, 2.).output_index(specialized),
                            A5Technology(self.reference, 2.).output_index(balanced))
+
+    def test_T4_task_units_rescale_together(self):
+        for sigma in SIGMA_SCENARIOS:
+            base = A5Technology(self.reference, sigma)
+            activities = {k: v * (1.5 if i % 2 else 0.8)
+                          for i, (k, v) in enumerate(self.reference.items())}
+            scales = {k: 2. + i for i, k in enumerate(TASK_IDS)}
+            scaled_ref = {k: v * scales[k] for k, v in self.reference.items()}
+            scaled_q = {k: v * scales[k] for k, v in activities.items()}
+            self.assertAlmostEqual(base.output_index(activities),
+                                   A5Technology(scaled_ref, sigma).output_index(scaled_q),
+                                   places=10)
 
     def test_T8_governance_no_market_units(self):
         self.assertEqual(SIGMA_SCENARIOS, (0.5, 1., 2.))
