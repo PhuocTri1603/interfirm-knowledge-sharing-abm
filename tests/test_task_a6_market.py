@@ -2,6 +2,7 @@
 import math
 import random
 import unittest
+from unittest.mock import patch
 from interfirm_abm.task_a6_market import (
     A6Parameters, approved_profiles, rank_softmax, reference_allocation,
     reference_market_quantity, run_a6_market,
@@ -61,6 +62,21 @@ class TestA6(unittest.TestCase):
             second = run_a6_market(self.firm, sigma, self.p, rounds=2)
             self.assertEqual(first["market"], second["market"])
             self.assertEqual(first["ranking"], second["ranking"])
+
+    def test_a6_imitation_uses_own_completed_history_not_market_trend(self):
+        identities = tuple(x for x in strategy_roster() if x.L6 == "imitation")[:1]
+        seen = []
+        from interfirm_abm.task_strategy_engine import choose_self_imitation as actual
+        def record(history, available, fallback):
+            seen.append(tuple(history))
+            return actual(history, available, fallback)
+        with patch("interfirm_abm.task_a6_market.choose_self_imitation", side_effect=record):
+            result = run_a6_market(self.firm, 1., self.p, rounds=3, identities=identities)
+        self.assertEqual(len(seen), 3)
+        self.assertEqual(len(seen[0]), 0)
+        self.assertTrue(all(outcome.round_number < 2 for outcome in seen[1]))
+        self.assertTrue(all(outcome.round_number < 3 for outcome in seen[2]))
+        self.assertEqual(result["players"][0]["strategy_id"], identities[0].strategy_id)
 
     def test_parameter_validation(self):
         with self.assertRaises(ValueError):
