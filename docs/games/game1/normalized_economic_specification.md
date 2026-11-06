@@ -775,3 +775,39 @@ Do not add a separate participation-reinforcement value engine, duplicated rewar
 - **After explicit code authorization:** integrate A5 CES, A6 market/costs, L5 evaluation and L6 choice into one runner; run focused accounting, information-leakage, no-double-update, shutdown/reentry, sigma and 16 Adaptive×Imitation interaction tests. Then run paired 100×3×256×200 scenarios with seed sensitivity, analyze cumulative realized profits and only then publish validated charts. Earlier diagnostic runs are not final A6 evidence.
 
 **Current research status:** A5 core mathematics and basic tests partly implemented; A6 design consolidated but **not** implemented and **not** scientifically validated. `research_validated: false`.
+
+
+## A6 — Current decision ledger and implementation blockers (consolidation audit, 2026-11-06)
+
+**Status:** This is the authoritative *current-state index* for D1–D6, read together with the preceding approved decisions. It supersedes historical “pending” labels only where an explicit later approval is recorded. It does not create new researcher approvals, choose remaining parameters, authorize code changes, or claim scientific validation. `research_validated: false`.
+
+| Decision | Current approved baseline | Still open / qualification |
+| --- | --- | --- |
+| **D1 — Demand** | Each configuration is a separate normalized-composite-good market; `P=max(0,a-bQ)`, `a,b>0`. | Numeric demand intercept/slope, scaling to 256 players and 100 profile-specific normalized goods, time variation, and sensitivity. True `a,b` are not observed by agents. |
+| **D2 — Quantity and price** | Simultaneous feasible quantity decisions; one uniform realized price from aggregate output; all output counted sold even at zero price; no inventory/rationing. L5 `price` becomes nonbinding behavioral `target-price`. | Implement candidate scoring and forecasts consistently; no Nash-equilibrium or market-clearing welfare claim. |
+| **D3 — Factor costs** | Only utilized labor/capital services charged; idle endowments uncharged. Consolidated baseline: exogenous common `r=1`, `w/r=1`, with `w/r=0.5,2` sensitivity. | Clarify units and whether baseline `r=1,w=1` are per-configuration normalized prices; do not confuse capital rental with investment. No empirical calibration claimed. |
+| **D4 — Extra costs** | Consolidated *minimal baseline* excludes fixed, AI adoption and adjustment charges. | This is a deliberately restricted experimental environment, **not** evidence such costs are zero in reality; no endogenous AI investment stock or separately costed adoption mechanism is approved. |
+| **D5 — Information and outside option** | Public lagged market `P,Q`, private own history and technology; no individual rivals' actions/payoffs. Optional shutdown has `q=C=pi=0`, no forced exit or reentry delay. Rolling OLS and priors are recorded in the consolidated baseline (§ A6 — Consolidated minimal baseline). | Operational construction of feasible `qbar` and `Qref`, and exact participation-vs-production choice are still needed; no current-round price or unchosen realized payoff leakage. |
+| **D6 — Learning and comparison** | 256 L3×L4×L5×L6 IDs, 200 rounds; L5 evaluates, L6 chooses. `optimization`, `trial_error`, `softmax`, `imitation` retained. Only chosen action updates learned outcomes; Target-price lexicographic distance/profit, rank-based Softmax, lagged-aggregate-trend imitation; compare **realized cumulative profit**. | Numeric `eta`, `epsilon`, temperature, `phi`, exploration/reentry convention, learning-score normalization, priors/ties; reproducible stochastic seeds, confidence intervals, robustness and economic gate tests. |
+
+### Apparent contradictions resolved by chronology
+
+1. **A5 sigma:** older unassigned G1/G2/G3 strata and empirical-calibration-first proposals are superseded by approved fully crossed scenarios `sigma=0.5,1,2` **for each** of the 100 original profiles (300 profile-sigma markets, 15,360,000 player-round observations per seed). Do not assign only one sigma to each original profile in this primary experiment or claim representative prevalence.
+2. **A5 units:** earlier warning that dimensionless output cannot be sold is resolved by approval of a *configuration-specific normalized composite commodity*. It does **not** justify comparing physical output levels across configurations or reusing legacy diagnostic money values.
+3. **A5 L1/L2:** historical technology-choice catalogs remain historical; the active 256-player roster is L3–L6 and common technology per configuration. The approved four-family relationship is a separate technology-counterfactual interpretation, not 12 extra player strategies.
+4. **D1/D2/D3:** older “pending” headings describe the state *before* later approvals. The consolidated D3 factor-price baseline supersedes earlier `w=r=1` **diagnostic-only** labels for the *new intended baseline*, but does not validate old diagnostic runs.
+5. **L5 `price` versus `target-price`:** old reserve-price bids/heuristic Cournot must not be treated as approved transaction institutions. One realized price is set solely by the actual inverse-demand equation.
+6. **Imitation and adaptive:** legacy peer-level imitation and L5-adaptive own-payoff scoring conflict with the approved public-information boundary and separate L5 price-belief/L6 action-learning roles. Historical code behavior is not an approved A6 implementation.
+7. **Shutdown:** a zero-output option has no defined target-price distance; it cannot be ranked as a perfect zero-distance production candidate. Participation is conceptually decided before production-action ranking; a minimal executable rule still requires signoff.
+
+### Smallest outstanding decision set before A6 coding
+
+- **Economic scale:** choose reproducible `a_c,b_c` (and whether fixed across time) so 256 simultaneous offers, reference `Qref_c` and abstract money/factor units are internally coherent. This is **not yet an approved numerical demand calibration**.
+- **Reference forecast:** specify a feasible, frozen `qbar_ic` derived only from approved pre-round technology/endowments; set `Qref_c=sum_i qbar_ic`; avoid realized-price lookahead.
+- **Participation:** define one minimal rule comparing shutdown to producing, preserving Target-price lexicographic ordering *conditional on production* and an explicit feasible reentry path.
+- **Learning numerics:** select and pre-register only essential `eta`, `epsilon`, positive Softmax temperature or rank-only choice convention, `phi`, cold-start initialization and deterministic ties. If these affect incentives, request researcher approval rather than silently inserting defaults.
+- **Experiment protocol:** specify independent seeds, paired random streams across sigma, independent market-run inference unit, parameter sensitivity and stop/go tests for no leakage, accounting identities, no double updating, zero-price losses, shutdown/reentry and all 16 L5-adaptive × L6-imitation policy intersections.
+
+### Implementation acceptance boundary
+
+The verified A5 Actions run #42186866398 passed **10 unit/smoke tests**, not the A6 economic integration or 300 full market runs. Old 5.12m diagnostic observations are historical; no final 15.36m A6 experiment, profit rankings, equilibrium or welfare claims are established here. The current five-item Game 1 completion checklist remains **0/5** until the outstanding economically meaningful choices are approved, code is integrated, CI and robustness pass, and outputs are reviewed.
