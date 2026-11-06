@@ -1217,3 +1217,25 @@ Candidate common stock transition: `K_i,t+1=(1-delta)K_it+I_it`, where `K_i1=K_i
 ### One parsimonious decision recommended next
 
 **Capital depreciation convention** first: A = `delta=0` in the main 200-round experimental baseline (no depreciation state/parameter); B = `0<delta<=1` with value to be separately approved. Neither has been approved yet. Subsequent approval gates are timing, feasible investment bounds and terminal-period treatment, followed by cross-layer accounting tests. No code or CI changes; `research_validated: false`.
+
+
+## A6 step 2J — Approved no depreciation; next gate investment availability timing (2026-11-06)
+
+**APPROVED BY PRINCIPAL RESEARCHER:** L3 Investment uses **no capital depreciation in the 200-round baseline** (option A). Capital stock accumulates without physical attrition, with proposed identity `K_i,t+1=K_it+I_it` (conditional on defining exact timing). Do not introduce or calibrate depreciation parameter `delta` for this baseline. Shared initial owned capital `K_i1` is common across 256 players within a configuration. Keep the approved no-discount terminal-inclusive score `Score_i=sum_{t=1}^{200} CF_it+p_I K_i,201` and terminal valuation at purchase price. This approval **does not** determine investment activation time, investment financing, quantity bound, price `p_I`, or final-round purchase restrictions. No code changes; `research_validated: false`.
+
+### Timing decision — not yet approved
+
+**Option A (recommended): next-round availability.** At the start of round t, the firm has owned capital `K_it`. It selects current production allocation `k_ijt` subject to `sum_j k_ijt<=K_it`, and separately chooses investment `I_it>=0` that incurs `p_I I_it` in `CF_it`. Newly acquired capital is usable only from round t+1, so `K_i,t+1=K_it+I_it`. At t=200, `K_i,201` includes any round-200 investment and is valued at `p_I K_i,201`. No depreciation. A purchase at t=200 has zero direct incremental score because `-p_I I_i,200+p_I I_i,200=0`, assuming same price and no other effects; **do not silently ban it**, but recognize indifference.
+
+**Option B: immediate availability.** Investment `I_it` becomes available for production in the same round, so `sum_j k_ijt<=K_it+I_it`; `K_i,t+1=K_it+I_it` still records the end-of-round stock. This changes simultaneous action feasibility and permits round-200 investment to affect production. Requires explicit sequencing of investment, production and payment inside a round.
+
+**Economic invariants under either option:** Capital is owned, not rented; do not subtract an imputed capital rent again from owned-capital cash flow. End-of-round purchase expenditure and terminal valuation must be in consistent monetary units. No investment can create negative stock. L3.capacity's independent task-output cap is unchanged. L4 paid eligibility unlock remains separate from capital investment. Initial profile and sigma remain common within market. No discounting, no depreciation, and no numeric parameter selected.
+
+### Further gates after timing
+
+1. Whether `I_it=0` is enforced for non-investment L3 choices; otherwise L3 Investment risks becoming observationally identical to other L3 policies.
+2. Feasible investment quantity and finance rule (cash constraint, bounded external budget, or another approved economically interpretable mechanism). With no discounting and terminal valuation at purchase price, cost and residual value of unproductive new capital can cancel; do not assume a uniquely optimal I.
+3. The price `p_I` and any capital budget must be defined without unapproved numbers; if investment purchase price varies over time, the terminal price convention must be revisited.
+4. Shutdown and adoption timing; capital already owned remains in terminal asset value even if the firm stops production.
+
+**Status:** No depreciation APPROVED; investment timing A/B OPEN; no code, CI or numeric calibration changes; `research_validated: false`.
