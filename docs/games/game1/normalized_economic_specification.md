@@ -350,3 +350,55 @@ Relevant conceptual anchors (not claimed to provide the required group frequenci
 - Actual sigma values/ranges, weights, q0 and Y0, and zero-task interpretation.
 
 **Status: evidence assessment and baseline audit completed; no allocation selected. No executable files modified; research_validated: false.**
+
+
+## A5 — technology specification closure and evidence checklist (2026-11-06)
+
+**Scope:** Close the A5 *theoretical specification and audit criteria*, not claim implementation or research validation. Researcher has approved heterogeneous across-task sigma and technology-stratified assignment in principle, but has **not** approved numeric sigma/group shares, task weights, q0/Y0, zero-task economic interpretation, or executable changes. The official A5 gate remains **OPEN** until these are resolved and tests run.
+
+### A5.1 Economic object and theoretical justification
+
+A configuration c maps to one of the original 100 F profiles. Twenty task activities q_cj are produced from feasible allocations of labor or eligible capital. The proposed two-level technology is: (1) task execution/assignment; (2) aggregation of normalized task outputs into final output. The **between-task** CES elasticity sigma_c is distinct from within-task capital/labor substitution or automation eligibility. The CES task aggregator is motivated by Acemoglu & Restrepo (2018), *The Race between Man and Machine*, AER 108(6), 1488–1542, doi:10.1257/aer.20160696; the discrete 20-task and heterogeneous-sigma design is this project's own extension. This is not a replication of their full equilibrium model.
+
+### A5.2 Proposed production and feasibility contract
+
+For each c,i,j,t, choose nonnegative labor l_icjt or capital services k_icjt, subject to sum_j l_icjt <= Lbar_c and sum_j k_icjt <= Kbar_c. Pure-mode is the current **provisional** task assignment rule: labor mode q=aL_cj*l, or capital mode q=aK_cj*k if task j is eligible. A task with no capital eligibility may still be performed by labor. Unused inputs are allowed. Automation *eligibility* is not actual adoption; AI shock, adoption timing, and adoption cost remain A4/other gates, not implicitly solved by A5.
+
+For normalized x=q/q0 with q0_cj>0 and Y0_c>0, proposed final output:
+`Y_ict=Y0_c*[sum_j omega_cj*x_icjt^rho_c]^(1/rho_c)`,
+`rho_c=(sigma_c-1)/sigma_c`, sigma_c>0, omega_cj>0, sum_j omega_cj=1.
+At sigma_c=1 use `Y_ict=Y0_c*prod_j x_icjt^omega_cj`. The aggregator is degree-one homogeneous in q for fixed references, and monotone in each q. At the reference bundle q=q0, Y=Y0 independent of sigma. This anchors a benchmark, **not** output/cost equivalence for other task bundles.
+
+**Critical economic fork:** for sigma<=1, zero activity in any positively weighted task gives zero final output; for sigma>1, a task may be zero while final output stays positive. Researcher must approve whether 20 tasks are substitutable production activities rather than 20 indispensable sequential stages. If all stages must be essential, a single CES with sigma>1 is not an admissible representation; consider nested essential stages with substitutable alternatives *within* stages, subject to separate approval. Do not conceal this issue through epsilon-clipping zero activities.
+
+### A5.3 Relation to earlier production families
+
+The original Cobb–Douglas, Leontief, Linear and CES families describe *properties/functional forms of aggregation*, not four empirically identified within-task technologies. The proposed CES family includes Cobb–Douglas as sigma=1 and approaches Leontief (sigma->0+) and linear aggregation (sigma->infinity) as limits; finite sigma is not exactly either limiting form. If the previously approved Game 1 design requires four **exact** families or multiple L1/L2 technology cells, heterogeneous finite-sigma CES alone does **not** fulfill that requirement. Before declaring A5 closed, reconcile this design with `docs/games/game1/design.md` and the theoretical charter; do not silently drop L1/L2 commitments.
+
+### A5.4 Reference and unit discipline
+
+Task activities q_j may have distinct physical units, so raw summation is invalid without declared common conversion. The ratios x_j=q_j/q0_j are dimensionless. q0_j and Y0 must be derived by an explicit, pre-specified rule independent of strategy winners, profits or post-treatment outcomes. Equal omega=1/20 is a diagnostic benchmark only. A simultaneous change of q units and q0 in the same units leaves x unchanged. A standalone q0 change generally changes the represented technology and must not be called unit invariance.
+
+Check nonnegative finite q; strictly positive finite sigma, q0, Y0, omega; exact 20 task IDs; resource feasibility and eligibility; no fabricated productivity coefficients. Numerical evaluation must be stable near sigma=1 and at zeros. The current `task_ces` implementation is an unnormalized candidate; `task_multi_action_diagnostic.py` still fixes sigma=1.
+
+### A5.5 Sigma design and identification
+
+Approved direction: each of 100 original profiles is mapped once to one of G1 (0<sigma<1), G2 (sigma=1), G3 (sigma>1), with stratification on pre-treatment K/L, task productivity and automation eligibility. Group sizes may be unequal but are **not** identified by those covariates; they require defensible external calibration or explicit sensitivity scenarios. No proportions or sigma numbers have been approved. Preserve within-configuration common technology for all 256 strategies. To identify sigma effects, compare multiple sigma values **within the same base profile**, holding exogenous conditions fixed and allowing endogenous behavior and market outcomes to change.
+
+### A5.6 Executable verification requirements (not yet run for proposed technology)
+
+- T1 population integrity: 100 distinct F profiles, 20 tasks/profile, mapping C000–C099; 256 strategies per configuration.
+- T2 task execution: pure-mode feasibility, capital eligibility, shared K/L resource bounds, unused input and zero allocation.
+- T3 CES mathematics: sigma<1, sigma=1, sigma>1, continuity near 1, sigma limit checks, reference anchor Y(q0)=Y0, monotonicity, homogeneity and zero-task cases.
+- T4 unit consistency: task-specific q and q0 rescale together; output-unit rescaling transforms Y0 and any downstream price/demand parameters; no phantom production changes.
+- T5 shared configuration: all 256 players face identical base task coefficients, eligibility, endowments, weights, references and sigma; no unapproved between-player technology variation.
+- T6 paired counterfactuals: same base profile and exogenous conditions, different approved sigma; no simultaneous unapproved demand/cost/learning changes.
+- T7 regression and integration: production Y is passed consistently to valuation, offers, sales, cost/revenue accounting; A1/A2/A4/A6 remain separate gates.
+- T8 governance: preserve historic diagnostic results as sigma=1 only; report test artifacts, seeds, CI links and failures; never set research_validated true based only on unit tests.
+
+### A5 completion criteria
+
+**Specification draft:** complete with equations, interpretation, alternatives, references and test plan (this section).
+**Researcher approvals pending:** essential-versus-substitutable tasks; reconciliation with four exact production families/L1–L2; q0/Y0 construction; omega; sigma values and group allocation or explicit sensitivity-only design; pure-mode as final baseline.
+**Implementation pending:** approved mapping, normalization, aggregator integration, full validation suite and evidence.
+**Gate:** A5 = OPEN / SPECIFIED BUT NOT SCIENTIFICALLY VALIDATED; `research_validated: false`. No simulation code or data modified.
