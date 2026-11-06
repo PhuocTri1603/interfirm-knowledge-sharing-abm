@@ -37,7 +37,7 @@ class A5Technology:
             raise ValueError("Non-finite normalized task activity")
         if not any(x):
             return 0.0
-        if abs(self.sigma - 1.0) < 1e-10:
+        if self.sigma == 1.0:
             if any(v == 0 for v in x):
                 return 0.0
             return exp(fsum(log(v) for v in x) / 20.0)
