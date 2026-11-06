@@ -1061,3 +1061,29 @@ The researcher has **not yet approved** what payment buys. Economically meaningf
 These are **decision alternatives, not approvals**. No fee `f`, efficiency gain `g`, adoption timing, persistence, eligibility scope, or adoption cost function is approved. The original L4 `combined` label must remain coherent under whichever alternative is chosen; require a strategy-distinctness test before claiming 256 economically distinct behaviors.
 
 **Status:** Capacity A approved and documented; adoption semantics and capital accounting still OPEN; no code or test changed; `research_validated: false`.
+
+
+## A6 step 2E — Researcher approval: L4 adoption_cost A; combined and capital accounting audit (2026-11-06)
+
+**APPROVED:** L4 `adoption_cost` means a player incurs a real adoption payment in exchange for **unlocking capital eligibility in a previously labor-only task**. This selects alternative A and rejects efficiency-only (B) and joint eligibility-plus-efficiency (C) as the defining benefit of `adoption_cost`. Preserve all 256 L3×L4×L5×L6 identities, shared initial profile and the approved L3.capacity output bound `0<=q_ijt<=h_ij`. **NOT APPROVED:** amount or functional form of payment, per-task vs bundled charging, exact activation timing, reversibility, task subset, eligibility transition dynamics, or whether `combined` incurs identical payment. No code change; `research_validated: false`.
+
+### L4 combined: non-equivalence gate
+
+- `eligibility`: changes task capital eligibility (the payment convention remains OPEN).
+- `efficiency`: changes capital-task productivity, not eligibility.
+- `adoption_cost`: changes eligibility **and charges an explicit adoption payment** (approved semantic distinction from eligibility).
+- `combined`: must permit **both eligibility and efficiency changes**; how its adoption payment applies must be separately specified, and a single eligibility-unlock event must never be charged twice.
+
+**Key finding:** Under otherwise identical eligibility transitions, `eligibility` and `adoption_cost` may choose identical allocations but have different net payoffs because of adoption expense; this is an economically valid distinction if payment timing is consistent. `combined` is not identical to `adoption_cost` only if its additional efficiency channel is genuinely available/activated. In states where no efficiency upgrade is feasible, observational equivalence is possible and must be reported rather than hidden. Do not invent an extra benefit solely to force distinctness.
+
+### Capital accounting: candidate coherent conventions (OPEN)
+
+**Ownership/investment cash-flow convention (candidate A):** A firm owns its productive capital stock `K_it`; `I_it` is purchased capital that enters `K_i,t+1` according to an approved stock law. Net period cash flow may be defined `CF_it=P_t Y_it - w sum l_ijt - C_adj_it - C_adopt_it - pI I_it - C_othercash_it`, where `C_othercash` includes only separately justified real cash expenses. Do not subtract a hypothetical rental charge `r sum k` again from this cash flow if r is merely the imputed opportunity cost of owned capital. An economic objective needs an explicit treatment of financing/opportunity cost and terminal residual stock value; cash-flow rankings alone may penalize investment with delayed returns.
+
+**Rented-capital operating convention (candidate B):** The player rents utilized capital services at `r sum k`, so period operating profit is `pi=P_t Y_it-w sum l_ijt-r sum k_ijt-C_adj_it-C_adopt_it`. Under this convention an additional `pI I` investment purchase is **not** automatically meaningful unless a separate owned-capacity right/asset and its financing, rental returns and salvage are defined. If investment expands owned capacity while capital services are rented, distinguish the two assets and do not reuse one `K` ledger ambiguously.
+
+**Important qualification:** Paying `pI I` and a capital-service charge `r k` is not *intrinsically* double counting if they represent nonoverlapping capital goods, depreciation, financing or service flows. It is **unjustified** to add both without an explicit ownership and accounting interpretation. In either convention, distinguish period accounting from the intertemporal tournament objective, treatment of investment at t=200, and shutdown with no production but possible investment.
+
+**Researcher decision requested next:** Choose **A** owned productive capital + investment cash-flow accounting, or **B** rented capital services + separately defined investment-capacity asset. Neither is approved by this section; no rental, discount, depreciation, financing or terminal-value parameters are set. Preserve baseline `r=1,w=1` as a historical operating benchmark but do not assume it is a cash cost in A.
+
+**Checklist:** L3 capacity semantics approved; L4 adoption_cost unlock benefit approved; L4 combined differentiated at the mechanism level, payment rule OPEN; capital accounting convention OPEN; final equations and numerical parameters OPEN; code unchanged; `research_validated: false`.
