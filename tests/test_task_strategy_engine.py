@@ -65,8 +65,10 @@ def test_price_bid_rejected_by_allocation_only_runner():
         p.decide_tasks(firm(), MarketObservation(2, None, None))
 
 
-def test_imitation_without_peer_observations_is_not_silently_faked():
+def test_imitation_uses_own_history():
     identity = next(x for x in strategy_roster() if x.L5 == "cournot" and x.L6 == "imitation")
     p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1))
-    with pytest.raises(ValueError, match="requires peer observations"):
-        p.decide_action(firm(), MarketObservation(1, None, None))
+    assert p.decide_action(firm(), MarketObservation(1, None, None)).action_id == "b"
+    p.observe_payoff(firm(), 1, 1)
+    p.own_history.append(type(p.own_history[0])(0, "a", 10))
+    assert p.decide_action(firm(), MarketObservation(2, None, None)).action_id == "a"
