@@ -1191,3 +1191,29 @@ More generally, `Score_i = sum_{t=1}^{200} d_t CF_it + d_T V_T(K_i,201)`, where 
 **Accounting warning:** The no-discounting formula is the special case beta=1 of the constant-discount specification. Either choice must remain compatible with a single owned-capital cash ledger: `CF=P*Y-w*sum l-C_adj-C_adopt-p_I I`, without charging imputed `r*sum k` a second time. The approved terminal valuation does not settle the capital stock law, financing limits, or whether terminal investment can be bought and immediately salvaged.
 
 **Current decision ledger:** L3 capacity task-output bound APPROVED; L4 adoption_cost paid eligibility unlock APPROVED; owned-capital cash-flow convention APPROVED; ranking includes terminal stock APPROVED; terminal valuation at `p_I K_201` APPROVED. Discounting A/B, stock/cost/technology transition equations and numeric parameters remain OPEN. No code or CI change. `research_validated: false`.
+
+
+## A6 step 2I — Approved no discounting; capital accumulation specification gate (2026-11-06)
+
+**APPROVED BY PRINCIPAL RESEARCHER:** A6 ranking uses **no time discounting** (option A). Combined with the previously approved owned-capital convention and terminal valuation at the capital purchase price, the ranking objective is:
+
+`Score_i = sum_{t=1}^{200} CF_it + p_I K_i,201`.
+
+All 200 round cash flows have equal weights; no discount factor beta is introduced. This is an experimental assumption, not a claim that future cash is generally equivalent to current cash. `CF_it` is owned-capital cash flow, not legacy imputed-rental operating profit. Preserve all 256 strategy identities and approved L3/L4 semantics. **No numeric parameters, stock-transition assumptions or code changes were approved by this decision.** `research_validated: false`.
+
+### Capital accumulation — minimum proposed law, not yet approved
+
+Candidate common stock transition: `K_i,t+1=(1-delta)K_it+I_it`, where `K_i1=K_i0` is the shared initial owned-capital endowment per configuration, `I_it>=0`, `0<=delta<=1`. Production at t uses `K_it`; newly purchased `I_it` enters usable capacity no earlier than t+1. This timing is **PROPOSED**, not approved. The investment option activates I for L3.investment; whether I=0 for other L3 options is OPEN. Existing common labor cap `sum_j l_ijt<=Lbar_i` and capital cap `sum_j k_ijt<=K_it` continue; L3.capacity has additional approved task throughput cap `q_ijt<=h_ij`.
+
+**Open economic decisions, to settle before code:**
+1. **Depreciation:** set `delta=0` for a no-depreciation experimental baseline, or permit `delta>0` with a separately approved value and sensitivity. Do not choose a value here.
+2. **Timing:** decide whether investment ordered in round t becomes usable at t+1 (recommended) or immediately at t; specify depreciation order so `K_i,201` is unambiguous.
+3. **Investment feasibility/finance:** decide how I is funded or bounded (cash-on-hand/budget/borrowing/externally financed), and whether negative current cash flows are permissible. Without a budget/credit rule, I may be arbitrarily large; with terminal valuation `p_I K_201` and delta=0, an end-of-horizon purchase can cancel its own expenditure without production benefit. Avoid claiming unique investment optima from this identity alone.
+4. **Capital unit price:** `p_I` is a shared monetary price per physical capital unit; its numeric value and whether it is identical across profiles/rounds are OPEN.
+5. **Capital availability for other L3 strategies:** choose whether flexible/capacity/adjustment have fixed initial K while investment can expand K, and whether depreciation (if positive) applies to all firms.
+6. **Terminal arbitrage/degeneracy:** Under delta=0 and `V_T=p_I K_201`, every extra unit purchased at t=200 costs pI and adds pI to terminal stock, yielding zero direct score contribution; earlier purchases may create productive returns. A finite feasible investment bound or a no-final-round-investment convention may be necessary for well-defined action selection. This is a mathematical warning, not approval of a restriction.
+7. **Interaction with capacity:** If task-output cap h is fixed, additional K may be unproductive at binding task caps. This is acceptable as a model outcome, but no silent automatic h expansion is authorized.
+
+### One parsimonious decision recommended next
+
+**Capital depreciation convention** first: A = `delta=0` in the main 200-round experimental baseline (no depreciation state/parameter); B = `0<delta<=1` with value to be separately approved. Neither has been approved yet. Subsequent approval gates are timing, feasible investment bounds and terminal-period treatment, followed by cross-layer accounting tests. No code or CI changes; `research_validated: false`.
