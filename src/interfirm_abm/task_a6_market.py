@@ -1,0 +1,198 @@
+"""A6 experimental engine: explicit economic parameters, no diagnostic peer leakage.
+
+Demand and stochastic policy parameters are REQUIRED inputs, not approved defaults.
+Legacy strategy IDs remain unchanged; L5='price' is interpreted as target-price
+ONLY in this A6 engine. Not a Nash-equilibrium solver.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from hashlib import sha256
+from math import exp, fsum, isfinite
+from pathlib import Path
+from random import Random
+
+from interfirm_abm.task_a5_normalized import SIGMA_SCENARIOS, technology_for_profile, TASK_IDS
+from interfirm_abm.task_based_firm import TaskAllocation, load_approved_population
+from interfirm_abm.task_strategy_engine import strategy_roster
+from interfirm_abm.task_strategy_actions import build_actions
+from interfirm_abm.task_strategy_engine import DecisionInformation
+from interfirm_abm.task_economic_policy import MarketObservation
+
+
+@dataclass(frozen=True)
+class A6Parameters:
+    demand_intercept: float
+    demand_slope: float
+    epsilon: float
+    temperature: float
+    imitation_probability: float
+    seed: int
+    wage: float = 1.0
+    rental: float = 1.0
+
+    def __post_init__(self):
+        positives = (self.demand_intercept, self.demand_slope,
+                     self.temperature, self.wage, self.rental)
+        if any(not isfinite(x) or x <= 0 for x in positives):
+            raise ValueError("demand, temperature and factor prices must be positive")
+        if any(not isfinite(x) or x < 0 or x > 1
+               for x in (self.epsilon, self.imitation_probability)):
+            raise ValueError("behavior probabilities must be in [0,1]")
+        if type(self.seed) is not int or self.seed < 0:
+            raise ValueError("seed must be nonnegative integer")
+
+
+def reference_allocation(firm):
+    """Approved A5 labor-only feasible anchor; y=1 under every sigma."""
+    return tuple(TaskAllocation(k, firm.labor_endowment / 20.0, 0.0)
+                 for k in TASK_IDS)
+
+
+def reference_market_quantity(firm, players=256):
+    if players <= 0:
+        raise ValueError("players must be positive")
+    return float(players)  # A5 normalized reference output is exactly one.
+
+
+def rank_softmax(scores, temperature, rng):
+    """Rank not money scale: score values may be tuples (lexicographic)."""
+    if not scores or temperature <= 0 or not isfinite(temperature):
+        raise ValueError("nonempty scores and positive temperature required")
+    ordered = sorted(scores, key=lambda k: (scores[k], k), reverse=True)
+    # Exact tie: stable action-id order; ranks start at zero.
+    ordered = sorted(scores, key=lambda k: k)
+    ordered = sorted(ordered, key=lambda k: scores[k], reverse=True)
+    weights = [exp(-j / temperature) for j in range(len(ordered))]
+    draw = rng.random() * fsum(weights)
+    for k, weight in zip(ordered, weights):
+        draw -= weight
+        if draw < 0:
+            return k
+    return ordered[-1]
+
+
+def _plan_cost(plan, parameters):
+    return parameters.wage * fsum(x.labor for x in plan) + parameters.rental * fsum(x.capital for x in plan)
+
+
+def _candidate_plans(identity, firm, observation):
+    # Reuse L3/L4 feasible allocation proposals but never their legacy
+    # L5 reserve prices, valuations, or L6 peer-learning machinery.
+    info = DecisionInformation(observation, ())
+    return {k: action.allocation for k, action in build_actions(identity, firm, info).items()}
+
+
+def run_a6_market(firm, sigma, parameters, *, rounds=1, identities=None):
+    """Execute one shared-technology market with explicit (unapproved) calibration.
+
+    This is an implementation/invariant-test runner, not a validated baseline.
+    It can run all 256 players; historical strategy IDs are preserved.
+    """
+    if sigma not in SIGMA_SCENARIOS or rounds < 1:
+        raise ValueError("unsupported sigma or rounds")
+    identities = tuple(strategy_roster() if identities is None else identities)
+    if not identities or len({x.strategy_id for x in identities}) != len(identities):
+        raise ValueError("unique nonempty strategy roster required")
+    technology = technology_for_profile(firm, sigma)
+    qref = reference_market_quantity(firm, len(identities))
+    # This is an explicit *belief prior* only, not true demand parameters.
+    prior_price = 1.0
+    prior_slope = 0.5 / qref
+    states = {}
+    for identity in identities:
+        sid = identity.strategy_id
+        seed = int.from_bytes(sha256(f"{parameters.seed}|{firm.firm_id}|{sid}|a6-paired".encode()).digest()[:8], "big")
+        states[sid] = dict(identity=identity, rng=Random(seed), profit=0.0,
+                           last_q=1.0, price_belief=prior_price, scores={},
+                           feedback_count=0, history=[])
+    market_history = []
+    rows = []
+    for t in range(1, rounds + 1):
+        last = market_history[-1] if market_history else None
+        observation = MarketObservation(t, None if last is None else last["price"],
+                                        None if last is None else last["quantity"])
+        selected = {}
+        for sid, state in states.items():
+            identity = state["identity"]
+            candidates = _candidate_plans(identity, firm, observation)
+            rival_q = max(0.0, (qref - 1.0) if last is None else last["quantity"] - state["last_q"])
+            own_belief = state["price_belief"] if identity.L5 == "adaptive" else (
+                prior_price if last is None else last["price"])
+            scores, predicted_profits, outputs = {}, {}, {}
+            for key, plan in candidates.items():
+                q = technology.output_from_allocation(firm, list(plan))
+                cost = _plan_cost(plan, parameters)
+                if identity.L5 == "cournot" or identity.L5 == "price":
+                    predicted_price = max(0.0, own_belief - prior_slope * (rival_q + q - qref))
+                else:
+                    predicted_price = own_belief
+                predicted_profits[key] = predicted_price * q - cost
+                outputs[key] = q
+                if identity.L5 == "price":
+                    target = 1.1 * cost / q if q > 0 else float("inf")
+                    scores[key] = (-abs(predicted_price - target), predicted_profits[key])
+                else:
+                    scores[key] = (predicted_profits[key],)
+            # Stage 1: participation; shutdown is never given a fake price distance.
+            best_predicted = max(predicted_profits.values())
+            if best_predicted <= 0:
+                chosen = None
+            else:
+                # Stage 2: L6 selects among production actions.
+                rng = state["rng"]
+                ordered = sorted(scores, key=lambda k: k)
+                ordered.sort(key=lambda k: scores[k], reverse=True)
+                preferred = ordered[0]
+                if identity.L6 == "optimization":
+                    chosen = preferred
+                elif identity.L6 == "trial_error":
+                    chosen = rng.choice(ordered) if rng.random() < parameters.epsilon else preferred
+                elif identity.L6 == "softmax":
+                    chosen = rank_softmax(scores, parameters.temperature, rng)
+                elif identity.L6 == "imitation":
+                    # Lagged public aggregate Q trend only, no rival-level data.
+                    if len(market_history) >= 2 and rng.random() < parameters.imitation_probability:
+                        rising = market_history[-1]["quantity"] > market_history[-2]["quantity"]
+                        chosen = max(ordered, key=lambda k: (outputs[k] if rising else -outputs[k], k))
+                    else:
+                        chosen = preferred
+                else:
+                    raise ValueError("unknown L6")
+            plan = candidates[chosen] if chosen is not None else reference_allocation(firm)
+            if chosen is None:
+                plan = tuple(TaskAllocation(k, 0.0, 0.0) for k in TASK_IDS)
+            q = technology.output_from_allocation(firm, list(plan))
+            cost = _plan_cost(plan, parameters)
+            selected[sid] = (chosen, q, cost)
+        total_q = fsum(v[1] for v in selected.values())
+        price = max(0.0, parameters.demand_intercept - parameters.demand_slope * total_q)
+        total_profit = 0.0
+        for sid, (chosen, q, cost) in selected.items():
+            profit = price * q - cost
+            state = states[sid]
+            state["profit"] += profit
+            state["last_q"] = q
+            if state["identity"].L5 == "adaptive":
+                state["price_belief"] = 0.5 * state["price_belief"] + 0.5 * price
+            # Exactly one realized feedback for chosen production action.
+            if chosen is not None:
+                state["history"].append((t, chosen, profit))
+                state["feedback_count"] += 1
+            total_profit += profit
+            rows.append(dict(round=t, strategy_id=sid, action=chosen or "shutdown",
+                             quantity=q, cost=cost, price=price, profit=profit,
+                             cumulative_profit=state["profit"]))
+        market_history.append(dict(round=t, quantity=total_q, price=price, profit=total_profit))
+    ranking = sorted(((sid, state["profit"]) for sid, state in states.items()),
+                     key=lambda pair: (-pair[1], pair[0]))
+    return dict(profile_id=firm.firm_id, sigma=sigma, reference_quantity=qref,
+                market=market_history, players=rows, ranking=ranking,
+                feedback_counts={sid: state["feedback_count"] for sid, state in states.items()},
+                research_validated=False, status="A6_EXPLICIT_PARAMETERS_UNVALIDATED")
+
+
+def approved_profiles():
+    root = Path(__file__).resolve().parents[2] / "data" / "firms"
+    return load_approved_population(root / "task_based_100_firms_profiles.csv",
+                                    root / "task_based_100_firms_tasks.csv")
