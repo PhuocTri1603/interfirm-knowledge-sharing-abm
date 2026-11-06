@@ -927,3 +927,23 @@ A6 deliberately excludes endogenous investment stocks, adjustment costs, adoptio
 5. **Later:** D5 and L5/L6 completion, 200-round verification, 100×3×256×200 per seed and robustness; no full sample or ranking until gates close.
 
 **Current status:** B approved at the semantic level. Its dynamic economic implementation and any relaxation of D4 or technology restrictions are **NOT YET APPROVED**. No source code or CI changes authorized by this approval alone. `research_validated: false`.
+
+
+### Step 2B — Minimal state/action contract (audit draft, not approved economics)
+
+| Mechanism | Minimum observable state | Action and transition needed | Accounting/feasibility gate |
+| --- | --- | --- | --- |
+| L3 flexible | Current K/L allocation and endowments | Reallocate within endowments each round | No added adjustment friction |
+| L3 capacity | Installed task/aggregate capacity beyond shared resource endowments, if distinct | Choose production within that binding capacity | **OPEN:** what distinct capacity object exists? |
+| L3 adjustment | Previous K/L allocation | Choose new allocation; impose adjustment constraint or charge | **OPEN:** adjustment technology and charge/constraint |
+| L3 investment | Productive capacity/capital stock and previous investment | Choose investment and update stock over time | **OPEN:** resource budget, stock law, timing, depreciation if any |
+| L4 eligibility | Current task-level automation eligibility | Adopt/enable tasks and update eligibility | **OPEN:** which tasks, timing, reversibility, costs |
+| L4 efficiency | Task-level capital productivity state | Apply AI-driven efficiency transition | **OPEN:** shock size, affected tasks, persistence |
+| L4 adoption_cost | Adoption state | Choose adoption and incur its cost when applicable | **OPEN:** fixed/sunk cost and whether repeated |
+| L4 combined | Shared eligibility, efficiency and adoption states | Combine transitions without duplicate charges | **OPEN:** ordering and interaction |
+
+**State-sharing principle:** L3 investment and L4 efficiency/eligibility must not create duplicate capital or technology ledgers. L3 adjustment references previous allocations; L4 adoption_cost and combined reference one shared adoption ledger. This is a data-model design constraint, not a newly approved economic law.
+
+**Contradiction gate (OPEN):** Existing A6 D4 excludes investment/adoption/adjustment charges and dynamic stocks, while approved B requires economically literal mechanisms. Likewise A5 technology is common and frozen across all 256 players within each market, whereas endogenous L4 eligibility/efficiency may change a player's effective task technology. The principal researcher must explicitly resolve these contradictions before implementation. Do not claim a common technology after players adopt different technologies; alternatively treat a common pre-adoption technology as the initial shared baseline, with player-specific endogenous states clearly labeled. No assumption is approved here.
+
+**Single consolidated researcher decision to request next:** whether to authorize the **minimal necessary exception** to D4 and frozen-technology restrictions for literal L3/L4, retaining fixed common initial technology and a single shared accounting framework, while leaving all magnitudes/equations OPEN for subsequent specification. Without that decision, step 2B cannot advance to economic equations or executable code. `research_validated: false`.
