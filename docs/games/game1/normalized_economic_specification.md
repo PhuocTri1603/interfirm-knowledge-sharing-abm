@@ -1340,3 +1340,10 @@ Researcher approved **explicit, non-default numerical inputs** for L3/L4. The A6
 - **L4 Combined:** the same eligibility expansion and one-time task fee as Adoption Cost, plus the efficiency gain. The fee is not double counted.
 
 All 256 players share the original task reference and sigma within a run; no rival-specific data is supplied. Fees and adjustment costs enter both expected and realized profits. The legacy action-candidate heuristics remain **diagnostic**; these mechanisms are implemented in A6 but full behavioral/economic validation, including sensitivity, calibrated dimensions and full-sample 100×256×200, remains outstanding. `research_validated: false`.
+
+
+## Researcher clarification — strategies need not be immediately optimal (2026-11-06)
+
+**Approved interpretation:** The action menu is a mechanism for expressing heterogeneous strategies, not a requirement that each action or each strategy solve the contemporaneous economic optimum. L3/L4 specify feasible resource-use and AI mechanisms; L5/L6 govern decisions and learning. Players receive **realized market profit** from the actions selected by their own strategies, including possible losses and later adaptation. After 200 rounds, compare cumulative realized profit within each configuration. Do not retrofit a global optimizer, replace realized profit with hypothetical best-response payoff, or label heuristic action generation a scientific defect merely because it is not instantly optimal.
+
+Verification should instead establish: strategy-specific decisions; feasibility and cost accounting; no future-price or rival-specific information leakage in Game 1; correct temporal learning and no double updates; and reproducible comparisons under common market conditions. This clarification does not approve numerical calibration or change the requirement `research_validated: false`.
