@@ -4,6 +4,8 @@ on:
     paths:
       - 'src/interfirm_abm/task_strategy_engine.py'
       - 'tests/test_task_strategy_engine.py'
+      - 'src/interfirm_abm/task_a6_market.py'
+      - 'tests/test_task_a6_market.py'
       - '.github/workflows/game1-strategy-engine.yml'
   workflow_dispatch:
 jobs:
@@ -15,7 +17,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest -q tests/test_task_strategy_engine.py
+      - run: python -m pytest -q tests/test_task_strategy_engine.py tests/test_task_a6_market.py
       - run: |
           python - <<'PY'
           from interfirm_abm.task_strategy_engine import strategy_roster
