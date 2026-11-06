@@ -476,3 +476,16 @@ For each original profile c, define a strictly positive, pre-treatment, feasible
 **Important separation:** Equal *labor allocations* do not imply equal q0 across tasks; task productivity remains heterogeneous. Capital can be used in actual production where eligible; capital eligibility does not constrain the labor-only reference. A firm with zero task allocation can have q_j=0; never silently replace it with q0 or epsilon.
 
 **Still undecided:** Y0_c in common final-product units versus a configuration-relative output index; whether and how the older exact four-family/L1–L2 design is preserved; official pure-mode rule; numerical sigma/group proportions. The reference q0 rule is approved, but it does not resolve these separate economic decisions. No executable code or CSV changed. **A5 remains OPEN; research_validated: false.**
+
+
+## A5 researcher approval — unit reference output index Y0_c=1 (2026-11-06)
+
+**APPROVED:** Set `Y0_c=1` for every base configuration c as a **dimensionless configuration-relative production index**. This is not a claim of equal physical output or productive capacity across the 100 configurations. The output index equals 1 at each configuration's approved initial equal-labor reference activity bundle.
+
+Combining all approved A5 normalization decisions: `q0_cj=aL_cj*Lbar_c/20`, `omega_cj=1/20`, `Y0_c=1`, `rho_c=(sigma_c-1)/sigma_c`. For `sigma_c != 1`, `Y_index,ict=[(1/20)*sum_j(q_icjt/q0_cj)^rho_c]^(1/rho_c)`. For `sigma_c=1`, `Y_index,ict=prod_j(q_icjt/q0_cj)^(1/20)`. Require Lbar_c>0 and all aL_cj>0; zero task activities remain zero (no epsilon imputation).
+
+**Market-unit constraint:** This index cannot silently replace physical final-product units in a common inverse-demand schedule, sales accounting or revenue/profit equation. If each configuration is simulated as its own separate market, an explicit configuration-specific physical conversion `Q_physical,ict=s_c*Y_index,ict` with `s_c>0`, or an explicitly index-denominated market and consistent price/cost units, must be chosen and justified before A6 implementation. Setting `s_c=1` for all c is a separate economic assumption, **not** implied by `Y0_c=1`. Do not reinterpret previously computed diagnostic profits as validated economic profits.
+
+**Approval boundary:** Researcher approved the index normalization only; not any physical conversion, demand rescaling, market-clearing rule, numerical sigma assignment or code modification. All 256 strategies share a frozen q0 reference within each configuration and its sigma counterfactuals. Cross-configuration raw index levels do not measure absolute physical productivity.
+
+**A5 status:** Reference scale Y0 decision closed. Pending: numerical sigma and strata design; exact-family/L1–L2 reconciliation; pure-mode execution approval; executable tests T1–T8. **A6 dependency:** reconcile market units before interpreting monetary profits. No source code or CSV modifications. `research_validated: false`.
