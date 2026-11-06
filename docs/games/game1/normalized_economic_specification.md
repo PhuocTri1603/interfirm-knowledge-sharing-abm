@@ -489,3 +489,14 @@ Combining all approved A5 normalization decisions: `q0_cj=aL_cj*Lbar_c/20`, `ome
 **Approval boundary:** Researcher approved the index normalization only; not any physical conversion, demand rescaling, market-clearing rule, numerical sigma assignment or code modification. All 256 strategies share a frozen q0 reference within each configuration and its sigma counterfactuals. Cross-configuration raw index levels do not measure absolute physical productivity.
 
 **A5 status:** Reference scale Y0 decision closed. Pending: numerical sigma and strata design; exact-family/L1–L2 reconciliation; pure-mode execution approval; executable tests T1–T8. **A6 dependency:** reconcile market units before interpreting monetary profits. No source code or CSV modifications. `research_validated: false`.
+
+
+## A5 researcher approval — pure-mode task execution (2026-11-06)
+
+**APPROVED:** Each of the 20 task activities in a strategy-round is executed using **either labor services OR capital services**, never a contemporaneous mixture of the two within the same task. Across different tasks, a player may allocate both labor and capital. This is the official Game 1 baseline rule, superseding earlier labels of pure-mode as provisional.
+
+For c,i,j,t let m_icjt in {L,K}. If m=L: q_icjt=aL_cj*l_icjt, k_icjt=0. If m=K: q_icjt=aK_cj*k_icjt, l_icjt=0, and task j must be eligible for capital execution at that time. Nonnegative activity and allocations; sum_j l_icjt<=Lbar_c and sum_j k_icjt<=Kbar_c. Zero allocation/activity is permitted. Unused resources need not be spent or allocated merely to meet a reference benchmark. Do not interpret an eligible task as necessarily automated: eligibility and actual selection of capital mode are distinct.
+
+The reference bundle remains labor-only with l0_cj=Lbar_c/20, q0_cj=aL_cj*l0_cj, k0_cj=0. This **reference normalization** does not constrain strategy allocations to equal labor or prohibit capital execution. Across-task sigma describes substitution between production activities, not mixing capital and labor within a task.
+
+**Implementation checks required after authorization:** exactly one execution mode per task/round; capital mode only for eligible tasks; no positive labor in capital mode and vice versa; shared resource caps; zero task activity behavior under sigma<=1 and sigma>1; fixed technology across 256 strategy players within a configuration; consistent reference construction. No simulation code or CSV changes authorized in this approval. **A5 remains OPEN** pending sigma assignment, legacy technology-family/L1–L2 reconciliation and executable validation. `research_validated: false`.
