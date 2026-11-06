@@ -17,7 +17,7 @@ from interfirm_abm.task_strategy_engine import ComposedStrategyPolicy, DecisionP
 from interfirm_abm.task_mixed_market import run_mixed_market
 
 
-def run_a5_diagnostic(config_id: str, sigma: float, *, rounds: int = 2):
+def run_a5_diagnostic(config_id: str, sigma: float, *, rounds: int = 2, roster=None):
     """Return diagnostic market trajectories; never label them validated profit."""
     if rounds < 1:
         raise ValueError("rounds must be positive")
@@ -26,7 +26,8 @@ def run_a5_diagnostic(config_id: str, sigma: float, *, rounds: int = 2):
     index = int(config_id[1:])
     if not 0 <= index < 100:
         raise ValueError("configuration index outside C000..C099")
-    roster = configurations(index + 1)[config_id]
+    if roster is None:
+        roster = configurations(index + 1)[config_id]
     first_firm = next(iter(roster.values()))
     treatments = paired_technologies(first_firm)
     if sigma not in treatments:
