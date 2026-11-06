@@ -1128,3 +1128,49 @@ The previously approved static D3 operating benchmark `C_oper=w*sum l+r*sum k` r
 7. Retain the 256 identities even if some options are behaviorally equivalent in certain states; test differences in designed states rather than inventing shocks or deleting strategies.
 
 **Next checklist action:** Obtain approval for a *single minimal intertemporal payoff convention*, particularly treatment of terminal owned capital and discounting, then finalize the common stock/cost/technology equations and run a purely mathematical consistency review. **No code implementation or numerical calibration is authorized yet.** `research_validated: false`.
+
+
+## A6 step 2G — Approved terminal-capital-inclusive ranking and minimal equation closure (2026-11-06)
+
+**RESEARCHER APPROVAL:** Choose ranking convention **A**, which includes the cash flows earned during 200 rounds **plus the remaining value of owned productive capital at the end of round 200**. The principal researcher did **not** approve a numerical salvage value, depreciation, discount factor, investment price, or any other parameter. Preserve 256 identities and the shared-state L3/L4 economic mechanisms. No code change; `research_validated: false`.
+
+### Approved principle; mathematical identity proposed for precise timing
+
+Define `CF_it` as the owned-capital net cash flow with no imputed rental payment for the same owned capital. Define `K_i,201` as the capital stock after the last round's investment and depreciation transitions. A **candidate no-discount bookkeeping representation**, conditional on separate approval of no discounting, is:
+
+`Score_i = sum_{t=1}^{200} CF_it + V_T(K_i,201)`.
+
+More generally, `Score_i = sum_{t=1}^{200} d_t CF_it + d_T V_T(K_i,201)`, where discount weights `d_t,d_T` are **OPEN**. The approved content is *inclusion of terminal owned-capital value*, not the weights. **OPEN:** whether terminal valuation is gross asset value or incremental value above a common initial-endowment benchmark, whether the terminal value also includes any independently valuable adopted technology, and how to prevent residual-value double counting with investment expenditure. In paired initial states, subtracting a common initial asset baseline does not affect within-market ranks, but this does not settle cross-market comparisons.
+
+### One common economic system — candidate equations and missing choices
+
+| Object | Parsimonious candidate | Unapproved decision required |
+| --- | --- | --- |
+| Initial reference | `q0_ij=aL_ij*Lbar_i/20`, `Y=CES_sigma(q_ij/q0_ij)` | Freeze pre-treatment q0 throughout (recommended), including after upgrades |
+| Task capacity (L3.capacity) | `0<=q_ijt<=h_ij` | Initialize h in task-output units; fixed vs upgradable |
+| Capital (L3.investment) | `K_i,t+1=(1-delta)K_it+I_it` | delta, investment timing, resource financing and any investment limits |
+| Adjustment (L3.adjustment) | `C_adj_it=G(x_it,x_i,t-1)` | Monetary cost versus hard feasibility constraint; first-round baseline x_i0 |
+| Eligibility (L4.eligibility and adoption_cost) | `e_ij,t+1=max(e_ijt,uE_ijt)` | Eligibility scope, persistence, activation timing; only adoption_cost payment benefit (eligibility unlock) is approved |
+| Efficiency (L4.efficiency and combined) | `aK_ij,t+1=H(aK_ijt,uG_ijt)` | Magnitude, repeatability, persistence, whether there is a resource payment |
+| Paid adoption (L4.adoption_cost) | `C_adopt_it=F(eligible newly unlocked tasks)` | F, per-task vs bundle, payment event, single-charge ledger in combined |
+| Owned-capital net cash flow | `CF_it=P_tY_it-w sum l_ijt-C_adj_it-C_adopt_it-pI I_it` | Adjustment/adoption cost forms, pI units, any additional real cash costs |
+| Terminal stock and valuation | `K_i,201` and `V_T(K_i,201)` | Terminal value functional form, depreciation, discount weights, whether residual technology has separate value |
+| Shutdown/reentry | `d_it=(l,k,I,u)=0` for a pure zero-cash-flow outside option | Whether no-production investment/adoption is also feasible as a distinct action; no-action outside option itself remains zero |
+| Demand and learning | `P=max(0,a_c-b_c Q)`; D5/L6 approved concepts | Numerical a,b; rolling-OLS implementation; minimal learning parameter choices |
+
+### Non-negotiable economic consistency checks
+
+1. `V_T` must value **remaining** productive capital, not reimburse the full historical investment cost regardless of depreciation or usage. If purchased capital has a residual market price, terminal valuation and capital purchase price must use coherent units.
+2. An investment at t cannot contribute to current-period production if it only enters K at t+1; terminal K_i,201 must include the final transition if final-round purchases are allowed.
+3. Capital is owned: `pI I` is a cash expenditure, while `r sum k` remains an optional **separate imputed diagnostic**, never a second cash deduction for the same asset.
+4. For L3.capacity, `h_ij` is an additional throughput constraint, not a productivity weighting or duplicate endowment cap. Do not infer an arbitrary h scale from the four diagnostic effort intensities.
+5. L4.adoption_cost payment unlocks eligibility only; `combined` can also upgrade efficiency. Record each eligibility unlock once and explicitly define whether combined pays the same charge.
+6. If `q0` is recalculated from upgraded technology, measured Y can lose comparability; choose the normalization rule before interpreting paired sigma results.
+7. Distinguish a no-production, no-expenditure shutdown from no-production with positive investment/adoption spending. Do not assign both zero cash flow.
+8. All candidate cost and technology laws must preserve nonnegative feasible resources and no hidden current-round or peer-level information.
+
+### Next minimal research decision sequence
+
+**First** decide a *terminal capital valuation rule* (e.g. residual capital at its purchase-price units, or an independently specified salvage-value function) and discounting convention **without setting numerical values**. **Second** approve transition timing, the frozen reference normalization, and adjustment form. **Third** approve the remaining capacity initialization, eligibility/efficiency scope and adoption payment event. **Finally** select any required numeric parameters and test feasibility, accounting, no-double-counting and 256-strategy distinctness. These are proposals, not approvals. Do not implement before the researcher's explicit equation-level authorization.
+
+**Status:** Terminal-value inclusion APPROVED; valuation function, discounting, transition/cost equations and parameters OPEN. `research_validated: false`.
