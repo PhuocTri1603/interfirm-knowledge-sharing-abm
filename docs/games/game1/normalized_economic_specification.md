@@ -649,3 +649,16 @@ Separate **exogenous technology** from **endogenous decision policy**. Within a 
 - **T8 PARTIAL:** scenario values and absence of market-money fields checked; actual CI run artifacts, seeds, preservation verification and failure reports pending.
 
 **Test command (to be executed in environment with repo installed):** `PYTHONPATH=src python -m unittest discover -s tests -p 'test_task_a5_normalized.py' -v`. No passing result is claimed here. **Do not set research_validated true.** Closing full T4/T7 requires a separately approved A6 conversion of the dimensionless production index into market quantity, or a deliberately index-denominated market with compatible price/demand/cost units. No arbitrary scale factors introduced. Existing 5.12m-row diagnostic remains historical and does not count as a completed normalized 15.36m-run.
+
+
+## A5 execution follow-up — exhaustive profile test and diagnostic integration (2026-11-06)
+
+**Implementation committed on branch `game1-economic-policy-interface`:**
+- `tests/test_task_a5_normalized.py` now includes a full 100-profile CSV loader test: unique F001–F100, 20 tasks each, 256 unique L3–L6 strategy IDs, and the feasible labor-only reference yielding normalized output index 1 under all three sigma treatments.
+- `src/interfirm_abm/task_a5_diagnostic_runner.py` injects approved normalized CES into both strategy action valuation and the `MixedMarket` output aggregator, preserving the existing 256 strategy IDs and market clearing for **diagnostic-only** runs. Paired stochastic policy seeds are based on `config_id|strategy_id|a5-paired` and are sigma-invariant. The runner does **not** change the legacy full-sample code or assert economic comparability of money payoffs.
+- `tests/test_task_a5_normalized.py` also includes a 256-player one-round smoke test for C000 under each approved sigma.
+- `.github/workflows/a5-normalized-tests.yml` runs the A5 test module on branch pushes and manual dispatch.
+
+**Execution evidence boundary:** GitHub commits for code and workflow are verified, but **no successful workflow run/log or local complete test result was observed in this audit**. Authored tests are not marked passing. User should inspect `https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/workflows/a5-normalized-tests.yml` for run and errors. If the workflow has not started, dispatch manually; do not claim T1–T8 passed.
+
+**A5 validation:** T1/T2/T3/T4/T5/T6/T7 now have at least partial code/test coverage, but T5 and T6 still require full 100×3 paired execution, and T7 monetary interpretation remains blocked by A6 index-to-market-units convention. T8 requires successful CI logs and seed/report artifacts. Keep `research_validated: false`; do not conflate the 15,360,000 intended player-round observations with completed execution.
