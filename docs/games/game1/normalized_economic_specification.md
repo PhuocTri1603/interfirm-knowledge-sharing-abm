@@ -1021,3 +1021,24 @@ All players choose simultaneously using only lagged public P,Q and private own s
 7. No future leakage: transitions at t+1 are not observable as current market information to other players; chosen-action realized feedback updates once.
 
 **Decision status:** The principal researcher approved literal L3/L4 meanings and the minimal exception scope, but **has not approved any of the proposed equations, state variables, timing or parameters in this section**. Next step: resolve capital accounting, L3 capacity and L4 adoption_cost semantics before selecting numeric calibration. Do not implement the proposed equations without approval.
+
+
+## A6 step 2D — Three economic conflicts: capacity, adoption, capital accounting (2026-11-06)
+
+**STATUS: PROPOSED RESOLUTIONS FOR RESEARCHER APPROVAL; NOT APPROVED EQUATIONS.** No new numerical values, model code or experiments are authorized here. All 256 strategy identities and the single shared L3/L4 state framework remain unchanged. `research_validated: false`.
+
+### D1. L3 capacity distinct from flexible
+
+Common resource caps `sum_j k_ijt <= K_it` and `sum_j l_ijt <= Lbar_i` apply to *every* L3 option, so they cannot by themselves distinguish capacity from flexible. **Proposal:** For L3.capacity alone impose an installed task-throughput limit `q_ijt <= h_ij` for each task, in addition to the common caps; L3.flexible does not have this additional task-specific bound. h is a physical/task-capacity state, not the productivity weight used in legacy `task_strategy_actions.py`. **OPEN:** how h is initialized from pre-treatment information, whether h can change through investment, and how a positive binding constraint is guaranteed without an arbitrary ratio. No new cost is needed just to impose a constraint.
+
+### D2. L4 adoption_cost must buy a real technological opportunity
+
+One shared technology state `(e_ijt,aK_ijt,z_ijt)` and a single adoption event ledger can support eligibility and efficiency transitions without duplicating costs. **Proposal:** Charge adoption once only when a previously unavailable capability becomes active, `C_adopt_it=f*sum_j 1[z_ijt=0 and z_ij,t+1=1]`, with f>=0. **OPEN:** whether the paid opportunity is task eligibility, efficiency enhancement or both; whether free versions of eligibility/efficiency exist in other L4 options; how adoption_cost is distinct from combined; whether a separate z state is necessary. A cost-only rule with no access to a benefit is economically invalid for the intended label. Do not assume costless adoption or a specific f without approval.
+
+### D3. Capital services versus investment cash flow
+
+Preserve baseline operating-accounting identity `pi_oper_it=P_t*Y_it-w*sum l_ijt-r*sum k_ijt` for comparability, but **do not** assume the same r charge is a cash payment for owned capital. **Proposal:** Report a distinct investment cash-flow measure `CF_it=P_t*Y_it-w*sum l_ijt-C_adj_it-C_adopt_it-pI*I_it` under an owned-capital convention; in that convention r is a shadow/user cost for operating-profit analysis, not an additional cash charge. If r is a true rental paid to an external owner, a different financing/ownership model is needed; do not subtract both r*k and pI*I without an explicit non-overlapping interpretation. **OPEN:** tournament payoff definition (economic profit versus cash flow), capital terminal value after 200 rounds, depreciation, discounting and whether L3.investment can finance I. No ranking of investment strategies until one consistent intertemporal objective is approved.
+
+### Release gate
+
+These proposals isolate the minimal economic choices without introducing arbitrary numerical parameters. Principal researcher must approve (i) task-specific capacity bound and its initialization, (ii) what the adoption fee buys and its distinction from combined, and (iii) capital ownership/payoff accounting before dynamic L3/L4 equations can be finalized. Do not convert these proposals into A6 code or mark the checklist closed on the basis of documentation alone. `research_validated: false`.
