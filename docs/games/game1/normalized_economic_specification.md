@@ -1087,3 +1087,44 @@ These are **decision alternatives, not approvals**. No fee `f`, efficiency gain 
 **Researcher decision requested next:** Choose **A** owned productive capital + investment cash-flow accounting, or **B** rented capital services + separately defined investment-capacity asset. Neither is approved by this section; no rental, discount, depreciation, financing or terminal-value parameters are set. Preserve baseline `r=1,w=1` as a historical operating benchmark but do not assume it is a cash cost in A.
 
 **Checklist:** L3 capacity semantics approved; L4 adoption_cost unlock benefit approved; L4 combined differentiated at the mechanism level, payment rule OPEN; capital accounting convention OPEN; final equations and numerical parameters OPEN; code unchanged; `research_validated: false`.
+
+
+## A6 step 2F — Researcher approval: owned-capital accounting A (2026-11-06)
+
+**APPROVED BY PRINCIPAL RESEARCHER:** A6 uses **firm-owned productive capital**, and L3 `investment` purchases additions to that owned capital stock. Investment expenditure is recognized in cash flow; do **not** automatically subtract a second hypothetical capital rental payment for the same owned capital services. This supersedes candidate B (rented capital with separately defined capacity asset) for the dynamic A6 L3/L4 model. Preserve all 256 player identities and the approved literal L3/L4 mechanism meanings, L3 capacity task-output cap and L4 adoption_cost paid eligibility unlock. **This approval selects an accounting convention, not its unresolved equations or parameter values.** No code changes; `research_validated: false`.
+
+### Accounting identities: approved principle versus proposed formulas
+
+The previously approved static D3 operating benchmark `C_oper=w*sum l+r*sum k` remains useful as an **imputed capital-service economic-cost diagnostic**, but the `r sum k` term must **not** also be charged as a cash payment for the same owned capital in A6's owned-capital cash-flow ledger. Distinguish clearly between:
+- **Gross operating cash surplus before investment and adoption/adjustment payments (candidate identity):** `OCS_it=P_t Y_it-w*sum_j l_ijt`, assuming labor is paid per unit utilized; whether additional genuine cash operating charges exist is OPEN.
+- **Net period cash flow (candidate identity):** `CF_it=OCS_it-C_adj_it-C_adopt_it-pI*I_it`. This is a cash-flow accounting proposal, not yet an approved tournament payoff; cost functions and payment timing remain OPEN.
+- **Imputed operating economic profit (diagnostic only):** `pi_imputed_it=P_t Y_it-w*sum_j l_ijt-r*sum_j k_ijt`, where r is an opportunity/user-cost proxy, not an additional cash expense. This measure must not be conflated with CF or used to assert that investment was already paid for.
+
+**Critical distinction:** Omitting an imputed capital rental from cash flow does not make owned capital economically free. Initial endowment ownership, financing/opportunity cost, depreciation, discounting, and terminal residual value may matter for cross-strategy welfare and investment rankings. Do not mix period CF and imputed economic profit in one cumulative score or double-charge pI and an overlapping user cost.
+
+### Minimal remaining equations and researcher approvals — not yet selected
+
+| Topic | Candidate equation / decision point | OPEN assumption or parameter |
+| --- | --- | --- |
+| Capital stock | `K_i,t+1=(1-delta)K_it+I_it` | Depreciation delta, purchase-price units pI, I feasibility/financing, investment activation at t+1, whether non-investment L3 choices have I=0 |
+| Investment objective | `V_i=sum_{t=1}^{200} beta^(t-1) CF_it+beta^200 V_T(K_i,201,technology_i,201)` | Discount beta, terminal asset valuation V_T, initial asset value/cost baseline, whether rank uses V versus undiscounted CF; no numeric values approved |
+| Task throughput | `q_ijt<=h_ij` for L3.capacity | Ex ante h initialization, units, persistence and any interaction with L3.investment |
+| Adjustment | `C_adj=G(x_it,x_i,t-1)` | Whether monetary friction or adjustment-feasibility constraint, cost form, scaling and first-round previous allocation |
+| Adoption | `e_ij,t+1=max(e_ijt,uE_ijt)`, paid eligibility unlock | Payment event and price, per-task versus bundle, activation timing, persistence, eligible set, single-charge ledger |
+| Efficiency | `aK_ij,t+1=H(aK_ijt,uG_ijt)` | Productivity gain rule, upgrade timing, repeatability and cost treatment in L4.combined |
+| CES normalization | `q0_ij=aL_ij*Lbar_i/20` initially | Explicitly freeze q0 across investment/adoption or approve a different fixed comparison convention |
+| Shutdown/reentry | `l=k=I=u=0` as no-action option | Whether shutdown forbids investment/adoption in the same round; avoid asserting zero payoff for zero production if expenditures are allowed |
+| Tournament metric | Compare cumulative net cash flows or intertemporal asset-adjusted values | Treatment of terminal investment and discounting; do not rank investment strategies on arbitrary horizon accounting |
+| Demand and learning | Existing D1 inverse demand and D5/L6 approval ledger | Demand a,b; rolling OLS implementation; minimal L6 numerics, without new learning layer |
+
+### Economic consistency gate
+
+1. Same initial owned-capital endowment and task technology across 256 players per profile–sigma; subsequent divergence arises only from modeled decisions. Capital cannot be simultaneously represented as an externally rented service and a purchased owned asset without a separately approved interpretation.
+2. Production at t cannot use capital purchased for t+1 unless the researcher explicitly approves immediate installation.
+3. A paid eligibility-unlock event must be booked exactly once and cannot be silently charged again by L4.combined.
+4. The cost of changing an allocation (adjustment) and the purchase of a new productive capital asset (investment) are distinct economic events.
+5. A shutdown outside option has zero cash flow only if the player also undertakes no investment/adoption/adjustment expenditures.
+6. Avoid terminal-horizon bias: a final-round capital purchase cannot be treated as worthless solely because no future rounds remain unless a terminal-value rule is explicitly approved.
+7. Retain the 256 identities even if some options are behaviorally equivalent in certain states; test differences in designed states rather than inventing shocks or deleting strategies.
+
+**Next checklist action:** Obtain approval for a *single minimal intertemporal payoff convention*, particularly treatment of terminal owned capital and discounting, then finalize the common stock/cost/technology equations and run a purely mathematical consistency review. **No code implementation or numerical calibration is authorized yet.** `research_validated: false`.
