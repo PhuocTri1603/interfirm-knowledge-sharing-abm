@@ -65,6 +65,18 @@ def test_price_bid_rejected_by_allocation_only_runner():
         p.decide_tasks(firm(), MarketObservation(2, None, None))
 
 
+def test_self_imitation_does_not_access_peer_provider():
+    identity = next(x for x in strategy_roster() if x.L5 == "adaptive" and x.L6 == "imitation")
+    def forbidden_peer(*args):
+        raise AssertionError("Game 1 cannot access rivals")
+    p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1), forbidden_peer)
+    observation = MarketObservation(1, None, None)
+    assert p.decide_action(firm(), observation).action_id == "b"
+    p.observe_payoff(firm(), 1, 2)
+    p.own_history.append(type(p.own_history[0])(0, "a", 8))
+    assert p.decide_action(firm(), observation).action_id == "a"
+
+
 def test_imitation_uses_own_history():
     identity = next(x for x in strategy_roster() if x.L5 == "cournot" and x.L6 == "imitation")
     p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1))
