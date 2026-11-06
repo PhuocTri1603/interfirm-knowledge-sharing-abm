@@ -5,7 +5,7 @@ from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm, TaskCap
 from interfirm_abm.task_economic_policy import MarketObservation
 from interfirm_abm.task_strategy_engine import (
     Action, ComposedStrategyPolicy, DecisionParameters, StrategyIdentity,
-    compose_all_policies, strategy_roster,
+    compose_all_policies, strategy_roster, DecisionInformation, OwnOutcome, choose_self_imitation,
 )
 
 
@@ -49,7 +49,7 @@ def test_adaptive_does_not_request_peer_data():
     identity = next(x for x in strategy_roster() if x.L5 == "adaptive" and x.L6 == "optimization")
     def forbidden_peer(*args):
         raise AssertionError("Adaptive must not observe rivals")
-    p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1), forbidden_peer)
+    p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1))
     obs = MarketObservation(1, None, None)
     assert p.decide_tasks(firm(), obs)[0].labor == .2
     p.observe_payoff(firm(), 1, 9)
@@ -69,7 +69,7 @@ def test_self_imitation_does_not_access_peer_provider():
     identity = next(x for x in strategy_roster() if x.L5 == "adaptive" and x.L6 == "imitation")
     def forbidden_peer(*args):
         raise AssertionError("Game 1 cannot access rivals")
-    p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1), forbidden_peer)
+    p = ComposedStrategyPolicy(identity, candidates, value, DecisionParameters(0, 1), Random(1))
     observation = MarketObservation(1, None, None)
     assert p.decide_action(firm(), observation).action_id == "b"
     p.observe_payoff(firm(), 1, 2)
@@ -84,3 +84,17 @@ def test_imitation_uses_own_history():
     p.observe_payoff(firm(), 1, 1)
     p.own_history.append(type(p.own_history[0])(0, "a", 10))
     assert p.decide_action(firm(), MarketObservation(2, None, None)).action_id == "a"
+
+
+def test_game1_information_contract_rejects_peer_fields():
+    observation = MarketObservation(1, None, None)
+    with pytest.raises(TypeError):
+        DecisionInformation(observation, (), peer_actions={"rival": "a"})
+    with pytest.raises(TypeError):
+        compose_all_policies(candidates, value, DecisionParameters(0, 1), 1, peer_provider=lambda *a: None)
+
+
+def test_shared_self_imitation_fallback_and_unavailable_action():
+    history = (OwnOutcome(1, "a", 10), OwnOutcome(2, "b", 4))
+    assert choose_self_imitation(history, ("b", "c"), "c") == "b"
+    assert choose_self_imitation((), ("b", "c"), "c") == "c"
