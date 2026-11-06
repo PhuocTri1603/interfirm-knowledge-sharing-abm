@@ -452,3 +452,16 @@ Consequences:
 - The equality constraint must be tested to numerical tolerance and must not be replaced by data-driven weights or realized-output shares.
 
 **A5 remaining researcher approvals:** q0_cj and Y0_c reference construction; numeric sigma levels, unequal group capacities and assignments or pre-registered scenario design; exact-family/L1–L2 reconciliation; pure-mode baseline approval. **Implementation:** not authorized; do not change simulation source or input CSVs. **Status:** A5 open; research_validated: false.
+
+
+## A5 researcher approval — configuration-relative initial-capability normalization (2026-11-06)
+
+**APPROVED:** Each of the 100 original technology configurations is normalized **relative to its own initial production capability**, rather than using a common absolute production reference across all configurations. The same frozen reference bundle is used for all 256 strategies and all 200 rounds within a configuration, and for paired sigma counterfactuals on that profile. This is a research decision about the reference **principle**, not approval of a numerical construction algorithm or a universal Y0=1.
+
+For each original profile c, define a strictly positive, pre-treatment, feasible reference activity bundle `q0_c=(q0_c1,...,q0_c20)`, computed only from the profile's initial K/L endowments, task productivities, capital eligibility and a **pre-specified reference allocation policy**. Then `x_icjt=q_icjt/q0_cj` is dimensionless. With the already approved equal weights omega_cj=1/20, define `Y_ict=Y0_c*CES_sigma_c(x_ict)` where `Y0_c>0` is a configuration-specific final-output reference. At `q=q0_c`, `Y=Y0_c` for all sigma.
+
+**No endogenous normalization:** The reference allocation must not depend on winners, strategy identity, simulated prices, profits, post-shock AI adoption, post-treatment decisions or future outcomes. Freeze it before experiments. Use identical q0_c/Y0_c for all sigma variants of the same profile to avoid changing the technology anchor in the sigma-only comparison.
+
+**Economic caveat:** Setting `Y0_c=1` for every c would express outputs in configuration-relative index units and is *not* automatically comparable to physical quantities in a common market demand or monetary revenue equation. A configuration-specific conversion to final-product units, and consistent demand and price scaling, would be needed for cross-configuration or market comparisons. Likewise, choosing q0_cj from an arbitrary positive allocation defines the benchmark; it does not empirically identify the production function. The 100 configurations must not be presented as equal absolute productive capacity.
+
+**Remaining implementation-critical decisions:** (i) the deterministic, feasible, strictly positive reference allocation across all 20 tasks (including capital-ineligible tasks, zero endowment contingencies, and non-use of outcome data); (ii) Y0_c units and conversion to final output; (iii) reconciliation with exact technology families/L1–L2 and pure-mode execution; (iv) numerical sigma values and group allocation. No executable code/data changes authorized. **A5 OPEN; research_validated: false.**
