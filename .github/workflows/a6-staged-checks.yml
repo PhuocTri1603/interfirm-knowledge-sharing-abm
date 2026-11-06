@@ -1,0 +1,22 @@
+name: A6 staged economic checks
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'src/interfirm_abm/task_a6_market.py'
+      - 'tests/test_task_a6_market.py'
+      - '.github/workflows/a6-staged-checks.yml'
+  workflow_dispatch:
+jobs:
+  a6-invariants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: One round, shutdown, three sigma and accounting
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p 'test_task_a6_market.py' -v
