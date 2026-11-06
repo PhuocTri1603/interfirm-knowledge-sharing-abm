@@ -12,6 +12,7 @@ on:
       - 'tests/test_task_l34_economics.py'
       - 'tests/test_task_a6_market.py'
       - 'scripts/run_game1_a6_pilot.py'
+      - 'scripts/audit_game1_a6_behavior.py'
       - '.github/workflows/game1-strategy-engine.yml'
   workflow_dispatch:
 jobs:
@@ -33,6 +34,8 @@ jobs:
           PY
       - name: Pilot 1 configuration x 256 strategies x 200 rounds (illustrative only)
         run: python scripts/run_game1_a6_pilot.py
+      - name: Audit L3-L6 behavioral differentiation
+        run: python scripts/audit_game1_a6_behavior.py
       - uses: actions/upload-artifact@v4
         with:
           name: game1-a6-pilot-1x256x200
