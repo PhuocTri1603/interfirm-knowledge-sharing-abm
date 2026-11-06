@@ -402,3 +402,34 @@ Approved direction: each of 100 original profiles is mapped once to one of G1 (0
 **Researcher approvals pending:** essential-versus-substitutable tasks; reconciliation with four exact production families/L1–L2; q0/Y0 construction; omega; sigma values and group allocation or explicit sensitivity-only design; pure-mode as final baseline.
 **Implementation pending:** approved mapping, normalization, aggregator integration, full validation suite and evidence.
 **Gate:** A5 = OPEN / SPECIFIED BUT NOT SCIENTIFICALLY VALIDATED; `research_validated: false`. No simulation code or data modified.
+
+
+## A5 researcher approval — 20 substitutable production activities (2026-11-06)
+
+**APPROVED:** The 20 tasks represent **production activities**, not 20 indispensable sequential production stages. Their ability to substitute for one another varies with the configuration-specific **between-task** CES elasticity sigma_c. This explicitly resolves the earlier A5 essential-versus-substitutable task interpretation in favor of substitutable activities. It does **not** approve a numerical sigma distribution, group proportions, task weights, q0/Y0 references, pure-mode as final, or code changes.
+
+### Consequences of the approved interpretation
+
+1. Each activity q_j >= 0 contributes to a common final-output index through the proposed CES aggregator. A zero-activity task is an economically admissible **choice/constraint**, not automatically a data error or a forced epsilon replacement.
+2. For 0<sigma_c<1 and sigma_c=1, a positively weighted zero task implies Y=0 in the proposed CES; for sigma_c>1, positive output can arise from a strict subset of tasks. This is an implication of the functional form and does not imply that omitting tasks is always privately optimal.
+3. The word *substitutable* describes the economic activity set across different sigma regimes; it does **not** imply perfect substitution, nor that all sigma values permit nonzero output with missing activities.
+4. Eligibility for capital execution of a task remains separate from substitutability **between** task activities. An automation-ineligible activity can still be performed with labor; dropping a task and automating a task are different decisions.
+5. Preserve 20 task identities and original F001–F100 productivity, K/L and eligibility data. No task is deleted from the technology merely because a strategy allocates zero resources to it.
+6. Since the output aggregation is CES, sigma=1 is Cobb–Douglas and sigma approaches zero/positive infinity yield Leontief/linear limits. **Finite** sigma in G1/G3 is not exactly Leontief/linear. Earlier exact four-family or L1/L2 technology commitments still need explicit reconciliation, rather than being silently replaced by one CES family.
+
+### Mathematical and behavioral checks to add after implementation approval
+
+- All-zero task activities -> zero output for every finite sigma>0.
+- Exactly one zero task with other tasks positive -> zero output for sigma<=1; positive output for sigma>1.
+- Strictly positive task activities -> finite positive output; nonnegative activity never decreases output.
+- At q=q0, Y=Y0 for all sigma; q0_j and Y0 remain pre-specified reference scales, not fit to winning strategies.
+- Feasible zero allocation to an activity must respect the same K/L resource constraints; task choice, cost and final-output effects must be reflected consistently in action valuation and realized production.
+- Compare sigma regimes under identical base technology in paired counterfactuals; avoid attributing between-profile differences to sigma.
+- No epsilon-clipping or imputation of missing task activity merely to force positive output.
+- Record zero-task count and its association with output, costs, profitability and sigma, without treating it as an ex ante desirable outcome.
+
+### Remaining A5 closure gates
+
+The task-essentiality question is now **CLOSED (approved B)**. Still open: (1) reconcile the earlier exact production families/L1–L2 design with the proposed task CES; (2) approve task weights omega_cj and reference construction q0_cj/Y0_c; (3) select numerical sigma levels and an evidence-based or scenario-based allocation design for 100 configurations; (4) approve whether within-task pure-mode is the official baseline; (5) implement and execute T1–T8 after explicit approval.
+
+**A5 status: theoretical interpretation approved, full A5 gate remains OPEN. No executable code or data changed. research_validated: false.**
