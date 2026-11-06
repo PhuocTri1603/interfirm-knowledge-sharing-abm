@@ -62,17 +62,17 @@ References: https://press.princeton.edu/books/paperback/9780691096010/learning-a
 | optimization | Choose highest estimated payoff among **available feasible candidates**; do not claim global optimum | Varian (1992) | Candidate set and payoff estimation |
 | trial_error | Explore alternatives and update choices from **own realized outcomes** | Erev & Roth (1998) | Genuine own-feedback update; random exploration alone insufficient |
 | softmax | probabilistic logit choice weighted by expected utilities/values | McFadden (1974), *Conditional Logit Analysis of Qualitative Choice Behavior*, in *Frontiers in Econometrics*; Sutton & Barto (2018), *Reinforcement Learning*, 2nd ed. | Specify value learning and temperature; softmax alone is a selection rule, not learning |
-| imitation | **UNRESOLVED conflict:** existing code imitates observed peers, but Game 1 **prohibits rival-specific observations**. Retain label and all 64 associated identities; do **not** silently redefine or implement peer imitation as Game 1 self-learning | Ellison & Fudenberg (1993) is a **Game 2 social-learning reference**, not evidence for own-only imitation | Researcher must approve an own-information-consistent meaning or defer this mechanism's operationalization; no assumed peer data |
+| imitation | **APPROVED (2026-11-06): Self-imitation.** Repeat the available action that achieved the highest realized profit in the firm's **own completed history**; if none is available, initialize from own candidate valuation. No rival observation | Own-experience reinforcement and repeat-choice heuristic; **not** Ellison–Fudenberg peer imitation | No new parameter; assess potential behavioral equivalence with other rules |
 
 References: https://dash.harvard.edu/entities/publication/73120378-866f-6bd4-e053-0100007fdf3b ; https://www.jstor.org/stable/2646959 ; https://www.andrew.cmu.edu/user/alm3/presentations/mcfadden1974.pdf
 
-**Critical boundary:** Game 1 cannot expose individual peer actions/payoffs even when L6=`imitation` or L5=`adaptive`. The current engine's `peer_provider` imitation is a **code/spec mismatch**, not an approved Game 1 rule. McFadden motivates choice probabilities, not a dynamic value update. The full registry stays intact while the conflict is unresolved.
+**Critical boundary (resolved):** L6 Imitation in Game 1 is **self-imitation**, never peer imitation. L5 Adaptive evaluates own-action values; L6 Imitation selects an action to repeat from own successful history. Both can coincide in some states. Peer imitation belongs to Game 2 only. The former peer-observation code was superseded by the approved self-imitation implementation. No new learning parameter is required.
 
 ## Required before full-sample execution
 
 1. Preserve the complete 4×4×4×4 Cartesian product: 256 distinct player identities, with no exclusion filter. Resolve information tensions (e.g. Adaptive × Imitation) by explicit rules rather than deleting a combination.
 2. Preserve L4's four named options in the full player roster; document overlapping mechanisms without removing combinations.
-3. Operationalize only researcher-approved mechanisms, with common feasible endowments and own-information-only learning in Game 1. Resolve the L6 imitation conflict without assuming rival observations.
+3. Operationalize only researcher-approved mechanisms, with common feasible endowments and own-information-only learning in Game 1. Keep approved self-imitation based solely on own completed history; never use rival observations.
 4. Run strategy-distinctness tests: at least one designed state in which each relevant option changes decisions, not merely its label.
 5. Only then execute 100 configurations × 256 validated policies × 200 rounds; include replication seeds and report confidence/robustness, not one deterministic ranking. `research_validated: false` until tests and scientific checks actually pass.
 
