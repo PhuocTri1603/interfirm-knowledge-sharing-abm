@@ -303,3 +303,50 @@ Planned counterfactual output: `base_config_id, strategy_id, sigma_scenario, see
 - Number of paired profiles, counterfactual sigma levels and independent seeds.
 
 **Implementation boundary:** No source code, CSV input, sigma assignment table, workflow or model output changed by this documentation update. Existing runs use sigma=1 for all configurations. `research_validated: false`.
+
+
+## Research decision — unequal sigma-group proportions: evidence review before assignment (2026-11-06)
+
+**Approved direction:** Investigate unequal G1/G2/G3 proportions using the original technology profiles and/or credible literature **before** deciding counts. **No group counts, assignments, sigma values or simulation code changes are approved.**
+
+### Audit of current original population
+
+Read from `data/firms/task_based_100_firms_profiles.csv` (100 records) and `data/firms/task_based_100_firms_tasks.csv` (2,000 task records), branch `game1-economic-policy-interface`, source blob SHAs `54cc888a4594b81fa91984073d18d2807163f37a` and `43c0689a0fa9204512672d8fa81c1922bea2fd54`.
+
+- Original resource orientation: 34 capital-oriented, 32 balanced, 34 labor-oriented.
+- K: min 18.73, median 56.24, max 134.72.
+- L: min 19.75, median 51.50, max 119.22.
+- Original K/L: min 0.331, median 1.0395, max 3.325.
+- Automation eligibility share: min 0.10, median 0.30, max 0.60.
+- Profile mean labor productivity: min 0.914, median 1.001, max 1.106.
+- Profile mean potential capital productivity: min 0.898, median 0.9975, max 1.108.
+
+These are **illustrative/pending-approval** original profiles, not a representative empirical distribution. The 34/32/34 orientation breakdown is **not** evidence for 34/32/34 sigma-group counts.
+
+### Identification limitation
+
+K/L, mean task productivity, dispersion and automation eligibility do not identify the CES **between-task** elasticity sigma. Capital/labor substitution within tasks is a different elasticity. The A–R task framework motivates task allocation and automation but does not, by itself, provide a population distribution of the proposed 20-task sigma_c. Therefore, **do not infer sigma-group frequencies from the existing K/L or automation shares**. A cluster analysis of those features is not an estimate of sigma.
+
+### Literature evidence requirements
+
+Before any evidence-based unequal proportions are approved, require a study to (i) measure substitutability between comparable task outputs, not just K versus L; (ii) state its production aggregation, industry and task definition; (iii) report the sample frame and distribution/uncertainty of elasticities; (iv) justify mapping the empirical tasks to this simulation's 20 tasks; (v) justify mapping its industry composition to the synthetic 100 configurations. Distinguish calibration from externally chosen stress-test scenarios.
+
+Relevant conceptual anchors (not claimed to provide the required group frequencies): Varian, *Microeconomic Analysis*; Acemoglu & Restrepo (2019), JEP 33(2), 3–30; Acemoglu & Restrepo (2022), Econometrica 90(5), 1973–2016.
+
+### Recommended staged design
+
+1. Preserve the original 100 technology profiles; freeze and audit pre-treatment features.
+2. Search and critically evaluate empirical studies that estimate **across-task** substitution or comparable production-stage substitution. If credible transferable evidence exists, document mapping and use it as a calibration **proposal**, subject to researcher approval.
+3. If no transferable evidence exists, do **not** claim a data-derived unequal group distribution. Treat group proportions as an explicit **experimental design factor** and compare multiple pre-specified allocation scenarios; do not designate any as empirically representative.
+4. For any proposed counts (n1,n2,n3), require n1+n2+n3=100 and each group nonempty; then use constrained stratification to balance K/L, task productivity and automation eligibility **conditional on those counts**.
+5. For each scenario publish pairwise SMD and overlap diagnostics. A balance algorithm cannot determine the economically correct group proportions.
+6. Keep paired within-profile sigma counterfactuals as the main identification strategy; group contrasts alone remain descriptive.
+
+### Research decisions still open
+
+- Empirical target population/industry for any calibration.
+- Whether literature offers transferable estimates of between-task sigma.
+- If not, which alternative unequal proportions should be treated as scenario analyses, without claiming prevalence.
+- Actual sigma values/ranges, weights, q0 and Y0, and zero-task interpretation.
+
+**Status: evidence assessment and baseline audit completed; no allocation selected. No executable files modified; research_validated: false.**
