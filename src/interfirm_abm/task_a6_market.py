@@ -77,10 +77,10 @@ def _plan_cost(plan, parameters):
     return parameters.wage * fsum(x.labor for x in plan) + parameters.rental * fsum(x.capital for x in plan)
 
 
-def _candidate_plans(identity, firm, observation):
+def _candidate_plans(identity, firm, observation, own_history):
     # Reuse L3/L4 feasible allocation proposals but never their legacy
     # L5 reserve prices, valuations, or L6 peer-learning machinery.
-    info = DecisionInformation(observation, ())
+    info = DecisionInformation(observation, tuple(own_history))
     return {k: action.allocation for k, action in build_actions(identity, firm, info).items()}
 
 
@@ -119,7 +119,7 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
         for sid, state in states.items():
             identity = state["identity"]
             production_firm = effective_firm(firm, identity.L4, l34_parameters)
-            candidates = _candidate_plans(identity, production_firm, observation)
+            candidates = _candidate_plans(identity, production_firm, observation, state["history"])
             if identity.L3 == "capacity":
                 candidates = {key: capacity_limited(plan, production_firm, firm, l34_parameters)
                               for key, plan in candidates.items()}
