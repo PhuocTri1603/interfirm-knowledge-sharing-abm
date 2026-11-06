@@ -862,3 +862,40 @@ Researcher requested implementing the three compact operational conventions and 
 **Important implementation limitations:** The runner requires the caller to inject actual demand intercept/slope, epsilon, temperature, imitation probability and seed. Test fixtures use **illustrative numbers only**, not approved demand calibration. The current implementation records chosen-action feedback but **does not yet use exponential recency-weighted reinforcement for L6 decisions**, does not implement the approved rolling-OLS D5 market-belief fallback, and uses a simplified Cournot/target-price forecast and simplified adaptive belief update. It also reuses diagnostic L3/L4 action proposals, so their substantive behavioral semantics require a separate audit. Therefore it is an **integration scaffold**, not a complete D1–D6 implementation; passing its invariant tests would not close A6 or authorize a 15.36m-row economic-results claim.
 
 The new CI workflow is configured for push/manual dispatch; successful execution logs have **not yet been verified**. Next required gates: (1) review demand scale and numerics; (2) complete D5 belief estimation and D6 chosen-action reinforcement without adding a second learning layer; (3) test 16 adaptive×imitation intersections, no leakage and shutdown/reentry; (4) full 256-player × 200-round smoke across 3 sigma; (5) 100×3 markets per seed, robustness and paired inference. Preserve `research_validated: false` until those checks pass.
+
+
+## A6 checklist step 2 — L3/L4 semantic and code audit (2026-11-06)
+
+**Scope:** Audit only. No behavioral mechanism, new cost, technology shock, or numerical parameter is approved by this section; no simulation code modified. Keep all 256 L3×L4×L5×L6 IDs and historical diagnostic code. `research_validated: false`.
+
+**Sources examined:** `src/interfirm_abm/task_layer_registry.py`, `src/interfirm_abm/task_strategy_actions.py`, `src/interfirm_abm/task_strategy_engine.py`, `src/interfirm_abm/task_a6_market.py`, `src/interfirm_abm/task_a5_normalized.py`, `docs/games/game1/strategy_layers_literature.md`, and this canonical A5/A6 decision history.
+
+### L3 mapping: labels versus actual behavior
+
+| L3 ID | Historical literature meaning | Current diagnostic action rule | A6 audit |
+| --- | --- | --- | --- |
+| `flexible` | Freely reallocate K/L within endowments | Equal task weights; capital execution for eligible tasks varies with action index | Feasible candidate generator, not proof of global flexible optimization |
+| `capacity` | Binding installed capacity constraint | Weight tasks by max feasible labor/capital productivity | **Semantic mismatch:** productivity priority is not a distinct installed-capacity constraint; common K/L caps already bind all players |
+| `adjustment` | Intertemporal reallocation friction/cost | Shift priority and capital task subset with `len(own_history)` | **Semantic mismatch:** arbitrary history-count cycle, no adjustment-cost/state equation |
+| `investment` | Expand capacity through investment | Upweight automation-eligible tasks; mode varies by effort index | **Semantic mismatch:** no investment decision, budget, capital accumulation or capacity expansion |
+
+### L4 mapping: labels versus actual behavior
+
+| L4 ID | Historical literature meaning | Current diagnostic action rule | A6 audit |
+| --- | --- | --- | --- |
+| `eligibility` | AI extends capital-executable task set | Use capital for all already-eligible tasks | **Partial:** respects eligibility but does not change it |
+| `efficiency` | AI increases capital task productivity | Choose capital if `aK>aL` | **Semantic mismatch:** a selection threshold is not a technology productivity shock; raw aK/aL comparison is not factor-price-adjusted |
+| `adoption_cost` | Fixed/sunk adoption cost | Choose capital if `aK>1.25*aL` | **Semantic mismatch:** no adoption payment or state; 1.25 is an unapproved diagnostic hurdle |
+| `combined` | Eligibility + efficiency + adoption cost | Choose capital if `aK>1.10*aL` | **Semantic mismatch:** 1.10 is an unapproved diagnostic hurdle, not combined economic channels |
+
+**Shared action-generation caveats:** `INTENSITIES=(0.30,0.48,0.66,0.84)` are unapproved diagnostic effort levels. Every generated candidate is constrained by the firm's initial K/L caps and pure-mode task execution, but economic distinctness across all 256 labels has not been established. A6's `_candidate_plans` currently calls `build_actions` and discards the legacy L5 reserve-price offer; therefore L3/L4 diagnostic heuristics already affect A6 scaffold outcomes. Do not present scaffold rankings as evidence of the named economic mechanisms.
+
+### Conflict with current approved minimal A6
+
+A6 deliberately excludes endogenous investment stocks, adjustment costs, adoption costs and additional AI technology shocks. Accordingly the historical literal interpretations of `L3.adjustment`, `L3.investment`, `L4.efficiency`, `L4.adoption_cost` and `L4.combined` cannot all be claimed as implemented **without** violating the minimal A6 restriction. The only safe immediate conclusion is that the current four-by-four labels are preserved but their causal/economic meanings remain unresolved.
+
+**Economically relevant researcher decision required (one choice, not a parameter survey):** Decide whether (A) retain all 256 IDs but explicitly reinterpret L3 as four *static resource-allocation heuristics* and L4 as four *static task-mode selection heuristics*, with names/labels mapped transparently and no investment/adoption/adjustment claims; or (B) retain the literal investment, adjustment and automation mechanisms, which requires reopening the minimal A6 design and approving additional dynamic states/costs/technology transitions. Neither option is approved by this audit.
+
+**Recommendation for simplicity:** Option A, provided the researcher explicitly accepts that Game 1 then compares decision heuristics under fixed technology, not endogenous AI investment/adoption. Do not silently rename the strategy IDs: preserve historical IDs, use separate display descriptions/aliases only after approval.
+
+**Next engineering gate after decision:** Unit-test L3×L4 for feasibility, factor-price-aware task-mode logic where relevant, controlled behavioral differences, stable candidate identities, absence of unapproved thresholds and no hidden information. Then audit L5/L6 and D5 before interpreting 200-round or full-sample outcomes. **Step 2 audit completed; economic-semantic decision OPEN; code integration NOT AUTHORIZED by this document.**
