@@ -632,3 +632,20 @@ Separate **exogenous technology** from **endogenous decision policy**. Within a 
 **Sensitivity still to pre-specify:** Additional near-one and tail sigma values, stability of ranking and market outcomes, stochastic seeds/CI, and exact limiting-family counterfactuals. The three approved main scenarios do not imply these supplementary numerical values are approved.
 
 **Governance:** No source code, CSVs or simulations changed by this approval. A5 theory sigma-choice gate **CLOSED**; implementation, T1–T8, and A6 unit-consistent market remain OPEN; `research_validated: false`.
+
+
+## A5 initial code implementation and T1–T8 verification gate tracking (2026-11-06)
+
+**New code (committed):** `src/interfirm_abm/task_a5_normalized.py` implements reference `q0_cj=aL_cj*Lbar_c/20`, 20 normalized activity ratios, dimensionless CES output, approved sigma scenarios (0.5,1,2), pure-mode allocation evaluation via existing `TaskBasedFirm.evaluate_allocation`, and same-profile paired technologies. It does **not** alter the legacy diagnostic runner, the 256 strategy roster, market demand, price, profits, or source CSVs. **New tests:** `tests/test_task_a5_normalized.py` exercises formulas and constraints but are not yet confirmed executed on CI.
+
+**Canonical T1–T8 status, distinguishing unit tests from full gates:**
+- **T1 PARTIAL:** fixture validates 20 task IDs/reference, but full 100 F profiles, C000–C099 mapping and 256 roster population check not yet run under new A5.
+- **T2 PARTIAL:** existing firm feasibility plus new tests for pure-mode, capital eligibility and labor caps; full real-profile coverage not run.
+- **T3 TESTS AUTHORED / NOT EXECUTED:** anchor, sigma regimes, zero cases, homogeneity, monotonicity, sigma near 1, limiting behavior, input validation.
+- **T4 PARTIAL:** task-level simultaneous q/q0 rescaling invariance test authored; final-output physical units and downstream price/demand rescaling explicitly depend on A6 and are not implemented.
+- **T5 PARTIAL:** same reference across sigma variants tested by fixture; 256-player shared-technology runtime integration not yet implemented.
+- **T6 PARTIAL:** 3 paired technology objects from one base profile, identical frozen references; actual common-seed 100-profile market runs not implemented.
+- **T7 OPEN:** production index not yet wired to policy valuation, offers, sales and cost/revenue. Legacy diagnostic uses unnormalized sigma=1; must not imply normalized A5 integration.
+- **T8 PARTIAL:** scenario values and absence of market-money fields checked; actual CI run artifacts, seeds, preservation verification and failure reports pending.
+
+**Test command (to be executed in environment with repo installed):** `PYTHONPATH=src python -m unittest discover -s tests -p 'test_task_a5_normalized.py' -v`. No passing result is claimed here. **Do not set research_validated true.** Closing full T4/T7 requires a separately approved A6 conversion of the dimensionless production index into market quantity, or a deliberately index-denominated market with compatible price/demand/cost units. No arbitrary scale factors introduced. Existing 5.12m-row diagnostic remains historical and does not count as a completed normalized 15.36m-run.
