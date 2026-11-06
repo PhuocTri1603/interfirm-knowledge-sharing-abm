@@ -136,6 +136,17 @@ class TestA5(unittest.TestCase):
                                    A5Technology(scaled_ref, sigma).output_index(scaled_q),
                                    places=10)
 
+    def test_T7_diagnostic_market_integration_smoke(self):
+        from interfirm_abm.task_a5_diagnostic_runner import run_a5_diagnostic
+        for sigma in SIGMA_SCENARIOS:
+            result = run_a5_diagnostic("C000", sigma, rounds=1)
+            self.assertEqual(result["players"], 256)
+            self.assertEqual(len(result["player_trajectory"]), 256)
+            self.assertEqual(result["economic_validation"], "NOT_VALIDATED_A6_DIAGNOSTIC_ONLY")
+            self.assertFalse(result["research_validated"])
+            self.assertTrue(all(math.isfinite(row["produced_quantity"])
+                                for row in result["player_trajectory"]))
+
     def test_T8_governance_no_market_units(self):
         self.assertEqual(SIGMA_SCENARIOS, (0.5, 1., 2.))
         self.assertFalse(hasattr(A5Technology, "profit"))
