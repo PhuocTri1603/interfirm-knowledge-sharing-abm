@@ -1,0 +1,35 @@
+name: A5 full 100-profile paired sigma experiment
+
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'src/interfirm_abm/task_a5_full_experiment.py'
+      - 'src/interfirm_abm/task_a5_diagnostic_runner.py'
+      - '.github/workflows/a5-full-experiment.yml'
+  workflow_dispatch:
+
+jobs:
+  a5-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify normalized technology unit and integration gates
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p 'test_task_a5_normalized.py' -v
+      - name: Run 100 x 3 x 256 x 200 paired A5 diagnostics
+        env:
+          PYTHONPATH: src
+        run: python -m interfirm_abm.task_a5_full_experiment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a5-100-profiles-3-sigma-200-rounds-diagnostic
+          path: a5-full-diagnostic/
+          if-no-files-found: warn
+          retention-days: 30
