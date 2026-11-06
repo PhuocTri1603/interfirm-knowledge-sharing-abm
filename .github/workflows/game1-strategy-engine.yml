@@ -1,5 +1,8 @@
 name: Game 1 256 strategy engine
 on:
+  push:
+    branches:
+      - game1-economic-policy-interface
   pull_request:
     paths:
       - 'src/interfirm_abm/task_strategy_engine.py'
