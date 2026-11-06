@@ -547,3 +547,21 @@ Separate **exogenous technology** from **endogenous decision policy**. Within a 
 - Preserve explicit technology-regime IDs for CES, Cobb–Douglas, Leontief-limit, and Linear-limit **counterfactual runs**, separate from strategy IDs. Within a counterfactual run, all players share the same counterfactual technology.
 
 **A5 approval boundary:** Common technology and counterfactual role of four families are **approved**. Exact L1/L2-to-behavior mapping, resulting strategy count/identity, sigma numerical values/group allocation and counterfactual execution protocol are **not yet approved**. No code, tests or CSVs changed. **A5 remains OPEN; research_validated: false.**
+
+
+## A5 — verified actual 256-strategy registry and L1/L2 behavioral contribution (2026-11-06)
+
+**Read-only source audit on branch `game1-economic-policy-interface`:**
+- `src/interfirm_abm/task_layer_registry.py`: historical 7-layer catalog L1=4 within-task technologies, L2=3 cross-task aggregators, L3=4, L4=4, L5=4, L6=4, L7=4 market designs; 12,288 nominal full combinations.
+- `src/interfirm_abm/task_experiment_dimensions.py`: `STRATEGY_LAYERS` filters explicitly to L3–L6; `strategy_player_ids()` forms 4^4=256 IDs; L1/L2 do **not** enter those IDs; L7 is separate market design.
+- `src/interfirm_abm/task_strategy_engine.py`: `StrategyIdentity` fields are exactly L3,L4,L5,L6; `strategy_roster()` produces 256 nominal distinct policy IDs; L6 selects optimization, trial_error, softmax or imitation.
+- `src/interfirm_abm/task_strategy_actions.py`: L3 alters task allocation weights/mode switches; L4 sets capital-mode thresholds; L5 changes valuation or reserve-price behavior. The action generator contains four effort candidates per player.
+- `src/interfirm_abm/task_multi_action_diagnostic.py`: all 256 strategies in one configuration receive the same original F profile technology and diagnostic 20-task sigma=1 aggregator.
+
+**Verified dimensional accounting:** L1 contributes **four technology options**, L2 **three aggregation options** to the *historical* catalog (12 L1×L2 combinations), but **zero independent technology dimensions and zero player-behavior dimensions** to the current 256-player roster, which is entirely L3×L4×L5×L6. Therefore the approved common-technology architecture does **not** require deleting/relabeling any of the currently generated 256 player IDs. The earlier unresolved migration concern is **resolved for the 256-player identity registry**. Historical L1/L2 catalog entries must remain available as technology counterfactual metadata, not be misreported as behavioral player IDs.
+
+**Important qualification:** 256 unique IDs and four different branches in each layer do **not** prove 256 globally distinct decision functions or 256 distinct realized actions/payoffs in every configuration. For some technology profiles, L4 thresholds may produce identical mode allocations; L5 price offers may be nonbinding; L6 stochastic choices may coincide. A separate behavioral-equivalence audit must compare candidate allocations, valuations, selected actions and realized payoffs across profiles, rounds, seeds and observational histories. A one-round or one-seed coincidence is not proof of global equivalence. No such executable audit is claimed here.
+
+**Scientific status:** The current L3–L6 implementation is diagnostic, not calibrated: L3 investment does not accumulate capital; L4 productivity thresholds are illustrative; L5 Cournot is a heuristic and price offers may be nonbinding; L6 imitation uses lagged action IDs, not exact rival allocations. Existing runner fixes sigma=1 and has not implemented approved q0 reference and heterogeneous sigma. These are separate economic validation gates.
+
+**No code or data changes.** Next research decisions: sigma numerical levels/strata and counterfactual plan; then, with authorization, behavioral-equivalence tests and normalized CES integration. `research_validated: false`.
