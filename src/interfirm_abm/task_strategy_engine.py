@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from itertools import product
 from math import exp, isfinite
 from random import Random
-from typing import Callable, Mapping, Protocol
+from typing import Mapping, Protocol
 
 from interfirm_abm.task_based_firm import TaskAllocation, TaskBasedFirm
 from interfirm_abm.task_economic_policy import MarketObservation
@@ -73,9 +73,6 @@ class OwnOutcome:
 class DecisionInformation:
     market: MarketObservation
     own_history: tuple[OwnOutcome, ...]
-    # None means not observable; do not substitute empty mappings silently.
-    peer_actions: Mapping[str, str] | None = None
-    peer_payoffs: Mapping[str, float] | None = None
 
 
 class ActionFactory(Protocol):
@@ -105,7 +102,6 @@ class ComposedStrategyPolicy:
     valuation: ActionValuation
     parameters: DecisionParameters
     rng: Random
-    peer_provider: Callable[[TaskBasedFirm, MarketObservation], tuple[Mapping[str, str], Mapping[str, float]]] | None = None
     own_history: list[OwnOutcome] = field(default_factory=list)
     pending_action: str | None = None
     selected_action: Action | None = None
@@ -191,7 +187,7 @@ class ComposedStrategyPolicy:
 
 def compose_all_policies(action_factory: ActionFactory, valuation: ActionValuation,
                          parameters: DecisionParameters, master_seed: int,
-                         peer_provider=None) -> dict[str, ComposedStrategyPolicy]:
+                         ) -> dict[str, ComposedStrategyPolicy]:
     if type(master_seed) is not int or master_seed < 0:
         raise ValueError("master_seed must be nonnegative integer")
     from hashlib import sha256
@@ -199,5 +195,5 @@ def compose_all_policies(action_factory: ActionFactory, valuation: ActionValuati
     for identity in strategy_roster():
         seed = int.from_bytes(sha256(f"{master_seed}|{identity.strategy_id}".encode()).digest()[:8], "big")
         policies[identity.strategy_id] = ComposedStrategyPolicy(
-            identity, action_factory, valuation, parameters, Random(seed), peer_provider)
+            identity, action_factory, valuation, parameters, Random(seed))
     return policies
