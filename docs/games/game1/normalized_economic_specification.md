@@ -708,3 +708,33 @@ Separate **exogenous technology** from **endogenous decision policy**. Within a 
 **Researcher approved D3.1 option A:** baseline variable production cost charges **actual utilized** labor and capital services only: `C_variable,ict=w_ct * sum_j l_icjt + r_ct * sum_j k_icjt`. Idle portions of `Lbar_c` and `Kbar_c` are not charged *variable* factor-service costs. Nonnegative finite allocations and the existing per-configuration endowment constraints still apply. `r` is a per-round **capital-service rental price**, not the purchase price of owned capital; no depreciation or capital acquisition is implied. `w` is the per-round labor-service price. Both factor-price levels, exogeneity/endogeneity, across-profile equality, and time variation remain **D3.2 pending**. Additional fixed, AI adoption/operation, adjustment and other costs remain unapproved and must not be silently set to zero as a research conclusion. This approval does not change code, prior A5 diagnostic results or `research_validated: false`.
 
 **D3.2 choices for researcher:** (A) common fixed exogenous `w,r` (baseline factor-price-taking market); (B) pre-specified exogenous time paths `w_ct,r_ct`; (C) endogenous factor prices determined by labor and capital-service supply. In all cases the ratio `w/r` has meaning only with declared factor units, and `w=r=1` is an unapproved diagnostic normalization. Under sigma-paired comparisons, hold the approved factor-price primitives fixed unless intentionally testing a separate treatment.
+
+
+## A6 D6 — Researcher-approved minimal-model directive (2026-11-06)
+
+**Status:** Researcher-approved decisions recorded; D6 simplification is a governing design direction, not authorization to change simulation code or claim scientific validation. `research_validated: false`.
+
+### Primary research question and design priority
+Compare realized cumulative profits of 256 strategy players over 200 rounds in each of 100 separate, shared-technology market configurations, including how outcomes change under technological substitutability scenarios. **Keep the economic model as simple as possible.** Introduce extra states, parameters, learning stages, and exceptional-case mechanisms only when indispensable to the research question, accounting consistency, or information validity. Implementation details should not become researcher-level approval gates unless they change economic behavior, assumptions, or interpretation. Do not erase prior decision history; mark unimplemented elaborate proposals as proposals, not approved baseline requirements.
+
+### D6 approvals (specification only)
+- D6.1 B: strategy-specific evaluation. Competitive/Cournot/Adaptive prioritize expected profit; Target-price prioritizes price-target distance then profit. Final outcome measure is realized cumulative profit, not internal learning score.
+- D6.2.1 A: update learned outcomes only for the action actually chosen; no realized counterfactual payoffs for unchosen actions.
+- D6.2.2 A: Target-price realized feedback for positive-output chosen action is lexicographic `(-abs(realized_price - chosen_action_target_price), realized_profit)`; no arbitrary distance-profit weighting.
+- D6.2.3 A: shutdown produces q=cost=profit=0, retains public market observations and ability to reenter; shutdown has no defined target-price distance. Reentry is permitted, not necessarily selected every round.
+- D6.3.1 A: preserve D5.1 public-information boundary; Imitation cannot observe individual rivals' actions or payoffs.
+- D6.3.2a A: rank-based Softmax for Target-price production-action ordering, preserving lexicographic preference without weighting distance against profit.
+- D6.3.2b A: conceptually two-stage participation (produce vs shutdown) and, conditional on producing, production-action choice. **Implement minimally; no separate elaborate participation-learning system is approved.**
+- D6.3.2c A: Imitation follows lagged aggregate output trend, not a specific rival or proof of rival success.
+- D6.3.3a A: exponential recency-weighted update from the chosen action's observed outcome; Target-price keeps distinct distance and profit feedback as needed. No updates of unchosen actions from realized payoffs.
+- D6.3.3b A: Optimization no mandatory random exploration; Trial-and-Error uses epsilon exploration; Softmax uses temperature.
+- D6.3.3c A: Imitation follows aggregate output trend probabilistically, otherwise own evaluation, with a possible exploration route to reentry.
+
+### Registry and minimal operational loop
+Keep existing L6 identifiers `optimization`, `trial_error`, `softmax`, `imitation` (L5 `adaptive` is not an L6 option). Each round: (1) observe permitted lagged information; (2) L5 evaluates feasible production actions, L6 decides participation and action; (3) market clears and records own realized payoff plus public P,Q; (4) update only permitted own learning and L5 beliefs once per respective state. Preserve simultaneous decisions and no current-price lookahead. Never conflate L5-Adaptive price expectation updates with L6 action learning. Profit is counted exactly once in cumulative payoff.
+
+### Not approved; simplify before implementation
+Numerical `eta`, `epsilon`, Softmax temperatures, `phi`, additional imitation exploration rate, monetary normalization `M_c`, separate participation value states and their learning rates, prior initialization formulas, specific tie-break tolerances, and detailed cold-start/fallback mechanisms from the D6.3.4 proposal **remain unapproved**. Earlier multi-state participation-learning equations and elaborate three-branch imitation are proposals only, not mandatory baseline. Select the smallest coherent operational rules and a compact sensitivity plan when implementation is authorized; explicitly flag any researcher-significant tradeoff. Preserve the existing D1–D5 and D6 approvals unless a proposed simplification requires explicit amendment.
+
+### Governance and next steps
+Single canonical file: `docs/games/game1/normalized_economic_specification.md` on branch `game1-economic-policy-interface`. Update this file in place; use Git history rather than version-suffixed copies. This documentation-only change does not authorize simulation code edits, reruns, or a claim of completed research validation.
