@@ -46,26 +46,34 @@ def test_l3_capacity_is_binding_at_task_level():
     assert all(a.labor == pytest.approx(b.labor * .8) for a, b in zip(limited, plan))
     f.evaluate_allocation(list(limited))
 
-def test_l3_adjustment_charged_only_after_previous_plan():
+def test_d3_adjustment_applies_to_all_strategies_from_zero_initial_inputs():
     f = approved_profiles()[0]
     p = scenario()
     old = tuple(TaskAllocation(t.task_id, .1, 0.) for t in f.tasks)
     new = tuple(TaskAllocation(t.task_id, .2, 0.) for t in f.tasks)
-    i = identity("adjustment", "eligibility")
-    assert economic_extra_cost(i, new, None, f, frozenset(), p)[0] == 0
-    assert economic_extra_cost(i, new, old, f, frozenset(), p)[0] == pytest.approx(4.)
+    for l3 in ("flexible", "capacity", "adjustment", "investment"):
+        i = identity(l3, "eligibility")
+        first, _, _ = economic_extra_cost(i, new, None, f, frozenset(), p,
+            wage=1., rental=1., delta=.1, adoption_fee=.0025)
+        later, _, _ = economic_extra_cost(i, new, old, f, frozenset(), p,
+            wage=1., rental=1., delta=.1, adoption_fee=.0025)
+        assert first == pytest.approx(.4)
+        assert later == pytest.approx(.2)
 
-def test_adoption_fee_once_per_newly_automated_task_and_not_twice():
+
+def test_d3_adoption_fee_once_for_all_l4_strategies():
     f = approved_profiles()[0]
-    t = next(t for t in f.tasks if not t.automation_eligible)
-    plan = tuple(TaskAllocation(x.task_id, 0., .1 if x.task_id == t.task_id else 0.) for x in f.tasks)
-    for l4 in ("adoption_cost", "combined"):
+    task = f.tasks[0]
+    plan = tuple(TaskAllocation(x.task_id, 0., .1 if x.task_id == task.task_id else 0.)
+                 for x in f.tasks)
+    for l4 in ("eligibility", "efficiency", "adoption_cost", "combined"):
         i = identity("flexible", l4)
-        _, fee, unlocked = economic_extra_cost(i, plan, None, f, frozenset(), scenario())
-        assert fee == 3.
-        assert unlocked == frozenset({t.task_id})
-        assert economic_extra_cost(i, plan, None, f, unlocked, scenario())[1] == 0
-    assert economic_extra_cost(identity("flexible", "eligibility"), plan, None, f, frozenset(), scenario())[1] == 0
+        kw = dict(wage=1., rental=1., delta=.1, adoption_fee=.0025)
+        _, fee, adopted = economic_extra_cost(i, plan, None, f, frozenset(), scenario(), **kw)
+        assert fee == pytest.approx(.0025)
+        assert adopted == frozenset({task.task_id})
+        assert economic_extra_cost(i, plan, None, f, adopted, scenario(), **kw)[1] == 0
+
 
 def test_runner_cost_identity_and_no_repeated_fee():
     f = approved_profiles()[0]
@@ -76,5 +84,5 @@ def test_runner_cost_identity_and_no_repeated_fee():
     for row in r["players"]:
         assert row["profit"] == pytest.approx(row["price"] * row["quantity"] - row["cost"])
         assert row["adoption_cost"] >= 0
-        assert row["adjustment_cost"] == 0
+        assert row["adjustment_cost"] >= 0
     assert r["research_validated"] is False
