@@ -24,3 +24,5 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Run existing and D1-D3 regression tests (no Game 1 simulation)
         run: python -m pytest tests/ -q --tb=short
+
+# CI trigger: approved D3 regression and legacy compatibility gate.
