@@ -38,14 +38,6 @@ def run_a5_diagnostic(config_id: str, sigma: float, *, rounds: int = 2, roster=N
     market = replace(market_factory(config_id, roster), aggregate_tasks=tech.output_index)
     policies = {}
 
-    def peers(firm, observation):
-        peers_seen = [(sid, p) for sid, p in policies.items()
-                      if sid != firm.firm_id and p.own_history]
-        return (
-            {sid: p.own_history[-1].action_id for sid, p in peers_seen},
-            {sid: p.own_history[-1].profit for sid, p in peers_seen},
-        )
-
     for identity in ROSTER:
         seed = int.from_bytes(sha256(
             f"{config_id}|{identity.strategy_id}|a5-paired".encode()
@@ -54,7 +46,7 @@ def run_a5_diagnostic(config_id: str, sigma: float, *, rounds: int = 2, roster=N
             identity, build_actions,
             lambda ident, firm, info, action, agg=tech.output_index:
                 score_action(ident, firm, info, action, agg),
-            DecisionParameters(.15, 1.), Random(seed), peers,
+            DecisionParameters(.15, 1.), Random(seed),
         )
     result = run_mixed_market(market, policies, rounds)
     result.update({
