@@ -14,7 +14,8 @@ from interfirm_abm.task_l34_economics import L34Parameters
 OUT=Path("artifacts/game1_a6_decision_audit")
 OUT.mkdir(parents=True,exist_ok=True)
 profiles=approved_profiles()
-selected=(profiles[0],profiles[45],profiles[99])
+selected=tuple(profiles)
+assert len(selected)==100 and len({f.firm_id for f in selected})==100
 l34=L34Parameters(capacity_ratio=2.,adjustment_unit_cost=.001,
                   efficiency_gain=.2,adoption_fee=.001)
 params=approved_d1_d2_parameters(theta=1.,kappa=.5,elasticity=1.,
@@ -77,7 +78,7 @@ for firm in selected:
                     for a in d["candidates"] if a["eligible"]))
     result=run_a6_market(firm,1.,params,l34_parameters=l34,rounds=200,decision_audit=audit)
     assert not result["research_validated"] and len(result["players"])==51200
-    print("A6_DECISION_AUDIT_PROGRESS="+json.dumps({"profile":firm.firm_id}),flush=True)
+    print("A6_DECISION_AUDIT_PROGRESS="+json.dumps({"completed":len({k[0] for k in counts}),"total":len(selected),"profile":firm.firm_id}),flush=True)
 for (profile,l5,l6),c in sorted(counts.items()):
     rows.append({"profile_id":profile,"L5":l5,"L6":l6,**c})
 fields=["profile_id","L5","L6"]+sorted(set(k for c in counts.values() for k in c))
@@ -92,7 +93,7 @@ for l5,l6 in sorted({(r["L5"],r["L6"]) for r in rows}):
             total[k]+=r.get(k,0)
     summary[f"{l5}|{l6}"]=dict(total)
 report=dict(research_validated=False,profiles=[x.firm_id for x in selected],
-            sigma=1.,seed=11,decisions=3*256*200,
+            sigma=1.,seed=11,decisions=len(selected)*256*200,
             interpretation="within-decision alternative ranking, observational not causal",
             by_mechanism=summary)
 (OUT/"summary.json").write_text(json.dumps(report,indent=2))
