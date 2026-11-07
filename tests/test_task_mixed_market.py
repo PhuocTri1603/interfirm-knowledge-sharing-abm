@@ -27,8 +27,7 @@ def valuation(strategy, firm, info, action):
 def policies(roster):
     return {
         identity.strategy_id: ComposedStrategyPolicy(
-            identity, candidates, valuation, DecisionParameters(0.0, 1.0), Random(42),
-            peer_provider=lambda firm, obs: ({firm.firm_id: "fixed"}, {firm.firm_id: 1.0}),
+            identity, candidates, valuation, DecisionParameters(0.0, 1.0), Random(42)
         )
         for identity in roster
     }
