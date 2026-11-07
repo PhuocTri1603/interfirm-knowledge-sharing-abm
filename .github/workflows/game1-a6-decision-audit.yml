@@ -1,0 +1,26 @@
+name: Game 1 A6 decision mechanism audit
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/run_game1_a6_decision_audit.py'
+      - 'src/interfirm_abm/task_a6_market.py'
+      - '.github/workflows/game1-a6-decision-audit.yml'
+  workflow_dispatch:
+jobs:
+  decision-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -u scripts/run_game1_a6_decision_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-a6-decision-audit
+          path: artifacts/game1_a6_decision_audit/
+          retention-days: 30
