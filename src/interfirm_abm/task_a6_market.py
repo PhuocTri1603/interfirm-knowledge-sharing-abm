@@ -207,7 +207,7 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                 elif identity.L6 == "trial_error":
                     chosen = rng.choice(ordered) if rng.random() < parameters.epsilon else preferred
                 elif identity.L6 == "softmax":
-                    chosen = rank_softmax(scores, parameters.temperature, rng)
+                    chosen = rank_softmax(eligible, parameters.temperature, rng)
                 elif identity.L6 == "imitation":
                     # Approved Game 1 rule: repeat own best realized action.
                     # Only completed-round own history is available here.
