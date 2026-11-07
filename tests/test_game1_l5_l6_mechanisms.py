@@ -33,7 +33,7 @@ def test_price_markup_target_differs_from_cournot_profit_maximization():
 
 
 def test_adaptive_and_competitive_differ_only_when_beliefs_diverge():
-    choices = {"small": (1., .1), "large": (3., 2.)}
+    choices = {"small": (1., .1), "large": (3., 2.2)}
     assert best_action("competitive", choices, 1., 1., .1) == "small"
     assert best_action("adaptive", choices, 2., 1., .1) == "large"
     assert best_action("adaptive", choices, 1., 1., .1) == best_action("competitive", choices, 1., 1., .1)
