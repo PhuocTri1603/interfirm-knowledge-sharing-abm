@@ -43,8 +43,7 @@ def policy_factory(config_id, market):
     return {
         identity.strategy_id: ComposedStrategyPolicy(
             identity, action_factory, lambda *args: 1.0,
-            DecisionParameters(0, 1), Random(17),
-            peer_provider=lambda firm, obs: ({firm.firm_id: "fixed"}, {firm.firm_id: 1}),
+            DecisionParameters(0, 1), Random(17)
         )
         for identity in strategy_roster()
     }
@@ -84,7 +83,7 @@ def test_reject_incomplete_player_roster():
 
 
 def test_scientific_mode_blocks_unresolved_strategy_semantics():
-    with pytest.raises(ValueError, match="16 unresolved strategy semantics"):
+    with pytest.raises(ValueError, match="have not been research-validated"):
         run_full_tournament(
             configurations(1),
             TournamentSpecification(
