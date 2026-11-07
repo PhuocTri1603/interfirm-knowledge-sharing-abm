@@ -1,7 +1,7 @@
 """Full 100-configuration Game 1 A6 run; postprocess payoffs only.
 
-Uses exactly the illustrative parameterization of scripts/run_game1_a6_pilot.py.
-No modifications to market rules, strategy definitions or calibration.
+Uses the researcher-approved D1/D2 baseline for demand and common input prices.
+L3/L4 and L6 parameters remain illustrative; research_validated stays false.
 """
 import csv
 import json
@@ -10,17 +10,15 @@ from math import fsum, isclose
 from pathlib import Path
 from statistics import mean
 
-from interfirm_abm.task_a6_market import A6Parameters, approved_profiles, run_a6_market
+from interfirm_abm.task_a6_market import approved_d1_d2_parameters, approved_profiles, run_a6_market
 from interfirm_abm.task_l34_economics import L34Parameters
 
 OUT = Path("artifacts/game1_a6_full100")
 OUT.mkdir(parents=True, exist_ok=True)
 PROFILES = approved_profiles()
 assert len(PROFILES) == 100 and len({f.firm_id for f in PROFILES}) == 100
-PARAMS = A6Parameters(demand_intercept=10.0, demand_slope=0.01,
-                      epsilon=0.15, temperature=1.0,
-                      imitation_probability=0.5, seed=11,
-                      wage=0.001, rental=0.001)
+PARAMS = approved_d1_d2_parameters(theta=1.0, kappa=0.5, elasticity=1.0,
+                                    adaptive_lambda=0.5, seed=11)
 L34 = L34Parameters(capacity_ratio=2.0, adjustment_unit_cost=0.001,
                     efficiency_gain=0.2, adoption_fee=0.001)
 
