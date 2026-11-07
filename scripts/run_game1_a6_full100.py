@@ -161,7 +161,11 @@ write_table("strategy_r1_r2_r3_r5_summary.csv",strategy_summary,
     ["strategy_id","winning_configurations","total_cumulative_payoff",
      "mean_cumulative_payoff","mean_delta_payoff","positive_delta_configurations",
      "minimum_cumulative_payoff","maximum_cumulative_payoff"])
-assert len(layer_rows)==19200 and len(behavior_rows)==25600
+# Each layer: 64 fixed combinations x C(4,2)=6 contrasts per configuration.
+# Across two layers and 100 configurations: 64*6*2*100 = 76,800.
+assert len(layer_rows)==76800 and len(behavior_rows)==25600, (
+    f"unexpected comparison counts: {len(layer_rows)=}, {len(behavior_rows)=}"
+)
 write_table("a6_l5_l6_matched_contrasts.csv",layer_rows,
     ["profile_id","layer","method_a","method_b","strategy_a","strategy_b",
      "payoff_difference","identical_actions","identical_quantities","identical_profits"])
