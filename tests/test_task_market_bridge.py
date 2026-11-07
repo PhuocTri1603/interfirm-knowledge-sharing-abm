@@ -9,7 +9,7 @@ from interfirm_abm.task_market_bridge import TaskMarketTechnology
 def sample():
     tasks = tuple(TaskCapability(f"T{i:02d}", 1, 2, True) for i in range(1, 21))
     firm = TaskBasedFirm("firm", 2, 2, tasks)
-    allocation = tuple(TaskAllocation(f"T{i:02d}", 0.1, 0.1) for i in range(1, 21))
+    allocation = tuple(TaskAllocation(f"T{i:02d}", 0.1 if i <= 10 else 0.0, 0.0 if i <= 10 else 0.1) for i in range(1, 21))
     bridge = TaskMarketTechnology(
         {"firm": firm}, {"firm": allocation},
         lambda activities: weighted_linear(activities, {key: 0.05 for key in activities}),
@@ -21,18 +21,18 @@ def sample():
 def test_task_output_flows_to_shared_market():
     result = evaluate_joint_decisions(
         {"firm": PlayerState("firm", 2, 2)},
-        {"firm": ProductionDecision(2, 2)},
+        {"firm": ProductionDecision(1, 1)},
         sample().specification(),
     )
-    assert result["market_quantity"] == pytest.approx(0.3)
-    assert result["market_price"] == pytest.approx(9.7)
-    assert result["player_costs"]["firm"] == pytest.approx(6)
+    assert result["market_quantity"] == pytest.approx(0.15)
+    assert result["market_price"] == pytest.approx(9.85)
+    assert result["player_costs"]["firm"] == pytest.approx(3)
 
 
 def test_decision_must_match_task_allocation():
     with pytest.raises(ValueError, match="match"):
         evaluate_joint_decisions(
             {"firm": PlayerState("firm", 2, 2)},
-            {"firm": ProductionDecision(1, 2)},
+            {"firm": ProductionDecision(0.5, 1)},
             sample().specification(),
         )
