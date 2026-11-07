@@ -193,15 +193,17 @@ def run_game1(firm, sigma, p, rounds=200):
     for t in range(1, rounds + 1):
         selections = {}
         for sid, s in states.items():
-            plans = {"shutdown": (-adjustment(zero_plan(), s["previous"], p),
-                                  zero_plan(), 0., adjustment(zero_plan(), s["previous"], p), frozenset(), s["modes"])}
-            for j, b in enumerate(BUDGETS, 1):
-                plans[f"b{j}"] = candidate(firm, tech, s["l3"], s["l4"], b,
-                                          prior_price, s["previous"], s["adopted"], p, s["modes"])
             rng = s["rng"]
             action = rng.choice(ACTIONS) if rng.random() < p.epsilon else max(
                 ACTIONS, key=lambda a: (s["Q"][a], -ACTIONS.index(a)))
-            selections[sid] = (action, plans[action])
+            if action == "shutdown":
+                cost = adjustment(zero_plan(), s["previous"], p)
+                chosen = (-cost, zero_plan(), 0., cost, frozenset(), s["modes"])
+            else:
+                chosen = candidate(firm, tech, s["l3"], s["l4"],
+                                   BUDGETS[ACTIONS.index(action) - 1],
+                                   prior_price, s["previous"], s["adopted"], p, s["modes"])
+            selections[sid] = (action, chosen)
         total_q = fsum(out[2] for _, out in selections.values())
         price = max(0., p.demand_intercept - p.demand_slope * total_q)
         for sid, (action, (_, plan, q, cost, new, modes)) in selections.items():
