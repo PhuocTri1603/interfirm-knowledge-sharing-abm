@@ -211,6 +211,8 @@ def run_game1(firm, sigma, p, rounds=200):
             s["profit"] += reward
             s["updates"] += 1
             s["previous"] = plan
+            if action != "shutdown":
+                s["modes"] = modes
             s["adopted"] |= new
             rows.append(dict(round=t, strategy_id=sid, action=action, output=q,
                              price=price, profit=reward, cumulative_profit=s["profit"],
