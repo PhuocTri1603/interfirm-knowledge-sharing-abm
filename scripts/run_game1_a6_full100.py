@@ -6,7 +6,7 @@ research_validated stays false.
 """
 import csv
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from math import fsum, isclose
 from pathlib import Path
 from statistics import mean
@@ -44,6 +44,8 @@ all_strategies=set()
 summaries=[]
 player_records=[]
 per_strategy={}
+layer_rows=[]
+behavior_rows=[]
 
 for index, firm in enumerate(PROFILES, 1):
     result=run_a6_market(firm,1.0,PARAMS,l34_parameters=L34,rounds=200)
@@ -72,6 +74,37 @@ for index, firm in enumerate(PROFILES, 1):
     winners=[sid for sid,p in result["ranking"] if isclose(p,top,rel_tol=1e-12,abs_tol=1e-8)]
     for sid in winners:
         wincount[sid]+=1
+    paths=defaultdict(list)
+    for row in result["players"]:
+        paths[row["strategy_id"]].append(row)
+    assert len(paths)==256 and all(len(v)==200 for v in paths.values())
+    for sid,path in paths.items():
+        actions=[r["action"] for r in path]
+        parts=dict(part.split("=",1) for part in sid.split("|"))
+        behavior_rows.append(dict(profile_id=firm.firm_id,strategy_id=sid,
+            L5=parts["L5"],L6=parts["L6"],
+            transitions=sum(a!=b for a,b in zip(actions,actions[1:])),
+            distinct_actions=len(set(actions)),shutdown_rounds=actions.count("shutdown"),
+            total_profit=path[-1]["cumulative_profit"]))
+    for layer in ("L5","L6"):
+        groups=defaultdict(list)
+        for sid,path in paths.items():
+            parts=dict(part.split("=",1) for part in sid.split("|"))
+            fixed=tuple(sorted((k,v) for k,v in parts.items() if k!=layer))
+            groups[fixed].append((parts[layer],sid,path))
+        for fixed,group in groups.items():
+            assert len(group)==4
+            group.sort(key=lambda x:x[0])
+            for j in range(4):
+                for k in range(j+1,4):
+                    a,sa,pa=group[j]
+                    b,sb,pb=group[k]
+                    layer_rows.append(dict(profile_id=firm.firm_id,layer=layer,
+                        method_a=a,method_b=b,strategy_a=sa,strategy_b=sb,
+                        payoff_difference=pa[-1]["cumulative_profit"]-pb[-1]["cumulative_profit"],
+                        identical_actions=int(all(x["action"]==y["action"] for x,y in zip(pa,pb))),
+                        identical_quantities=int(all(isclose(x["quantity"],y["quantity"],rel_tol=1e-10,abs_tol=1e-10) for x,y in zip(pa,pb))),
+                        identical_profits=int(all(isclose(x["profit"],y["profit"],rel_tol=1e-10,abs_tol=1e-10) for x,y in zip(pa,pb)))))
     first_round = {row["strategy_id"]: row["profit"] for row in result["players"] if row["round"] == 1}
     final_round = {row["strategy_id"]: row["profit"] for row in result["players"] if row["round"] == 200}
     assert len(first_round) == len(final_round) == 256
@@ -128,6 +161,30 @@ write_table("strategy_r1_r2_r3_r5_summary.csv",strategy_summary,
     ["strategy_id","winning_configurations","total_cumulative_payoff",
      "mean_cumulative_payoff","mean_delta_payoff","positive_delta_configurations",
      "minimum_cumulative_payoff","maximum_cumulative_payoff"])
+assert len(layer_rows)==19200 and len(behavior_rows)==25600
+write_table("a6_l5_l6_matched_contrasts.csv",layer_rows,
+    ["profile_id","layer","method_a","method_b","strategy_a","strategy_b",
+     "payoff_difference","identical_actions","identical_quantities","identical_profits"])
+write_table("a6_l5_l6_behavior_by_strategy.csv",behavior_rows,
+    ["profile_id","strategy_id","L5","L6","transitions","distinct_actions",
+     "shutdown_rounds","total_profit"])
+mechanisms={"research_validated":False,"calibration":"L34_L6_illustrative",
+            "caution":"matched shared-market comparisons are descriptive, not causal"}
+for layer in ("L5","L6"):
+    matched=[r for r in layer_rows if r["layer"]==layer]
+    mechanisms[layer]={"pairs":len(matched),
+        "identical_action_fraction":mean(r["identical_actions"] for r in matched),
+        "identical_profit_fraction":mean(r["identical_profits"] for r in matched),
+        "mean_absolute_payoff_difference":mean(abs(r["payoff_difference"]) for r in matched)}
+    for method in sorted({r[layer] for r in behavior_rows}):
+        subset=[r for r in behavior_rows if r[layer]==method]
+        mechanisms[layer][method]={"observations":len(subset),
+            "mean_transitions":mean(r["transitions"] for r in subset),
+            "zero_transition_fraction":mean(r["transitions"]==0 for r in subset),
+            "mean_distinct_actions":mean(r["distinct_actions"] for r in subset),
+            "mean_cumulative_profit":mean(r["total_profit"] for r in subset)}
+(OUT/"a6_l5_l6_mechanism_summary.json").write_text(json.dumps(mechanisms,indent=2),encoding="utf-8")
+print("A6_L5_L6_MECHANISM_SUMMARY="+json.dumps(mechanisms,sort_keys=True),flush=True)
 r1=top(player_records,"cumulative_payoff")
 r2=top(strategy_summary,"winning_configurations")
 r3=top(player_records,"delta_payoff")
