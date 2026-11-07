@@ -137,7 +137,7 @@ def _candidate_plans(identity, firm, observation, own_history):
     return {k: action.allocation for k, action in build_actions(identity, firm, info).items()}
 
 
-def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rounds=1, identities=None):
+def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rounds=1, identities=None, decision_audit=None):
     """Execute one shared-technology market with explicit (unapproved) calibration.
 
     This is an implementation/invariant-test runner, not a validated baseline.
@@ -223,6 +223,28 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                     chosen = choose_self_imitation(tuple(state["history"]), ordered, preferred)
                 else:
                     raise ValueError("unknown L6")
+            if decision_audit is not None:
+                # Observational hook: no RNG draws, no mutation of policy state.
+                observed = [h for h in state["history"] if h.action_id in eligible]
+                historical_best = (min(h.action_id for h in observed
+                    if h.profit == max(o.profit for o in observed))
+                    if observed else None)
+                decision_audit(dict(
+                    round=t, strategy_id=sid, L3=identity.L3, L4=identity.L4,
+                    L5=identity.L5, L6=identity.L6,
+                    chosen=chosen or "shutdown", preferred=preferred if best_predicted > shutdown_profit else "shutdown",
+                    history_best=historical_best, history_count=len(observed),
+                    prior_price=prior_price if last is None else last["price"],
+                    own_price_belief=own_belief, last_quantity=state["last_q"],
+                    demand_slope=prior_slope, eligible_count=len(eligible) if best_predicted > shutdown_profit else 0,
+                    candidates=tuple(dict(action=k, quantity=technology.output_index(
+                        production_firm.evaluate_allocation(list(plan))),
+                        forecast_price=l5_candidate_forecast(identity.L5, own_belief,
+                            state["last_q"], technology.output_index(
+                                production_firm.evaluate_allocation(list(plan))), prior_slope),
+                        predicted_profit=predicted_profits[k],
+                        eligible=k in eligible if best_predicted > shutdown_profit else False)
+                        for k, plan in candidates.items())))
             plan = candidates[chosen] if chosen is not None else zero_plan
             q = technology.output_index(production_firm.evaluate_allocation(list(plan)))
             adjustment, adoption, unlocks = economic_extra_cost(
