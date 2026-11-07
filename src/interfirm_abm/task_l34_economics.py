@@ -52,17 +52,17 @@ def capacity_limited(plan, firm: TaskBasedFirm, original: TaskBasedFirm,
 
 
 def economic_extra_cost(identity, plan, previous_plan, original: TaskBasedFirm,
-                        adopted_tasks: frozenset[str], parameters: L34Parameters):
-    """Return (current-period adjustment cost, one-time AI adoption fee, new unlocks)."""
-    adjustment = 0.
-    if identity.L3 == "adjustment" and previous_plan is not None:
-        old = {a.task_id: a for a in previous_plan}
-        adjustment = parameters.adjustment_unit_cost * fsum(
-            abs(a.labor - old[a.task_id].labor) + abs(a.capital - old[a.task_id].capital)
-            for a in plan)
-    originally_eligible = {t.task_id for t in original.tasks if t.automation_eligible}
+                        adopted_tasks: frozenset[str], parameters: L34Parameters, *,
+                        wage, rental, delta, adoption_fee):
+    """Approved D3: total-input adjustment and one-time fee for first AI use."""
+    if any(not isfinite(x) or x < 0 for x in (wage, rental, delta, adoption_fee)):
+        raise ValueError("D3 cost parameters must be finite and nonnegative")
+    previous = () if previous_plan is None else previous_plan
+    old_l = fsum(a.labor for a in previous)
+    old_k = fsum(a.capital for a in previous)
+    new_l = fsum(a.labor for a in plan)
+    new_k = fsum(a.capital for a in plan)
+    adjustment = delta * (wage * abs(new_l - old_l) + rental * abs(new_k - old_k))
     newly_used = frozenset(a.task_id for a in plan
-        if a.capital > 0 and a.task_id not in originally_eligible
-        and a.task_id not in adopted_tasks)
-    fee = parameters.adoption_fee * len(newly_used) if identity.L4 in ("adoption_cost", "combined") else 0.
-    return adjustment, fee, newly_used if identity.L4 in ("adoption_cost", "combined") else frozenset()
+                           if a.capital > 0 and a.task_id not in adopted_tasks)
+    return adjustment, adoption_fee * len(newly_used), newly_used
