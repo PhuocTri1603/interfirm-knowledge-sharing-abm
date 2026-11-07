@@ -124,14 +124,14 @@ def allocate(firm, tech, modes, l3, budget, price, previous, adopted, p):
     return plan
 
 
-def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p):
+def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p, last_modes=None):
     tasks = firm.tasks
-    old_modes = tuple(a.capital > 1e-9 for a in previous)
+    old_modes = tuple(a.capital > 1e-9 for a in previous) if last_modes is None else last_modes
     def evaluate(modes):
         plan = allocate(firm, tech, modes, l3, budget, price, previous, adopted, p)
         q = tech.output_from_allocation(firm, list(plan))
         cost, new = plan_cost(plan, previous, adopted, p)
-        return price * q - cost, plan, q, cost, new
+        return price * q - cost, plan, q, cost, new, tuple(modes)
     if l4 == "no_automation":
         return evaluate((False,) * 20)
     if l4 == "cost_based":
@@ -187,24 +187,24 @@ def run_game1(firm, sigma, p, rounds=200):
         sid = f"L3={l3}|L4={l4}"
         seed = int.from_bytes(sha256(f"{p.seed}|{firm.firm_id}|{sid}".encode()).digest()[:8], "big")
         states[sid] = dict(l3=l3, l4=l4, rng=Random(seed), Q={a: 0. for a in ACTIONS},
-                           previous=zero_plan(), adopted=frozenset(), profit=0., updates=0)
+                           previous=zero_plan(), modes=(False,) * 20, adopted=frozenset(), profit=0., updates=0)
     rows, markets = [], []
     prior_price = 1.
     for t in range(1, rounds + 1):
         selections = {}
         for sid, s in states.items():
             plans = {"shutdown": (-adjustment(zero_plan(), s["previous"], p),
-                                  zero_plan(), 0., adjustment(zero_plan(), s["previous"], p), frozenset())}
+                                  zero_plan(), 0., adjustment(zero_plan(), s["previous"], p), frozenset(), s["modes"])}
             for j, b in enumerate(BUDGETS, 1):
                 plans[f"b{j}"] = candidate(firm, tech, s["l3"], s["l4"], b,
-                                          prior_price, s["previous"], s["adopted"], p)
+                                          prior_price, s["previous"], s["adopted"], p, s["modes"])
             rng = s["rng"]
             action = rng.choice(ACTIONS) if rng.random() < p.epsilon else max(
                 ACTIONS, key=lambda a: (s["Q"][a], -ACTIONS.index(a)))
             selections[sid] = (action, plans[action])
         total_q = fsum(out[2] for _, out in selections.values())
         price = max(0., p.demand_intercept - p.demand_slope * total_q)
-        for sid, (action, (_, plan, q, cost, new)) in selections.items():
+        for sid, (action, (_, plan, q, cost, new, modes)) in selections.items():
             s = states[sid]
             reward = price * q - cost
             s["Q"][action] += p.eta * (reward - s["Q"][action])
