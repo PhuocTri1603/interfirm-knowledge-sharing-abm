@@ -7,6 +7,7 @@ ONLY in this A6 engine. Not a Nash-equilibrium solver.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from types import SimpleNamespace
 from hashlib import sha256
 from math import exp, fsum, isfinite
 from pathlib import Path
@@ -137,7 +138,7 @@ def _candidate_plans(identity, firm, observation, own_history):
     return {k: action.allocation for k, action in build_actions(identity, firm, info).items()}
 
 
-def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rounds=1, identities=None, decision_audit=None):
+def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rounds=1, identities=None, decision_audit=None, mechanism_overrides=None):
     """Execute one shared-technology market with explicit (unapproved) calibration.
 
     This is an implementation/invariant-test runner, not a validated baseline.
@@ -150,6 +151,17 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
     identities = tuple(strategy_roster() if identities is None else identities)
     if not identities or len({x.strategy_id for x in identities}) != len(identities):
         raise ValueError("unique nonempty strategy roster required")
+    mechanism_overrides = {} if mechanism_overrides is None else dict(mechanism_overrides)
+    valid_ids = {i.strategy_id for i in identities}
+    if any(sid not in valid_ids for sid in mechanism_overrides):
+        raise ValueError("override target must be an existing player slot")
+    for override in mechanism_overrides.values():
+        if not isinstance(override, dict) or set(override)-{"L5","L6"}:
+            raise ValueError("invalid mechanism override keys")
+        if override.get("L5","competitive") not in ("competitive","cournot","adaptive","price"):
+            raise ValueError("invalid L5")
+        if override.get("L6","optimization") not in ("optimization","imitation","softmax","trial_error"):
+            raise ValueError("invalid L6")
     technology = technology_for_profile(firm, sigma)
     qref = reference_market_quantity(firm, len(identities))
     # D1-A2/A4: P0=1 first-round belief; market prices observed with one-round lag.
@@ -174,6 +186,10 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
         selected = {}
         for sid, state in states.items():
             identity = state["identity"]
+            if sid in mechanism_overrides:
+                identity = SimpleNamespace(strategy_id=sid, L3=identity.L3, L4=identity.L4,
+                    L5=mechanism_overrides[sid].get("L5",identity.L5),
+                    L6=mechanism_overrides[sid].get("L6",identity.L6))
             production_firm = effective_firm(firm, identity.L4, l34_parameters)
             candidates = _candidate_plans(identity, production_firm, observation, state["history"])
             if identity.L3 == "capacity":
@@ -263,7 +279,7 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
             state["last_q"] = q
             state["previous_plan"] = plan  # shutdown is zero-input allocation
             state["adopted"] = state["adopted"] | unlocks
-            if state["identity"].L5 == "adaptive":
+            if identity.L5 == "adaptive":
                 lam = parameters.adaptive_lambda
                 state["price_belief"] = (1.0 - lam) * state["price_belief"] + lam * price
             # Exactly one realized feedback for chosen production action.
