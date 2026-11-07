@@ -100,22 +100,13 @@ def market_factory(config_id, roster):
 
 def policy_factory(config_id, market):
     policies = {}
-    # Peer data comes from prior realized outcomes only, not current-round results.
-    def peer_provider(firm, observation):
-        peers = [(sid, p) for sid, p in policies.items()
-                 if sid != firm.firm_id and p.own_history]
-        if not peers:
-            # No realized peers exist in round one; do not invent self-as-peer.
-            return ({}, {})
-        return ({sid: p.own_history[-1].action_id for sid, p in peers},
-                {sid: p.own_history[-1].profit for sid, p in peers})
-
+    # Game 1 only observes own completed outcomes; no rival-specific data.
     for identity in ROSTER:
         seed = int.from_bytes(sha256(
             f"{config_id}|{identity.strategy_id}|diagnostic-v2".encode()
         ).digest()[:8], "big")
         policies[identity.strategy_id] = ComposedStrategyPolicy(
             identity, action_factory, valuation,
-            DecisionParameters(.15, 1.), Random(seed), peer_provider
+            DecisionParameters(.15, 1.), Random(seed)
         )
     return policies
