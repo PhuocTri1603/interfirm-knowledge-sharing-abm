@@ -1,0 +1,26 @@
+name: Game 1 A6 unilateral causal interventions
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/run_game1_a6_causal_intervention.py'
+      - '.github/workflows/game1-a6-causal-intervention.yml'
+  workflow_dispatch:
+jobs:
+  causal-screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      - name: Run paired unilateral market counterfactuals
+        run: python -u scripts/run_game1_a6_causal_intervention.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-a6-causal-intervention
+          path: artifacts/game1_a6_causal_intervention/
+          retention-days: 30
