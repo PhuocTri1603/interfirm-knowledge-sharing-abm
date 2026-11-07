@@ -32,6 +32,9 @@ class A6Parameters:
     wage: float = 1.0
     rental: float = 1.0
     adaptive_lambda: float = 0.5
+    adjustment_delta: float = 0.1
+    ai_adoption_mu: float = 0.1
+    kappa: float = 0.5
 
     def __post_init__(self):
         positives = (self.demand_intercept, self.demand_slope,
@@ -43,6 +46,8 @@ class A6Parameters:
             raise ValueError("behavior probabilities must be in [0,1]")
         if not isfinite(self.adaptive_lambda) or not 0 <= self.adaptive_lambda <= 1:
             raise ValueError("adaptive_lambda must be in [0,1]")
+        if any(not isfinite(x) or x < 0 for x in (self.adjustment_delta, self.ai_adoption_mu, self.kappa)):
+            raise ValueError("D3 parameters must be finite and nonnegative")
         if type(self.seed) is not int or self.seed < 0:
             raise ValueError("seed must be nonnegative integer")
 
@@ -54,7 +59,8 @@ D1_REFERENCE_MARKET_QUANTITY = 256.0
 
 def approved_d1_d2_parameters(*, theta=1.0, kappa=0.5, elasticity=1.0,
                               adaptive_lambda=0.5, epsilon=0.15,
-                              temperature=1.0, imitation_probability=0.5, seed=11):
+                              temperature=1.0, imitation_probability=0.5, seed=11,
+                              adjustment_delta=0.1, ai_adoption_mu=0.1):
     """Construct approved D1/D2 price parameters, common across all configurations.
 
     P0=1, Q0=256; elasticity is absolute point elasticity at that anchor.
@@ -68,7 +74,9 @@ def approved_d1_d2_parameters(*, theta=1.0, kappa=0.5, elasticity=1.0,
     return A6Parameters(demand_intercept=a, demand_slope=b,
                         epsilon=epsilon, temperature=temperature,
                         imitation_probability=imitation_probability, seed=seed,
-                        wage=w, rental=w / theta, adaptive_lambda=adaptive_lambda)
+                        wage=w, rental=w / theta, adaptive_lambda=adaptive_lambda,
+                        adjustment_delta=adjustment_delta, ai_adoption_mu=ai_adoption_mu,
+                        kappa=kappa)
 
 
 def reference_allocation(firm):
@@ -137,6 +145,8 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
         states[sid] = dict(identity=identity, rng=Random(seed), profit=0.0,
                            last_q=1.0, price_belief=prior_price, scores={},
                            feedback_count=0, history=[], previous_plan=None, adopted=frozenset())
+    d3_fee = parameters.ai_adoption_mu * parameters.kappa / 20.0
+    zero_plan = tuple(TaskAllocation(k, 0.0, 0.0) for k in TASK_IDS)
     market_history = []
     rows = []
     for t in range(1, rounds + 1):
@@ -158,7 +168,9 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                 # A5 references remain fixed to the original configuration.
                 q = technology.output_index(production_firm.evaluate_allocation(list(plan)))
                 adjustment, adoption, _ = economic_extra_cost(
-                    identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters)
+                    identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters,
+                    wage=parameters.wage, rental=parameters.rental,
+                    delta=parameters.adjustment_delta, adoption_fee=d3_fee)
                 cost = _plan_cost(plan, parameters) + adjustment + adoption
                 if identity.L5 == "cournot" or identity.L5 == "price":
                     # D1-A2: forecast changes only from own lagged quantity.
@@ -174,13 +186,20 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                 else:
                     scores[key] = (predicted_profits[key],)
             # Stage 1: participation; shutdown is never given a fake price distance.
+            shutdown_adjustment, _, _ = economic_extra_cost(
+                identity, zero_plan, state["previous_plan"], firm, state["adopted"],
+                l34_parameters, wage=parameters.wage, rental=parameters.rental,
+                delta=parameters.adjustment_delta, adoption_fee=d3_fee)
+            shutdown_profit = -shutdown_adjustment
             best_predicted = max(predicted_profits.values())
-            if best_predicted <= 0:
+            if best_predicted <= shutdown_profit:
                 chosen = None
             else:
                 # Stage 2: L6 selects among production actions.
                 rng = state["rng"]
-                ordered = sorted(scores, key=lambda k: k)
+                eligible = {k: v for k, v in scores.items()
+                            if predicted_profits[k] > shutdown_profit}
+                ordered = sorted(eligible, key=lambda k: k)
                 ordered.sort(key=lambda k: scores[k], reverse=True)
                 preferred = ordered[0]
                 if identity.L6 == "optimization":
@@ -195,12 +214,12 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                     chosen = choose_self_imitation(tuple(state["history"]), ordered, preferred)
                 else:
                     raise ValueError("unknown L6")
-            plan = candidates[chosen] if chosen is not None else reference_allocation(firm)
-            if chosen is None:
-                plan = tuple(TaskAllocation(k, 0.0, 0.0) for k in TASK_IDS)
+            plan = candidates[chosen] if chosen is not None else zero_plan
             q = technology.output_index(production_firm.evaluate_allocation(list(plan)))
             adjustment, adoption, unlocks = economic_extra_cost(
-                identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters)
+                identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters,
+                wage=parameters.wage, rental=parameters.rental,
+                delta=parameters.adjustment_delta, adoption_fee=d3_fee)
             cost = _plan_cost(plan, parameters) + adjustment + adoption
             selected[sid] = (chosen, q, cost, plan, unlocks, adjustment, adoption)
         total_q = fsum(v[1] for v in selected.values())
@@ -211,9 +230,8 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
             state = states[sid]
             state["profit"] += profit
             state["last_q"] = q
-            if chosen is not None:
-                state["previous_plan"] = plan
-                state["adopted"] = state["adopted"] | unlocks
+            state["previous_plan"] = plan  # shutdown is zero-input allocation
+            state["adopted"] = state["adopted"] | unlocks
             if state["identity"].L5 == "adaptive":
                 lam = parameters.adaptive_lambda
                 state["price_belief"] = (1.0 - lam) * state["price_belief"] + lam * price
