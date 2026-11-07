@@ -43,6 +43,9 @@ summary_file, summary_writer = writer("configuration_summary.csv",[
 wincount=Counter()
 all_strategies=set()
 summaries=[]
+player_records=[]
+per_strategy={}
+
 for index, firm in enumerate(PROFILES, 1):
     result=run_a6_market(firm,1.0,PARAMS,l34_parameters=L34,rounds=200)
     assert not result["research_validated"]
@@ -70,7 +73,16 @@ for index, firm in enumerate(PROFILES, 1):
     winners=[sid for sid,p in result["ranking"] if isclose(p,top,rel_tol=1e-12,abs_tol=1e-8)]
     for sid in winners:
         wincount[sid]+=1
+    first_round = {row["strategy_id"]: row["profit"] for row in result["players"] if row["round"] == 1}
+    final_round = {row["strategy_id"]: row["profit"] for row in result["players"] if row["round"] == 200}
+    assert len(first_round) == len(final_round) == 256
     for sid,p in result["ranking"]:
+        record = dict(profile_id=firm.firm_id, strategy_id=sid, cumulative_payoff=p,
+                      payoff_round_1=first_round[sid], payoff_round_200=final_round[sid],
+                      delta_payoff=final_round[sid]-first_round[sid],
+                      is_winner=int(sid in winners))
+        player_records.append(record)
+        per_strategy.setdefault(sid, []).append(record)
         rank=1+sum(other > p+1e-8 for _,other in result["ranking"])
         ranking_writer.writerow(dict(profile_id=firm.firm_id,strategy_id=sid,
             cumulative_payoff=p,rank=rank,is_winner=int(sid in winners)))
@@ -91,6 +103,52 @@ for index, firm in enumerate(PROFILES, 1):
 for f in (market_file,ranking_file,summary_file):
     f.close()
 assert len(summaries)==100 and len(all_strategies)==256
+assert len(player_records)==25600 and all(len(v)==100 for v in per_strategy.values())
+def top(rows, key, n=10):
+    return sorted(rows, key=lambda r:(-r[key], r.get("strategy_id",""),r.get("profile_id","")))[:n]
+def write_table(name, rows, fields):
+    with (OUT/name).open("w", newline="", encoding="utf-8") as handle:
+        writer=csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+write_table("player_endpoint_delta_by_configuration.csv", player_records,
+    ["profile_id","strategy_id","cumulative_payoff","payoff_round_1",
+     "payoff_round_200","delta_payoff","is_winner"])
+strategy_summary=[]
+for sid, records in per_strategy.items():
+    total=fsum(r["cumulative_payoff"] for r in records)
+    avg=total/100
+    avg_delta=mean(r["delta_payoff"] for r in records)
+    strategy_summary.append(dict(strategy_id=sid, winning_configurations=wincount[sid],
+        total_cumulative_payoff=total, mean_cumulative_payoff=avg,
+        mean_delta_payoff=avg_delta,
+        positive_delta_configurations=sum(r["delta_payoff"]>0 for r in records),
+        minimum_cumulative_payoff=min(r["cumulative_payoff"] for r in records),
+        maximum_cumulative_payoff=max(r["cumulative_payoff"] for r in records)))
+write_table("strategy_r1_r2_r3_r5_summary.csv",strategy_summary,
+    ["strategy_id","winning_configurations","total_cumulative_payoff",
+     "mean_cumulative_payoff","mean_delta_payoff","positive_delta_configurations",
+     "minimum_cumulative_payoff","maximum_cumulative_payoff"])
+r1=top(player_records,"cumulative_payoff")
+r2=top(strategy_summary,"winning_configurations")
+r3=top(player_records,"delta_payoff")
+r3_average=top(strategy_summary,"mean_delta_payoff")
+r4=top(summaries,"total_market_payoff_200_rounds")
+r5=top(strategy_summary,"mean_cumulative_payoff")
+results=dict(
+    R1_highest_individual_cumulative_payoff=r1,
+    R2_most_winning_strategies=r2,
+    R3_largest_individual_endpoint_delta=r3,
+    R3_largest_mean_endpoint_delta_across_configurations=r3_average,
+    R4_highest_total_market_payoff_configurations=r4,
+    R5_highest_mean_cumulative_payoff_strategies=r5,
+    endpoint_delta_definition="realized firm payoff round 200 minus realized firm payoff round 1",
+    mean_endpoint_delta_across_all_player_configurations=mean(r["delta_payoff"] for r in player_records),
+    count_positive_individual_endpoint_deltas=sum(r["delta_payoff"]>0 for r in player_records),
+    count_negative_individual_endpoint_deltas=sum(r["delta_payoff"]<0 for r in player_records))
+(OUT/"r1_r5_analysis.json").write_text(json.dumps(results,indent=2),encoding="utf-8")
+print("A6_R1_R5_RESULTS="+json.dumps(results,sort_keys=True),flush=True)
+
 report={
     "experiment":"Game1_A6_100_configurations_256_players_200_rounds",
     "research_validated":False,
