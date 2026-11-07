@@ -1,0 +1,19 @@
+name: Game 1 nine-strategy checks
+on:
+  push:
+    branches:
+      - game1-economic-policy-interface
+  workflow_dispatch:
+
+jobs:
+  game1-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project and tests
+        run: python -m pip install -e '.[dev]'
+      - name: Run Game 1 nine-strategy tests
+        run: python -m pytest -q tests/test_game1_nine_strategy.py
