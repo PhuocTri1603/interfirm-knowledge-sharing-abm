@@ -10,7 +10,7 @@ def audit_strategy_semantics() -> dict:
         {
             "strategy_id": item.strategy_id,
             "resolution_status": "researcher_approved_implemented",
-            "mechanism": "lagged_peer_payoff_imitation_with_own_adaptive_score_tiebreak",
+            "mechanism": "self_imitation_from_own_completed_realized_payoffs",
             "round_one": "own_valuation_initialization_no_peer_observation",
         }
         for item in roster if item.L5 == "adaptive" and item.L6 == "imitation"
