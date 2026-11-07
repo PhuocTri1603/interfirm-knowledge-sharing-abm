@@ -1,7 +1,8 @@
 """Full 100-configuration Game 1 A6 run; postprocess payoffs only.
 
 Uses the researcher-approved D1/D2 baseline for demand and common input prices.
-L3/L4 and L6 parameters remain illustrative; research_validated stays false.
+D3 fees are approved; remaining L3/L4 and L6 parameters remain illustrative;
+research_validated stays false.
 """
 import csv
 import json
@@ -150,7 +151,7 @@ print("A6_R1_R5_RESULTS="+json.dumps(results,sort_keys=True),flush=True)
 report={
     "experiment":"Game1_A6_100_configurations_256_players_200_rounds",
     "research_validated":False,
-    "calibration_status":"illustrative_only_not_researcher_approved",
+    "calibration_status":"D1_D2_D3_approved_L34_L6_illustrative",
     "parameters_a6":vars(PARAMS),"parameters_l34":vars(L34),
     "sigma":1.0,"seed":11,"configurations":100,"players_per_configuration":256,
     "rounds":200,"firm_round_observations":5120000,
