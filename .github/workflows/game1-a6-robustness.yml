@@ -1,0 +1,26 @@
+name: Game 1 A6 robustness 12 profiles 3 sigma 3 seeds
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/run_game1_a6_robustness.py'
+      - '.github/workflows/game1-a6-robustness.yml'
+  workflow_dispatch:
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      - name: Run A6 controlled robustness
+        run: python -u scripts/run_game1_a6_robustness.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-a6-robustness-12x3x3
+          path: artifacts/game1_a6_robustness/
+          retention-days: 30
