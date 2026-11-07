@@ -49,7 +49,7 @@ def main():
                                 mean_profit=sum(r["profit"] for r in records) / 200,
                                 ai_ever_adopted_share=records[-1]["adopted_count"] / 20,
                                 # Current engine does not emit active AI modes.
-                                active_ai_share="NA_NOT_RECORDED",
+                                active_ai_share=sum(r["active_ai_count"] for r in records) / (200 * 20),
                                 shutdown_share=sum(r["action"] == "shutdown" for r in records) / 200,
                                 winner=int(strategy == winner)))
     def save(path, data):
