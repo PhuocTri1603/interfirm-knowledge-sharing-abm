@@ -108,6 +108,24 @@ def rank_softmax(scores, temperature, rng):
     return ordered[-1]
 
 
+def l5_candidate_forecast(method, prior_price, last_quantity, candidate_quantity, slope):
+    """D1 one-period forecast; explicit L5 methods for controlled comparisons."""
+    if method not in ("competitive", "adaptive", "cournot", "price"):
+        raise ValueError("unknown L5 method")
+    if method in ("cournot", "price"):
+        return max(0.0, prior_price - slope * (candidate_quantity - last_quantity))
+    return prior_price
+
+
+def l5_candidate_score(method, forecast_price, quantity, cost):
+    """A6 target-price strategy is a markup-target rule, not Bertrand bidding."""
+    profit = forecast_price * quantity - cost
+    if method == "price":
+        target = 1.1 * cost / quantity if quantity > 0 else float("inf")
+        return (-abs(forecast_price - target), profit)
+    return (profit,)
+
+
 def _plan_cost(plan, parameters):
     return parameters.wage * fsum(x.labor for x in plan) + parameters.rental * fsum(x.capital for x in plan)
 
@@ -172,19 +190,10 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                     wage=parameters.wage, rental=parameters.rental,
                     delta=parameters.adjustment_delta, adoption_fee=d3_fee)
                 cost = _plan_cost(plan, parameters) + adjustment + adoption
-                if identity.L5 == "cournot" or identity.L5 == "price":
-                    # D1-A2: forecast changes only from own lagged quantity.
-                    # At t=1, last_q=1 and prior_price=1.
-                    predicted_price = max(0.0, own_belief - prior_slope * (q - state["last_q"]))
-                else:
-                    predicted_price = own_belief
+                predicted_price = l5_candidate_forecast(
+                    identity.L5, own_belief, state["last_q"], q, prior_slope)
                 predicted_profits[key] = predicted_price * q - cost
-                if identity.L5 == "price":
-                    # D1-A3: cost-based 10% markup target, not Bertrand pricing.
-                    target = 1.1 * cost / q if q > 0 else float("inf")
-                    scores[key] = (-abs(predicted_price - target), predicted_profits[key])
-                else:
-                    scores[key] = (predicted_profits[key],)
+                scores[key] = l5_candidate_score(identity.L5, predicted_price, q, cost)
             # Stage 1: participation; shutdown is never given a fake price distance.
             shutdown_adjustment, _, _ = economic_extra_cost(
                 identity, zero_plan, state["previous_plan"], firm, state["adopted"],
