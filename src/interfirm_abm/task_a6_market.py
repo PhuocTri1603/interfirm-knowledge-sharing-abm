@@ -31,6 +31,7 @@ class A6Parameters:
     seed: int
     wage: float = 1.0
     rental: float = 1.0
+    adaptive_lambda: float = 0.5
 
     def __post_init__(self):
         positives = (self.demand_intercept, self.demand_slope,
@@ -40,8 +41,34 @@ class A6Parameters:
         if any(not isfinite(x) or x < 0 or x > 1
                for x in (self.epsilon, self.imitation_probability)):
             raise ValueError("behavior probabilities must be in [0,1]")
+        if not isfinite(self.adaptive_lambda) or not 0 <= self.adaptive_lambda <= 1:
+            raise ValueError("adaptive_lambda must be in [0,1]")
         if type(self.seed) is not int or self.seed < 0:
             raise ValueError("seed must be nonnegative integer")
+
+
+# D1/D2 frozen specification. L3/L4 and L6 parameters remain separately experimental.
+D2_LABOR_REFERENCE = 51.5
+D1_REFERENCE_MARKET_QUANTITY = 256.0
+
+
+def approved_d1_d2_parameters(*, theta=1.0, kappa=0.5, elasticity=1.0,
+                              adaptive_lambda=0.5, epsilon=0.15,
+                              temperature=1.0, imitation_probability=0.5, seed=11):
+    """Construct approved D1/D2 price parameters, common across all configurations.
+
+    P0=1, Q0=256; elasticity is absolute point elasticity at that anchor.
+    theta=w/r; kappa is factor cost at common L*=51.5 divided by P0*Y0.
+    """
+    if any(not isfinite(v) or v <= 0 for v in (theta, kappa, elasticity)):
+        raise ValueError("theta, kappa and elasticity must be positive finite")
+    b = 1.0 / (D1_REFERENCE_MARKET_QUANTITY * elasticity)
+    a = 1.0 + 1.0 / elasticity
+    w = kappa / D2_LABOR_REFERENCE
+    return A6Parameters(demand_intercept=a, demand_slope=b,
+                        epsilon=epsilon, temperature=temperature,
+                        imitation_probability=imitation_probability, seed=seed,
+                        wage=w, rental=w / theta, adaptive_lambda=adaptive_lambda)
 
 
 def reference_allocation(firm):
@@ -99,9 +126,10 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
         raise ValueError("unique nonempty strategy roster required")
     technology = technology_for_profile(firm, sigma)
     qref = reference_market_quantity(firm, len(identities))
-    # This is an explicit *belief prior* only, not true demand parameters.
+    # D1-A2/A4: P0=1 first-round belief; market prices observed with one-round lag.
     prior_price = 1.0
-    prior_slope = 0.5 / qref
+    # D1-A2: correct own-quantity demand slope, not the legacy half-slope prior.
+    prior_slope = parameters.demand_slope
     states = {}
     for identity in identities:
         sid = identity.strategy_id
@@ -123,7 +151,6 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
             if identity.L3 == "capacity":
                 candidates = {key: capacity_limited(plan, production_firm, firm, l34_parameters)
                               for key, plan in candidates.items()}
-            rival_q = max(0.0, (qref - 1.0) if last is None else last["quantity"] - state["last_q"])
             own_belief = state["price_belief"] if identity.L5 == "adaptive" else (
                 prior_price if last is None else last["price"])
             scores, predicted_profits = {}, {}
@@ -134,11 +161,14 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                     identity, plan, state["previous_plan"], firm, state["adopted"], l34_parameters)
                 cost = _plan_cost(plan, parameters) + adjustment + adoption
                 if identity.L5 == "cournot" or identity.L5 == "price":
-                    predicted_price = max(0.0, own_belief - prior_slope * (rival_q + q - qref))
+                    # D1-A2: forecast changes only from own lagged quantity.
+                    # At t=1, last_q=1 and prior_price=1.
+                    predicted_price = max(0.0, own_belief - prior_slope * (q - state["last_q"]))
                 else:
                     predicted_price = own_belief
                 predicted_profits[key] = predicted_price * q - cost
                 if identity.L5 == "price":
+                    # D1-A3: cost-based 10% markup target, not Bertrand pricing.
                     target = 1.1 * cost / q if q > 0 else float("inf")
                     scores[key] = (-abs(predicted_price - target), predicted_profits[key])
                 else:
@@ -185,7 +215,8 @@ def run_a6_market(firm, sigma, parameters, *, l34_parameters: L34Parameters, rou
                 state["previous_plan"] = plan
                 state["adopted"] = state["adopted"] | unlocks
             if state["identity"].L5 == "adaptive":
-                state["price_belief"] = 0.5 * state["price_belief"] + 0.5 * price
+                lam = parameters.adaptive_lambda
+                state["price_belief"] = (1.0 - lam) * state["price_belief"] + lam * price
             # Exactly one realized feedback for chosen production action.
             if chosen is not None:
                 state["history"].append(OwnOutcome(t, chosen, profit))
