@@ -3,7 +3,7 @@ import pytest
 
 from interfirm_abm.game1_nine_strategy import (
     ACTIONS, BUDGETS, Game1Params, adjustment, candidate,
-    plan_cost, run_game1, strategy_ids, zero_plan,
+    plan_cost, run_game1, strategy_ids, zero_plan, allocate,
 )
 from interfirm_abm.task_a5_normalized import technology_for_profile
 from interfirm_abm.task_based_firm import TaskBasedFirm, TaskCapability, TaskAllocation
@@ -63,3 +63,49 @@ def test_market_updates_and_reproducibility():
     assert all(row["price"] == a["market"][row["round"] - 1]["price"]
                for row in a["players"])
     assert a["research_validated"] is False
+
+
+def test_productivity_uses_entire_assigned_labor_budget():
+    f = firm()
+    tech = technology_for_profile(f, 1.)
+    plan = allocate(f, tech, (False,) * 20, "productivity", .48,
+                    1., zero_plan(), frozenset(), params())
+    assert sum(a.labor for a in plan) == pytest.approx(.48 * f.labor_endowment, abs=1e-5)
+    assert all(a.capital == 0 for a in plan)
+
+
+def test_cost_adjusted_can_leave_expensive_resources_unused():
+    f = firm()
+    tech = technology_for_profile(f, 1.)
+    p = Game1Params(2., .01, 10., 10., 0., 0., .1, .1)
+    plan = allocate(f, tech, (False,) * 20, "cost_adjusted", .48,
+                    1., zero_plan(), frozenset(), p)
+    assert sum(a.labor for a in plan) < .48 * f.labor_endowment - 1e-4
+
+
+def test_profit_based_is_single_task_local_optimum():
+    f = firm()
+    tech = technology_for_profile(f, 1.)
+    p = params()
+    best = candidate(f, tech, "uniform", "profit_based", .48, 1.,
+                     zero_plan(), frozenset(), p)
+    for j, task in enumerate(f.tasks):
+        if not task.automation_eligible:
+            continue
+        modes = list(best[5])
+        modes[j] = not modes[j]
+        plan = allocate(f, tech, tuple(modes), "uniform", .48, 1.,
+                        zero_plan(), frozenset(), p)
+        q = tech.output_from_allocation(f, list(plan))
+        cost, _ = plan_cost(plan, zero_plan(), frozenset(), p)
+        assert q - cost <= best[0] + 1e-8
+
+
+def test_cost_based_respects_automation_eligibility():
+    f = firm()
+    tech = technology_for_profile(f, 1.)
+    result = candidate(f, tech, "uniform", "cost_based", .48, 1.,
+                       zero_plan(), frozenset(), params())
+    f.evaluate_allocation(list(result[1]))
+    assert all(a.capital == 0 or task.automation_eligible
+               for a, task in zip(result[1], f.tasks))
