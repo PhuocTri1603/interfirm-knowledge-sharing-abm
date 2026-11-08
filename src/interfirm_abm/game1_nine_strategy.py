@@ -113,16 +113,74 @@ def allocate(firm, tech, modes, l3, budget, price, previous, adopted, p):
             "fun": (lambda z, ix=positions, cap=cap_k: sum(z[k] for k in ix) - cap)
             if l3 == "productivity" else
             (lambda z, ix=positions, cap=cap_k: cap - sum(z[k] for k in ix))})
-    # SLSQP is deterministic for fixed inputs; finite-difference derivative near
-    # CES boundaries can fail. Such failures must be surfaced, not treated as results.
-    result = minimize(objective, init, method="SLSQP", bounds=bounds,
-                      constraints=constraints, options={"maxiter": 250, "ftol": 1e-9})
-    if not result.success:
-        raise RuntimeError(f"L3 optimizer failed: {result.message}")
+    # Deterministic feasible starts. Keep optimization failures visible: a feasible
+    # point is not automatically a certified optimum.
+    starts = [init]
+    if l3 == "cost_adjusted":
+        starts.append(np.zeros(len(indices), dtype=float))
+        starts.append(init * 0.5)
+        # Previous production plan, clipped into current mode/budget constraints.
+        old = np.array([previous[j].labor if j in indices_l else previous[j].capital
+                        for j in indices], dtype=float)
+        for group, cap in ((indices_l, cap_l), (indices_k, cap_k)):
+            positions = [indices.index(j) for j in group]
+            if positions and sum(old[k] for k in positions) > cap:
+                old[positions] *= cap / sum(old[k] for k in positions)
+        starts.append(old)
+    else:
+        # An alternative full-budget allocation proportional to task efficiency.
+        weighted = init.copy()
+        for group, cap in ((indices_l, cap_l), (indices_k, cap_k)):
+            positions = [indices.index(j) for j in group]
+            if positions:
+                weights = np.array([tasks[indices[k]].labor_productivity
+                                    if group is indices_l else tasks[indices[k]].capital_productivity
+                                    for k in positions], dtype=float)
+                weighted[positions] = cap * weights / weights.sum()
+        starts.append(weighted)
+
+    def valid(z):
+        if len(z) != len(indices) or not np.all(np.isfinite(z)):
+            return False
+        if np.min(z) < -1e-7:
+            return False
+        for group, cap in ((indices_l, cap_l), (indices_k, cap_k)):
+            positions = [indices.index(j) for j in group]
+            if not positions:
+                continue
+            used = float(sum(z[k] for k in positions))
+            tol = 1e-6 * max(1., cap)
+            if used > cap + tol or (l3 == "productivity" and abs(used - cap) > tol):
+                return False
+        return True
+
+    feasible = []
+    diagnostics = []
+    for x0 in starts:
+        result = minimize(objective, x0, method="SLSQP", bounds=bounds,
+                          constraints=constraints,
+                          options={"maxiter": 700, "ftol": 1e-8})
+        if result.success and valid(result.x) and isfinite(float(result.fun)):
+            feasible.append(result)
+        else:
+            diagnostics.append(str(result.message))
+    if not feasible:
+        # COBYQA is a constrained derivative-free fallback for SLSQP line-search
+        # failures near CES boundaries. Its convergence is checked independently.
+        result = minimize(objective, starts[0], method="COBYQA",
+                          bounds=bounds, constraints=constraints,
+                          options={"maxfev": 5000, "final_tr_radius": 1e-7})
+        if result.success and valid(result.x) and isfinite(float(result.fun)):
+            feasible.append(result)
+        else:
+            diagnostics.append("COBYQA: " + str(result.message))
+    if not feasible:
+        raise RuntimeError("L3 optimizer failed after deterministic restarts: "
+                           + "; ".join(diagnostics))
+    result = min(feasible, key=lambda r: float(r.fun))
     plan = to_plan(result.x)
     firm.evaluate_allocation(list(plan))
     return plan
-
 
 def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p, last_modes=None):
     tasks = firm.tasks
