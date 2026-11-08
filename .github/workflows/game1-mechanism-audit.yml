@@ -1,0 +1,65 @@
+name: Game 1 economic mechanism and solver audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'src/interfirm_abm/game1_nine_strategy.py'
+      - 'tests/test_game1_nine_strategy.py'
+      - 'scripts/audit_game1_adoption_fee.py'
+      - 'scripts/audit_game1_optimizer.py'
+      - '.github/workflows/game1-mechanism-audit.yml'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest tests/test_game1_nine_strategy.py -q
+
+  economic-decomposition:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        sigma: ['0.5', '1.0', '2.0']
+        seed: [11, 23, 47]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python scripts/audit_game1_adoption_fee.py --profile-index 0 --sigma ${{ matrix.sigma }} --seed ${{ matrix.seed }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: economic-fee-sigma-${{ matrix.sigma }}-seed-${{ matrix.seed }}
+          path: results/game1_mechanism/*.csv
+
+  solver-diagnostics:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        sigma: ['0.5', '1.0', '2.0']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python scripts/audit_game1_optimizer.py --profile-index 0 --sigma ${{ matrix.sigma }} --seed 11 --rounds 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: solver-sigma-${{ matrix.sigma }}
+          path: results/game1_solver_audit/*.csv
