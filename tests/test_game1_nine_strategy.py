@@ -146,3 +146,48 @@ def test_optimizer_handles_infeasible_intermediate_trial_without_budget_violatio
                         zero_plan(), frozenset(), params())
         assert sum(a.labor for a in plan) <= .84 * f.labor_endowment + 1e-6
         f.evaluate_allocation(list(plan))
+
+
+@pytest.mark.parametrize("sigma", [0.5, 1.0, 2.0])
+def test_ai_mechanism_never_automates_ineligible_tasks(sigma):
+    f = TaskBasedFirm(
+        "ai_eligibility", 20., 20.,
+        tuple(TaskCapability(f"T{i:02d}", 1., 3., i % 3 != 0)
+              for i in range(1, 21)))
+    tech = technology_for_profile(f, sigma)
+    for l4 in ("no_automation", "cost_based", "profit_based"):
+        value, plan, q, cost, newly_adopted, modes = candidate(
+            f, tech, "uniform", l4, .48, 1., zero_plan(), frozenset(), params())
+        f.evaluate_allocation(list(plan))
+        assert all(not mode or task.automation_eligible
+                   for mode, task in zip(modes, f.tasks))
+        assert all(not (a.labor > 0 and a.capital > 0) for a in plan)
+        assert newly_adopted == frozenset(
+            a.task_id for a in plan if a.capital > 1e-9)
+        if l4 == "no_automation":
+            assert not newly_adopted
+            assert all(not m for m in modes)
+
+
+def test_solver_rejects_infeasible_reported_success(monkeypatch):
+    """A solver's success flag cannot override firm-level budget feasibility."""
+    import numpy as np
+    import interfirm_abm.game1_nine_strategy as module
+    from types import SimpleNamespace
+
+    original = module.minimize
+    seen = []
+    def mocked(fun, x0, **kwargs):
+        result = original(fun, x0, **kwargs)
+        if not seen:
+            seen.append("injected")
+            return SimpleNamespace(success=True, x=np.full_like(x0, 1000.),
+                                   fun=-1e9, message="injected false success")
+        return result
+    monkeypatch.setattr(module, "minimize", mocked)
+    f = firm()
+    plan = module.allocate(f, technology_for_profile(f, 1.), (False,) * 20,
+                           "productivity", .48, 1., zero_plan(),
+                           frozenset(), params())
+    assert seen
+    f.evaluate_allocation(list(plan))
