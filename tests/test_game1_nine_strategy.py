@@ -109,3 +109,29 @@ def test_cost_based_respects_automation_eligibility():
     f.evaluate_allocation(list(result[1]))
     assert all(a.capital == 0 or task.automation_eligible
                for a, task in zip(result[1], f.tasks))
+
+
+@pytest.mark.parametrize("sigma", [0.5, 1.0, 2.0])
+@pytest.mark.parametrize("l3", ["productivity", "cost_adjusted"])
+def test_optimizer_feasible_for_heterogeneous_task_modes(sigma, l3):
+    f = TaskBasedFirm(
+        "heterogeneous", 30., 18.,
+        tuple(TaskCapability(f"T{i:02d}", .6 + i / 20.,
+                             .8 + (21-i) / 9., i % 4 != 0)
+              for i in range(1, 21)),
+    )
+    tech = technology_for_profile(f, sigma)
+    modes = tuple(t.automation_eligible and j % 2 == 0
+                  for j, t in enumerate(f.tasks))
+    p = params()
+    plan = allocate(f, tech, modes, l3, .66, 1.,
+                    zero_plan(), frozenset(), p)
+    f.evaluate_allocation(list(plan))
+    labor = sum(a.labor for a in plan)
+    capital = sum(a.capital for a in plan)
+    assert labor <= .66 * f.labor_endowment + 1e-6
+    assert capital <= .66 * f.capital_endowment + 1e-6
+    assert all(not (a.labor > 0 and a.capital > 0) for a in plan)
+    if l3 == "productivity":
+        assert labor == pytest.approx(.66 * f.labor_endowment, abs=1e-5)
+        assert capital == pytest.approx(.66 * f.capital_endowment, abs=1e-5)
