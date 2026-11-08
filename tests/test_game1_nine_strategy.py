@@ -191,3 +191,21 @@ def test_solver_rejects_infeasible_reported_success(monkeypatch):
                            frozenset(), params())
     assert seen
     f.evaluate_allocation(list(plan))
+
+
+def test_audit_mode_is_observational_and_cost_identity():
+    f = firm()
+    p = params()
+    ordinary = run_game1(f, 1., p, rounds=2)
+    audited = run_game1(f, 1., p, rounds=2, audit=True)
+    assert ordinary["ranking"] == audited["ranking"]
+    assert ordinary["market"] == audited["market"]
+    assert len(ordinary["players"]) == len(audited["players"])
+    for before, after in zip(ordinary["players"], audited["players"]):
+        assert all(before[key] == after[key] for key in before)
+        assert after["profit"] == pytest.approx(
+            after["revenue"] - after["variable_cost"]
+            - after["adjustment_cost"] - after["adoption_cost"], abs=1e-8)
+        assert after["labor_used"] <= f.labor_endowment + 1e-9
+        assert after["capital_used"] <= f.capital_endowment + 1e-9
+        assert after["newly_adopted_count"] >= 0
