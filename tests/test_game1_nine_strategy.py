@@ -135,3 +135,14 @@ def test_optimizer_feasible_for_heterogeneous_task_modes(sigma, l3):
     if l3 == "productivity":
         assert labor == pytest.approx(.66 * f.labor_endowment, abs=1e-5)
         assert capital == pytest.approx(.66 * f.capital_endowment, abs=1e-5)
+
+
+def test_optimizer_handles_infeasible_intermediate_trial_without_budget_violation():
+    """Optimizer objective must tolerate infeasible trial points; final result must not."""
+    f = firm()
+    tech = technology_for_profile(f, 1.0)
+    for l3 in ("productivity", "cost_adjusted"):
+        plan = allocate(f, tech, (False,) * 20, l3, .84, 1.,
+                        zero_plan(), frozenset(), params())
+        assert sum(a.labor for a in plan) <= .84 * f.labor_endowment + 1e-6
+        f.evaluate_allocation(list(plan))
