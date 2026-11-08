@@ -94,8 +94,17 @@ def allocate(firm, tech, modes, l3, budget, price, previous, adopted, p):
             amounts.get(j, 0.) if j in indices_k else 0.)
             for j, t in enumerate(tasks))
     def objective(z):
+        # SLSQP/COBYQA may evaluate trial points outside both budget constraints.
+        # Evaluate task activity directly at finite nonnegative trial values.
+        # Budget feasibility is enforced by the solver and checked on its final
+        # result; the objective MUST NOT silently project the trial point.
         plan = to_plan(z)
-        q = tech.output_from_allocation(firm, list(plan))
+        activities = {
+            task.task_id: (task.labor_productivity * a.labor
+                           + task.capital_productivity * a.capital)
+            for task, a in zip(tasks, plan)
+        }
+        q = tech.output_index(activities)
         if l3 == "productivity":
             return -q
         cost, _ = plan_cost(plan, previous, adopted, p)
