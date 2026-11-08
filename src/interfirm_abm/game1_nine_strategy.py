@@ -298,7 +298,7 @@ def run_game1(firm, sigma, p, rounds=200):
             rows.append(dict(round=t, strategy_id=sid, action=action, output=q,
                              price=price, profit=reward, cumulative_profit=s["profit"],
                              adopted_count=len(s["adopted"]),
-                             active_ai_count=sum(bool(m) for m in s["modes"]) if action != "shutdown" else 0))
+                             active_ai_count=sum(a.capital > 1e-9 for a in plan)))
         markets.append(dict(round=t, quantity=total_q, price=price))
         prior_price = price
     ranking = sorted(((sid, s["profit"]) for sid, s in states.items()),
