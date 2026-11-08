@@ -170,7 +170,14 @@ def allocate(firm, tech, modes, l3, budget, price, previous, adopted, p):
                           constraints=constraints,
                           options={"maxiter": 700, "ftol": 1e-8})
         if result.success and valid(result.x) and isfinite(float(result.fun)):
-            feasible.append(result)
+            # The optimizer's looser feasibility tolerance may be insufficient
+            # for the firm-level evaluator; reject rather than silently repair.
+            try:
+                firm.evaluate_allocation(list(to_plan(result.x)))
+            except ValueError as exc:
+                diagnostics.append("SLSQP firm feasibility: " + str(exc))
+            else:
+                feasible.append(result)
         else:
             diagnostics.append(str(result.message))
     if not feasible:
@@ -180,7 +187,12 @@ def allocate(firm, tech, modes, l3, budget, price, previous, adopted, p):
                           bounds=bounds, constraints=constraints,
                           options={"maxfev": 5000, "final_tr_radius": 1e-7})
         if result.success and valid(result.x) and isfinite(float(result.fun)):
-            feasible.append(result)
+            try:
+                firm.evaluate_allocation(list(to_plan(result.x)))
+            except ValueError as exc:
+                diagnostics.append("COBYQA firm feasibility: " + str(exc))
+            else:
+                feasible.append(result)
         else:
             diagnostics.append("COBYQA: " + str(result.message))
     if not feasible:
