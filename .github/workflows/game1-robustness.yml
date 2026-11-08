@@ -1,0 +1,70 @@
+name: Game 1 robustness validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - game1-economic-policy-interface
+    paths:
+      - 'src/interfirm_abm/game1_nine_strategy.py'
+      - 'tests/test_game1_nine_strategy.py'
+      - 'scripts/run_game1_robustness.py'
+      - 'scripts/analyze_game1_robustness.py'
+      - '.github/workflows/game1-robustness.yml'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest tests/test_game1_nine_strategy.py -q
+
+  sensitivity:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        sigma: ['0.5', '1.0', '2.0']
+        batch: [0, 1]
+        scenario: [baseline, capital_expensive, adoption_expensive]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Simulate paired seeds and economic scenarios
+        run: python scripts/run_game1_robustness.py --sigma ${{ matrix.sigma }} --batch ${{ matrix.batch }} --scenario ${{ matrix.scenario }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robustness-sigma-${{ matrix.sigma }}-batch-${{ matrix.batch }}-${{ matrix.scenario }}
+          path: results/game1_robustness/
+          retention-days: 30
+
+  aggregate:
+    needs: sensitivity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: robustness-sigma-*
+          path: results/game1_robustness
+          merge-multiple: true
+      - run: python scripts/analyze_game1_robustness.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-robustness-analysis
+          path: results/game1_robustness/
+          retention-days: 30
