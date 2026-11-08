@@ -257,7 +257,7 @@ def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p, last_mode
             return best
 
 
-def run_game1(firm, sigma, p, rounds=200):
+def run_game1(firm, sigma, p, rounds=200, audit=False):
     if rounds < 1:
         raise ValueError("rounds must be positive")
     tech = technology_for_profile(firm, sigma)
@@ -291,14 +291,28 @@ def run_game1(firm, sigma, p, rounds=200):
             s["Q"][action] += p.eta * (reward - s["Q"][action])
             s["profit"] += reward
             s["updates"] += 1
+            previous_before = s["previous"]
             s["previous"] = plan
             if action != "shutdown":
                 s["modes"] = modes
             s["adopted"] |= new
-            rows.append(dict(round=t, strategy_id=sid, action=action, output=q,
-                             price=price, profit=reward, cumulative_profit=s["profit"],
-                             adopted_count=len(s["adopted"]),
-                             active_ai_count=sum(a.capital > 1e-9 for a in plan)))
+            record = dict(round=t, strategy_id=sid, action=action, output=q,
+                          price=price, profit=reward, cumulative_profit=s["profit"],
+                          adopted_count=len(s["adopted"]),
+                          active_ai_count=sum(a.capital > 1e-9 for a in plan))
+            if audit:
+                # Observational decomposition only: no change to decisions or payoff.
+                variable = p.wage * fsum(a.labor for a in plan) + p.rental * fsum(a.capital for a in plan)
+                adjustment_cost = adjustment(plan, previous_before, p)
+                adoption_cost = p.adoption_fee * len(new)
+                if abs(cost - variable - adjustment_cost - adoption_cost) > 1e-8:
+                    raise AssertionError("Cost accounting mismatch")
+                record.update(revenue=price*q, variable_cost=variable,
+                              adjustment_cost=adjustment_cost, adoption_cost=adoption_cost,
+                              newly_adopted_count=len(new), market_quantity=total_q,
+                              labor_used=fsum(a.labor for a in plan),
+                              capital_used=fsum(a.capital for a in plan))
+            rows.append(record)
         markets.append(dict(round=t, quantity=total_q, price=price))
         prior_price = price
     ranking = sorted(((sid, s["profit"]) for sid, s in states.items()),
