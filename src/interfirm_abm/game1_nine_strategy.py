@@ -257,7 +257,7 @@ def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p, last_mode
             return best
 
 
-def run_game1(firm, sigma, p, rounds=200, audit=False):
+def run_game1(firm, sigma, p, rounds=200, audit=False, decision_trace=None):
     if rounds < 1:
         raise ValueError("rounds must be positive")
     tech = technology_for_profile(firm, sigma)
@@ -275,6 +275,18 @@ def run_game1(firm, sigma, p, rounds=200, audit=False):
             rng = s["rng"]
             action = rng.choice(ACTIONS) if rng.random() < p.epsilon else max(
                 ACTIONS, key=lambda a: (s["Q"][a], -ACTIONS.index(a)))
+            if decision_trace is not None:
+                # Observational only: read Q-values after selection, without consuming RNG.
+                ordered = sorted(ACTIONS, key=lambda a: (-s["Q"][a], ACTIONS.index(a)))
+                decision_trace.append(dict(
+                    round=t, strategy_id=sid, action=action,
+                    greedy_action=ordered[0], best_q=s["Q"][ordered[0]],
+                    runner_up_q=s["Q"][ordered[1]],
+                    greedy_margin=s["Q"][ordered[0]]-s["Q"][ordered[1]],
+                    q_b2=s["Q"]["b2"], q_b3=s["Q"]["b3"], q_b4=s["Q"]["b4"],
+                    b2_b3_gap=s["Q"]["b2"]-s["Q"]["b3"],
+                    b3_b4_gap=s["Q"]["b3"]-s["Q"]["b4"],
+                ))
             if action == "shutdown":
                 cost = adjustment(zero_plan(), s["previous"], p)
                 chosen = (-cost, zero_plan(), 0., cost, frozenset(), s["modes"])
