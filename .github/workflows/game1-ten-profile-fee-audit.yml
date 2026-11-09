@@ -1,6 +1,10 @@
 name: Game 1 ten-profile fee mechanism audit
 on:
   workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-ten-profile-fee-audit.yml'
 
 jobs:
   matched-fee-audit:
