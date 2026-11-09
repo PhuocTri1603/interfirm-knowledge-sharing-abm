@@ -30,6 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        profile: [2, 4]
         sigma: ['0.5', '1.0', '2.0']
         seed: [11, 23, 47]
     steps:
@@ -38,10 +39,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - run: python scripts/audit_game1_adoption_fee.py --profile-index 0 --sigma ${{ matrix.sigma }} --seed ${{ matrix.seed }}
+      - run: python scripts/audit_game1_adoption_fee.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed ${{ matrix.seed }}
       - uses: actions/upload-artifact@v4
         with:
-          name: economic-fee-sigma-${{ matrix.sigma }}-seed-${{ matrix.seed }}
+          name: economic-fee-profile-${{ matrix.profile }}-sigma-${{ matrix.sigma }}-seed-${{ matrix.seed }}
           path: results/game1_mechanism/*.csv
 
   solver-diagnostics:
@@ -51,6 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        profile: [2, 4]
         sigma: ['0.5', '1.0', '2.0']
     steps:
       - uses: actions/checkout@v4
@@ -58,8 +60,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - run: python scripts/audit_game1_optimizer.py --profile-index 0 --sigma ${{ matrix.sigma }} --seed 11 --rounds 3
+      - run: python scripts/audit_game1_optimizer.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed 11 --rounds 3
       - uses: actions/upload-artifact@v4
         with:
-          name: solver-sigma-${{ matrix.sigma }}
+          name: solver-profile-${{ matrix.profile }}-sigma-${{ matrix.sigma }}
           path: results/game1_solver_audit/*.csv
