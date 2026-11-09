@@ -145,3 +145,22 @@ This decision **closes the open task-semantics interpretation question** from th
 **Important limitations:** Successful SLSQP and primal residual checks do **not** establish KKT sufficient conditions or global optimality; local-search `profit_based` is not certified globally optimal. The task-level logger intercepts proposed `candidate()` plans and does not label whether that plan is the finally selected market action except through separate round-level outputs. This run does **not** implement a matched AI/no-AI intervention that holds market mechanisms appropriately fixed, nor a causal AI effect estimate. It also does not span all 100 configurations, sigma=1, 200 rounds or multiple seeds. Retain `research_validated=false`.
 
 **Step 2 decision:** Scoping production feasibility / CES / AI eligibility / adoption fee accounting PASS for tested matrices; global optimality and controlled AI effect remain OPEN. No engine, strategy, production equation or economic assumption modified.
+
+
+## 2026-11-09 — Step 2 paired AI/no-AI CI run #42635875911
+
+**Evidence:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/42635875911 ; commit `a61156ca8956495e36dda45d47a6eb194c6a9c98` ; conclusion SUCCESS, 4/4 matrix jobs successful and four artifact ZIPs uploaded.
+
+**Design:** On each of two approved firm profiles F001 (index 0), F005 (index 4), each sigma 0.5 and 2, seed 11, 20 rounds, nine-player market: compare original AI-allowed simulation to separate no-AI market where all nine player slots remain and an observational wrapper routes the six AI-enabled slots to `no_automation` candidate policies. Core engine, economic parameters, RNG seeding and learning rules unchanged. Endogenous market price, action learning and rival responses can differ between the two markets. The paired output checks no AI capital, active AI or adoption fee in control and verifies round-level profit accounting identity. Additional fixed-price candidate comparisons hold initial plan, prior adoption, budget and price=1 constant; do not claim globally optimal effects.
+
+**Run-log results** (all numbers AI-allowed minus no-AI; 9-player market, summed over 20 rounds; `delta_price_sum` = sum of 20 per-round market settlement price differences, not a percentage or equilibrium price):
+| Profile | sigma | AI-active task-round count in AI-allowed market | delta total market-firm output | delta cumulative market-firm profit | delta price sum |
+|---|---:|---:|---:|---:|---:|
+| F001 | 0.5 | 184 | +27.714973597816364 | +12.571428559619934 | -3.079441510868486 |
+| F001 | 2.0 | 536 | +89.80095620762022 | +13.073006187561218 | -9.977884023068913 |
+| F005 | 0.5 | 75 | +1.99873299594909 | -6.523556151334075 | -0.22208144399434437 |
+| F005 | 2.0 | 172 | +21.355609269611225 | -7.7934624271437345 | -2.372845474401247 |
+
+**Scoped PASS:** Four paired experiments completed; no-AI control uses zero capital / active AI / AI adoption cost; pairwise round-level cost/profit decomposition identity; fixed-price candidate comparisons executed. **Economics:** Allowing AI raised total output and lowered aggregate round-settlement prices in all 4 tested combinations, but improved aggregate accumulated firm profit only for F001 and reduced it for F005. This is a model-specific, 20-round market-policy counterfactual, not a universally generalizable or direct causal individual-firm AI effect.
+
+**Still OPEN:** economic decomposition of why F005 aggregate profits fall (revenue vs factor costs, adjustment costs, adoption fees); scope across 100 profiles, sigma=1, 200 rounds and multiple seeds; certification of global optimality is not established. Do not claim overall Game 1 scientific validity. **Step 2: focused execution/feasibility and paired-policy checks PASS; broader economic validation pending.** Keep `research_validated=false`.
