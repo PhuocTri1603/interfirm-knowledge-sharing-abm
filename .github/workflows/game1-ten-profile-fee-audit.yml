@@ -1,0 +1,44 @@
+name: Game 1 ten-profile fee mechanism audit
+on:
+  workflow_dispatch:
+
+jobs:
+  matched-fee-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        profile: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        sigma: ['0.5', '1.0', '2.0']
+        seed: [11, 23, 47]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python scripts/audit_game1_adoption_fee.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed ${{ matrix.seed }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fee-profile-${{ matrix.profile }}-sigma-${{ matrix.sigma }}-seed-${{ matrix.seed }}
+          path: results/game1_mechanism/*.csv
+  aggregate:
+    needs: matched-fee-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fee-profile-*
+          path: results/game1_mechanism
+          merge-multiple: false
+      - run: python scripts/analyze_game1_fee_mechanism.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-ten-profile-fee-analysis
+          path: results/game1_mechanism/ten_profile_fee_mechanism_summary.csv
