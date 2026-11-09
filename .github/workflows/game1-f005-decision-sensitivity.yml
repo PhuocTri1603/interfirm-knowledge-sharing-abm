@@ -1,0 +1,32 @@
+name: F005 seed47 Q-value sensitivity
+
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-f005-decision-sensitivity.yml'
+  workflow_dispatch:
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  q-value-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - run: python -m pytest tests/test_game1_nine_strategy.py -q
+      - run: python scripts/audit_game1_f005_decision_sensitivity.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f005-seed47-q-value-sensitivity
+          path: results/game1_f005_decision_sensitivity/*.csv
