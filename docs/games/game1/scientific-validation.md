@@ -125,3 +125,10 @@ Status: **verification in progress; research_validated=false**. Technical comple
 **Interpretation boundary still open:** For sigma=2, some task activities can be zero while the CES index remains positive. The economic meaning of omitting tasks (substitutable activities versus essential sequential production stages) requires researcher review before the production specification is fully locked. Also pending: market-equilibrium terminology, broader counterfactuals, and remaining scientific validation gates.
 
 **State:** Four interpretation conventions APPROVED; production specification review IN PROGRESS; `research_validated=false`. No source code changed.
+
+
+## 2026-11-09 — Researcher approval: interpretation of the 20 CES tasks
+
+The principal researcher explicitly confirms that the **20 tasks represent mutually substitutable production activities**, **not** 20 mandatory sequential production stages. Thus, under the existing normalized CES aggregator, positive output with some zero-activity tasks at sigma=2 is an intended economically interpretable outcome, **not by itself a production-model inconsistency**. At sigma<=1, the existing CES formula still requires all task activities to be positive for positive output; this is a mathematical implication of the chosen elasticity, not a claim that tasks are technologically mandatory stages.
+
+This decision **closes the open task-semantics interpretation question** from the previous entry. No formula, sigma value, allocation constraint, engine code, or simulation result is changed. Remaining model-level scientific validation (including empirical calibration, numerical optimality, counterfactual identification and market interpretation) is separate. **Game 1 step 1 — economic specification interpretation: COMPLETE, subject to no new assumptions.** `research_validated=false`.
