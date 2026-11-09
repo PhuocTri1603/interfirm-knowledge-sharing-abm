@@ -111,3 +111,17 @@ Status: **verification in progress; research_validated=false**. Technical comple
 - The paired results hold fee, technology profile, sigma and seed constant across scenarios, but endogenous competitor responses and learning are not isolated. The numerical tests do not establish universal sign stability for other profiles or sigma values.
 
 **Decision:** Close the **focused F005 audit** as **VERIFIED WITH DOCUMENTED HISTORICAL Q LIMITATION**: controlled reproducibility passes, numerical sensitivity is demonstrated, and the specified sigma=2 economic-direction results are stable under the standardized environment. Do **not** assert the exact historical eight Q-paths were recovered, or that F005 certifies global optimality. The overarching `research_validated=false` remains unchanged until the scientific release gates above are satisfied.
+
+
+## 2026-11-09 — Researcher-approved interpretation lock for current nine-strategy Game 1
+
+**Approval scope:** Preserve the existing formulas, parameters, numerical implementation and nine-strategy engine unchanged. These are **interpretation decisions only**, not new model assumptions, code changes, or scientific validation of the full model.
+
+1. **Output (Y):** The 20-task CES output is a normalized production index. For the simulated market only, treat its numerical value as a **conventional unit of market supply**. This is a modeling convention, not an empirically calibrated physical quantity.
+2. **Action budget fraction (b):** The action fraction represents **resource-capacity utilization / mobilization**, not capital investment or intertemporal capital accumulation. Labor and capital have separate capacity ceilings; there is no capital stock transition equation.
+3. **AI:** The current model represents AI through **capital-based task automation**, replacing labor with capital on eligible tasks under pure-mode allocation. AI is **not** a separate production input in this engine.
+4. **CES sigma:** Sigma is the **elasticity of substitution among normalized task activities**, not a directly identified capital–labor substitution elasticity. Differences across sigma scenarios must not be described as AI shocks.
+
+**Interpretation boundary still open:** For sigma=2, some task activities can be zero while the CES index remains positive. The economic meaning of omitting tasks (substitutable activities versus essential sequential production stages) requires researcher review before the production specification is fully locked. Also pending: market-equilibrium terminology, broader counterfactuals, and remaining scientific validation gates.
+
+**State:** Four interpretation conventions APPROVED; production specification review IN PROGRESS; `research_validated=false`. No source code changed.
