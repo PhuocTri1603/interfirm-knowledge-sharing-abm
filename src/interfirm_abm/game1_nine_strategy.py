@@ -273,13 +273,21 @@ def run_game1(firm, sigma, p, rounds=200, audit=False, decision_trace=None):
         selections = {}
         for sid, s in states.items():
             rng = s["rng"]
+            rng_before = rng.getstate() if decision_trace is not None else None
             action = rng.choice(ACTIONS) if rng.random() < p.epsilon else max(
                 ACTIONS, key=lambda a: (s["Q"][a], -ACTIONS.index(a)))
             if decision_trace is not None:
-                # Observational only: read Q-values after selection, without consuming RNG.
+                # Snapshot/restore RNG: observe exploration without changing the random stream.
+                # The draw already occurred; recover it from the pre-selection state below.
+                # Q-values are read only after selection.
+                rng_after = rng.getstate()
+                rng.setstate(rng_before)
+                exploratory = rng.random() < p.epsilon
+                rng.setstate(rng_after)
                 ordered = sorted(ACTIONS, key=lambda a: (-s["Q"][a], ACTIONS.index(a)))
                 decision_trace.append(dict(
                     round=t, strategy_id=sid, action=action,
+                    exploratory=int(exploratory),
                     greedy_action=ordered[0], best_q=s["Q"][ordered[0]],
                     runner_up_q=s["Q"][ordered[1]],
                     greedy_margin=s["Q"][ordered[0]]-s["Q"][ordered[1]],
