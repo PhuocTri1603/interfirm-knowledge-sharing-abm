@@ -1,0 +1,30 @@
+name: Focused F005 200-round solver verification
+
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-f005-solver-focus.yml'
+  workflow_dispatch:
+
+jobs:
+  f005-solver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [11, 23, 47]
+        fee_multiplier: [1, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: python scripts/audit_game1_f005_solver_focus.py --sigma 2.0 --seed ${{ matrix.seed }} --fee-multiplier ${{ matrix.fee_multiplier }} --rounds 200
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f005-solver-sigma-2-seed-${{ matrix.seed }}-fee-${{ matrix.fee_multiplier }}
+          path: results/game1_f005_solver_focus/*.csv
