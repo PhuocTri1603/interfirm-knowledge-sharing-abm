@@ -164,3 +164,17 @@ This decision **closes the open task-semantics interpretation question** from th
 **Scoped PASS:** Four paired experiments completed; no-AI control uses zero capital / active AI / AI adoption cost; pairwise round-level cost/profit decomposition identity; fixed-price candidate comparisons executed. **Economics:** Allowing AI raised total output and lowered aggregate round-settlement prices in all 4 tested combinations, but improved aggregate accumulated firm profit only for F001 and reduced it for F005. This is a model-specific, 20-round market-policy counterfactual, not a universally generalizable or direct causal individual-firm AI effect.
 
 **Still OPEN:** economic decomposition of why F005 aggregate profits fall (revenue vs factor costs, adjustment costs, adoption fees); scope across 100 profiles, sigma=1, 200 rounds and multiple seeds; certification of global optimality is not established. Do not claim overall Game 1 scientific validity. **Step 2: focused execution/feasibility and paired-policy checks PASS; broader economic validation pending.** Keep `research_validated=false`.
+
+
+## 2026-11-09 — Independent arithmetic decomposition of original paired AI/no-AI artifacts
+
+**Provenance:** Four original ZIP artifacts from AI/no-AI GitHub Actions run #42635875911 (artifact ids 13683720500, 13682424918, 13682940858, 13682477915); each ZIP includes `round_panel_profile_*_sigma_*_seed_11.csv`, 360 rows (2 scenarios × 20 rounds × 9 strategies). Independent reaggregation of original panel data verified exact revenue identity `delta(PQ)=P_noAI*deltaQ + Q_noAI*deltaP + deltaP*deltaQ` and profit identity `delta_profit=delta_revenue-delta_variable_cost-delta_adjustment_cost-delta_adoption_cost` within 1e-7 on all 720 paired player-rounds. This is an independently executed calculation from historical data, **not an assertion that the new decomposition CI workflow succeeded**.
+
+| Profile | sigma | Quantity contribution | Price contribution | Cross contribution | Delta revenue | Delta variable cost | Delta adjustment cost | Delta AI adoption fee | Delta profit | Delta labor | Delta capital |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| F001 | 0.5 | 40.942993 | -14.486954 | -5.697953 | 20.758085 | 8.049120 | 0.107536 | 0.030000 | 12.571429 | 0.000000 | 829.059402 |
+| F001 | 2.0 | 134.607509 | -44.994404 | -50.183704 | 39.429401 | 25.905491 | 0.365904 | 0.085000 | 13.073006 | 0.000000 | 2668.265544 |
+| F005 | 0.5 | 3.256775 | -0.740691 | -0.268216 | 2.247868 | 8.075257 | 0.676167 | 0.020000 | -6.523556 | -229.294800 | 1061.046321 |
+| F005 | 2.0 | 32.185844 | -10.525374 | -2.898244 | 18.762226 | 25.823184 | 0.700004 | 0.032500 | -7.793462 | -125.566200 | 2785.354171 |
+
+**Interpretation:** In F005 revenue rose in both sigma conditions, but additional variable input costs exceeded the revenue gain; adjustment costs were secondary and the directly charged AI adoption fee was small. The negative price contribution and price×quantity interaction partially offset the positive output contribution. In F001 net revenue gains exceeded added input, adjustment and AI adoption costs, resulting in higher profit. All numbers are simulation index units summed over 20 rounds/9 strategies, not calibrated money units. This decomposition is an exact accounting partition under the specific baseline-price convention, not causal price mediation. Do not change economic model or mark `research_validated=true`.
