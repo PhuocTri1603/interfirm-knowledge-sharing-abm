@@ -1,0 +1,34 @@
+name: Game 1 existing-data AI profit decomposition
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/decompose_game1_ai_existing.py'
+      - '.github/workflows/game1-ai-existing-decomposition.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  decomposition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve four original artifacts from run 42635875911
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p results/game1_decomposition/input
+          for profile in 0 4; do
+            for sigma in 0.5 2.0; do
+              name="ai-counterfactual-profile-${profile}-sigma-${sigma}"
+              mkdir -p "results/game1_decomposition/input/${name}"
+              gh run download 42635875911 -n "${name}" -D "results/game1_decomposition/input/${name}"
+            done
+          done
+      - run: python scripts/decompose_game1_ai_existing.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-ai-existing-profit-decomposition
+          path: results/game1_decomposition/*.csv
