@@ -25,7 +25,7 @@ def totals(result):
         by_strategy[row["strategy_id"]].append(row)
     return {s: {k: sum(r[k] for r in records) for k in (
         "revenue", "variable_cost", "adjustment_cost", "adoption_cost",
-        "output", "newly_adopted_count", "active_ai_count")}
+        "output", "newly_adopted_count", "active_ai_count", "labor_used", "capital_used")}
         for s, records in by_strategy.items()}
 
 
@@ -71,7 +71,9 @@ def main():
             delta_adoption_cost=delta_adoption,
             delta_new_adoptions=new["newly_adopted_count"]-base["newly_adopted_count"],
             delta_active_ai_task_rounds=new["active_ai_count"]-base["active_ai_count"],
-            delta_output=new["output"]-base["output"]))
+            delta_output=new["output"]-base["output"],
+            delta_labor_used=new["labor_used"]-base["labor_used"],
+            delta_capital_used=new["capital_used"]-base["capital_used"]))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     target = out / f"fee_profile_{a.profile_index}_sigma_{a.sigma:g}_seed_{a.seed}.csv"
@@ -79,7 +81,37 @@ def main():
         writer = csv.DictWriter(f, fieldnames=list(records[0]))
         writer.writeheader()
         writer.writerows(records)
+    # Full matched panel: observed K, L, active AI, firm and market output,
+    # settlement price, revenue and cost components in each of 200 rounds.
+    panel = []
+    for scenario, result in (("baseline", baseline), ("adoption_expensive", expensive)):
+        for row in result["players"]:
+            panel.append({"profile_id": firm.firm_id, "sigma": a.sigma,
+                "seed": a.seed, "scenario": scenario,
+                **{key: row[key] for key in (
+                    "round", "strategy_id", "action", "labor_used", "capital_used",
+                    "active_ai_count", "newly_adopted_count", "adopted_count",
+                    "output", "market_quantity", "price", "revenue",
+                    "variable_cost", "adjustment_cost", "adoption_cost",
+                    "profit", "cumulative_profit")}})
+    if len(panel) != 2 * 200 * 9:
+        raise AssertionError("Incomplete matched round-level panel")
+    panel_target = out / f"fee_rounds_profile_{a.profile_index}_sigma_{a.sigma:g}_seed_{a.seed}.csv"
+    with panel_target.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(panel[0]))
+        writer.writeheader()
+        writer.writerows(panel)
+    # The market price is identical for all nine strategies in each round.
+    for scenario, result in (("baseline", baseline), ("adoption_expensive", expensive)):
+        market = {(r["round"], r["price"], r["market_quantity"])
+                  for r in panel if r["scenario"] == scenario}
+        if len(market) != 200:
+            raise AssertionError("Inconsistent within-round market settlement")
+        for t, price, quantity in market:
+            if abs(price - max(0., 2. - quantity / 9.)) > 1e-8:
+                raise AssertionError("Inverse-demand identity mismatch")
     print(f"PASS accounting decomposition: {target}")
+    print(f"PASS round-level panel: {panel_target}")
     print("WARNING: price and quantity effects are path-dependent accounting terms,")
     print("not identified causal effects. All nine firms respond simultaneously.")
 
