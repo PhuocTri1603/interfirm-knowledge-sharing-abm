@@ -178,3 +178,12 @@ This decision **closes the open task-semantics interpretation question** from th
 | F005 | 2.0 | 32.185844 | -10.525374 | -2.898244 | 18.762226 | 25.823184 | 0.700004 | 0.032500 | -7.793462 | -125.566200 | 2785.354171 |
 
 **Interpretation:** In F005 revenue rose in both sigma conditions, but additional variable input costs exceeded the revenue gain; adjustment costs were secondary and the directly charged AI adoption fee was small. The negative price contribution and price×quantity interaction partially offset the positive output contribution. In F001 net revenue gains exceeded added input, adjustment and AI adoption costs, resulting in higher profit. All numbers are simulation index units summed over 20 rounds/9 strategies, not calibrated money units. This decomposition is an exact accounting partition under the specific baseline-price convention, not causal price mediation. Do not change economic model or mark `research_validated=true`.
+
+
+## 2026-11-09 — Original-data decomposition workflow CI confirmation (run #42637493190)
+
+**CI source:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/42637493190 ; workflow `Game 1 existing-data AI profit decomposition`, head `046c9aa2d986a232a3caf195e01195a739f3b204`, conclusion SUCCESS (1/1 job). Original artifacts from paired AI/no-AI run #42635875911 downloaded; `scripts/decompose_game1_ai_existing.py` executed and reported `PASS: 4 original paired panels; 720 paired player-round records; exact revenue and profit identities`.
+
+**Output:** artifact `game1-ai-existing-profit-decomposition` (id 13684455993; https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/42637493190/artifacts/13684455993), containing `decomposition_summary.csv` and `decomposition_by_player_round.csv`. Logged numbers agree with the independently reconstructed decomposition recorded above at numerical precision. One nonfatal GitHub Actions Node.js 20 deprecation warning occurred; no economic or test errors.
+
+**Status:** Focused step-2 accounting cross-check PASS in the four representative comparisons; general validation across full configurations and seeds, solver global optimality, and wider research validation are NOT established. Preserve `research_validated=false`. No core engine, strategy, or economic assumptions changed.
