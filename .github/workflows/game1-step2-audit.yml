@@ -1,0 +1,36 @@
+name: Game 1 step 2 focused production AI audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/audit_game1_step2.py'
+      - '.github/workflows/game1-step2-audit.yml'
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [0, 4]
+        sigma: ['0.5', '2.0']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - run: python -m pytest tests/test_game1_nine_strategy.py -q
+      - run: python scripts/audit_game1_step2.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed 11 --rounds 20
+      - run: python scripts/audit_game1_optimizer.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed 11 --rounds 3 --out results/game1_step2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step2-profile-${{ matrix.profile }}-sigma-${{ matrix.sigma }}
+          path: results/game1_step2/*.csv
