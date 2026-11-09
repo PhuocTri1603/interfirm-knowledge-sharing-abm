@@ -1,0 +1,46 @@
+name: F005 historical divergence mechanism Q and epsilon
+
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/game1-f005-historical-divergence.yml'
+  workflow_dispatch:
+
+jobs:
+  compare-environments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Controlled one-thread Q trace
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: |
+          python scripts/audit_game1_f005_decision_sensitivity.py
+          mkdir -p results/game1_f005_environment_compare/threads1
+          cp results/game1_f005_decision_sensitivity/*.csv results/game1_f005_environment_compare/threads1/
+      - name: Four-thread Q trace
+        env:
+          OPENBLAS_NUM_THREADS: '4'
+          OMP_NUM_THREADS: '4'
+          MKL_NUM_THREADS: '4'
+        run: |
+          python scripts/audit_game1_f005_decision_sensitivity.py
+          mkdir -p results/game1_f005_environment_compare/threads4
+          cp results/game1_f005_decision_sensitivity/*.csv results/game1_f005_environment_compare/threads4/
+      - name: Compare Q, action, epsilon flags
+        run: python scripts/compare_game1_f005_q_environments.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f005-seed47-historical-divergence-q-epsilon
+          path: results/game1_f005_environment_compare/**/*.csv
