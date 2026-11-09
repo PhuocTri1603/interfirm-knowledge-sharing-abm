@@ -7,6 +7,12 @@ on:
       - '.github/workflows/game1-f005-solver-focus.yml'
   workflow_dispatch:
 
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
 jobs:
   f005-solver:
     runs-on: ubuntu-latest
@@ -21,7 +27,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install -e '.[dev]'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
       - run: python scripts/audit_game1_f005_solver_focus.py --sigma 2.0 --seed ${{ matrix.seed }} --fee-multiplier ${{ matrix.fee_multiplier }} --rounds 200
       - uses: actions/upload-artifact@v4
         if: always()
