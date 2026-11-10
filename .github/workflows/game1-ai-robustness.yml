@@ -1,0 +1,57 @@
+name: Game 1 AI no-AI multi-profile multi-seed robustness
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/audit_game1_ai_robustness.py'
+      - 'scripts/aggregate_game1_ai_robustness.py'
+      - '.github/workflows/game1-ai-robustness.yml'
+permissions:
+  contents: read
+  actions: read
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  paired:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        profile: [0, 9, 19, 29, 39, 49, 59, 69, 79, 99]
+        sigma: ['0.5', '1.0', '2.0']
+        seed: [11, 23, 47]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - run: python scripts/audit_game1_ai_robustness.py --profile-index ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --seed ${{ matrix.seed }} --rounds 20
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robustness-p${{ matrix.profile }}-s${{ matrix.sigma }}-seed${{ matrix.seed }}
+          path: results/game1_ai_robustness/*.csv
+  aggregate:
+    needs: paired
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: robustness-p*
+          path: results/game1_ai_robustness/downloads
+          merge-multiple: false
+      - run: python scripts/aggregate_game1_ai_robustness.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-ai-robustness-aggregate
+          path: results/game1_ai_robustness/aggregate/*.csv
