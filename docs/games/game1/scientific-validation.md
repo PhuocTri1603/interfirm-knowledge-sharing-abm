@@ -187,3 +187,24 @@ This decision **closes the open task-semantics interpretation question** from th
 **Output:** artifact `game1-ai-existing-profit-decomposition` (id 13684455993; https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/42637493190/artifacts/13684455993), containing `decomposition_summary.csv` and `decomposition_by_player_round.csv`. Logged numbers agree with the independently reconstructed decomposition recorded above at numerical precision. One nonfatal GitHub Actions Node.js 20 deprecation warning occurred; no economic or test errors.
 
 **Status:** Focused step-2 accounting cross-check PASS in the four representative comparisons; general validation across full configurations and seeds, solver global optimality, and wider research validation are NOT established. Preserve `research_validated=false`. No core engine, strategy, or economic assumptions changed.
+
+
+## 2026-11-10 — Ten-profile / three-seed AI/no-AI robustness (run #42823775419)
+
+**Source:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/42823775419 ; successful workflow on branch `game1-economic-policy-interface`, head SHA `67d605de6888bde2191db08ee19524b1348ffcaf`. Original aggregate artifact `game1-ai-robustness-aggregate` (ID 13768221872), files `all_90_cases.csv` (90 rows), `consistency_by_profile_sigma.csv` (30 rows), inspected directly. CI shows completion success and 91 artifacts (90 individual and one aggregate). First page of jobs shows 30/30 successes; total workflow SUCCESS, aggregate present. This records verified data, not inferred job-level details beyond available pages.
+
+**Design:** Ten fixed profile indices [0,9,19,29,39,49,59,69,79,99], sigmas [0.5,1.0,2.0], seeds [11,23,47], 20 rounds, nine player strategies, market-level policy counterfactual with learning/prices endogenous. 90 comparisons, 180 scenario-markets, 32,400 player-round records in the underlying runs. Original engine not modified.
+
+**Results:**
+- Delta aggregate firm profit (AI-allowed minus AI-disabled): 56/90 strictly positive, 33/90 strictly negative, 1/90 near-zero (absolute tolerance 1e-8), mean +2.3468102127786605, sample SD 9.602739246501544, min -14.762143841504033, max +37.68349502637953. Do not treat these dependent heterogeneous simulation cases as 90 independent real-world observations.
+- Delta total output positive in 89/90, zero in 1/90, never negative; total of settlement-market-price differences negative in 89/90, zero in 1/90, never positive. Price response is mechanically tied to demand `P=max(0,2-Q/9)`; do not describe it as an independent empirical verification.
+- Sigma=0.5: positive/negative/zero 15/14/1, mean delta profit -0.1945, mean delta output +10.3189, mean sum of per-round market price differences -1.1465.
+- Sigma=1: positive/negative/zero 20/10/0, mean delta profit +2.2018, mean delta output +15.2059, mean sum of per-round market price differences -1.6895.
+- Sigma=2: positive/negative/zero 21/9/0, mean delta profit +5.0331, mean delta output +30.5706, mean sum of per-round market price differences -3.3967.
+- Per-profile sign counts (over 9 sigma-seed cases each): F001 +9/-0/0; F010 +1/-8/0; F020 +7/-2/0; F030 +0/-9/0; F040 +2/-7/0; F050 +9/-0/0; F060 +4/-5/0; F070 +8/-0/1; F080 +9/-0/0; F100 +7/-2/0.
+- Across 30 profile-sigma groups (3 seeds each): 14 all positive, 7 all negative, 9 mixed or with neutral; sign consistency is substantial within some technologies, not uniform globally.
+- Independently validated both summary-level accounting equations to numerical precision from all_90_cases.csv: max absolute profit identity residual <8e-14 and revenue price-quantity decomposition residual <6e-14.
+
+**Scientific conclusion (scoped):** AI allowed raises output and reduces endogenous market prices almost uniformly in this ten-profile sample; total accumulated market-firm profit is heterogeneous, sometimes positive and sometimes negative, depends on profile/sigma/learning-seed realizations. Descriptive sigma gradient is not a controlled causal estimate of elasticity effect: sampled technologies, algorithm dynamics and market effects may interact. This is a 20-round robustness panel over 10 selected profiles, NOT the full 100-profile/200-round design and NOT sufficient for universal empirical or inferential claims.
+
+**Status:** Robustness audit PASS for execution/completeness/identities and quantitative descriptive assessment. Broader Game 1 validation pending (100 profiles, 200 rounds, more seeds/controlled interpretation, global numerical optimality unresolved). No engine/strategy/assumption changes. Keep `research_validated=false`.
