@@ -1,0 +1,53 @@
+name: Game 1 AI no-AI round-level mechanism audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/audit_game1_ai_round_mechanisms.py'
+      - 'scripts/aggregate_game1_ai_round_mechanisms.py'
+      - '.github/workflows/game1-ai-round-mechanisms.yml'
+permissions:
+  contents: read
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  paired:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        profile: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - run: python scripts/audit_game1_ai_round_mechanisms.py --profile-index ${{ matrix.profile }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-mechanisms-profile-${{ matrix.profile }}
+          path: results/game1_ai_round_mechanisms/profile_*.csv
+  aggregate:
+    needs: paired
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: game1-mechanisms-profile-*
+          path: results/game1_ai_round_mechanisms/downloads
+      - run: python scripts/aggregate_game1_ai_round_mechanisms.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-ai-round-mechanisms-aggregate
+          path: results/game1_ai_round_mechanisms/aggregate/*.csv
