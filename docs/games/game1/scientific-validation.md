@@ -280,3 +280,32 @@ This decision **closes the open task-semantics interpretation question** from th
 **Exact accounting definition:** For each market round, with the two original scenarios' realized quantities and costs unchanged, set reference price `P_ref=P_noAI`. Then `delta_pi_fixed=P_noAI*(Q_AI-Q_noAI) - (C_AI-C_noAI)`; `price_feedback=(P_AI-P_noAI)*Q_AI`; `delta_pi_actual=delta_pi_fixed+price_feedback`. The latter feedback equals original `price_effect+interaction_effect` in the revenue decomposition. This is **ex-post repricing of observed choices**, not a new market equilibrium, no reoptimization and no causal identification. Results will distinguish whether higher input costs already dominate at common prices or endogenous price feedback flips profit sign.
 
 **Status:** Workflow added, not yet confirmed successful. Keep `research_validated=false`.
+
+
+## 2026-11-12 — Completed reproducibility and ex-post fixed-price decomposition (run #43175642079)
+
+**Provenance:** Workflow run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43175642079 completed SUCCESS on commit `c8289a6cfcb08161ce87fb5f34a857f620b12790`, job `analyze` PASS. Artifact `game1-ai-reproducibility-fixed-price` id `13923813178`, four original files (`reproducibility_1800_cases.csv`, `fixed_price_180000_market_rounds.csv`, `fixed_price_900_pairs_200round.csv`, `fixed_price_by_period.csv`). Dataset counts independently checked: 1,800 profile–sigma–seed–horizon matches; 180,000 paired market-rounds; 900 paired 200-round totals. Old benchmark = run #42826231816; new round series = run #43036152839. All accounting identities from the new audit passed; largest deviation from `actual=fixed+feedback` in 900 case totals ~2.5e-12. No simulations rerun; original scenario outcomes revalued ex post.
+
+**Reproducibility (round-derived minus prior full-horizon outputs):**
+- Horizon 20 (900 pairs): mean signed profit difference +0.000296952; mean absolute difference 0.0003992235; median absolute 5.88e-12; maximum absolute 0.11774293 at profile index 0, sigma 2, seed 11; 0 sign changes (tolerance 1e-8); 40 cases exceed absolute error .001, five exceed .01.
+- Horizon 200 (900 pairs): mean signed difference +0.046551392; mean absolute 0.053663174; median absolute 3.56e-9; maximum absolute 31.772482 at profile index 26, sigma 2, seed 47, prior −325.304701/new −293.532219; next profile 31 sigma 2 seed 11 difference +7.723391, profile 34 sigma 1 seed 11 difference +2.386116. 0 sign changes; 250 cases exceed .001, 78 exceed .01, 16 exceed .1, three exceed 1. The top three positive outliers sum +41.881989 vs total signed error +41.896253 across 900 cells, indicating aggregate discrepancy is highly concentrated and largely offset by smaller positive/negative errors. **Numerical reproducibility FAIL/UNRESOLVED at strict precision**, even though qualitative profit sign is completely stable. Investigate particular profiles and optimizer numerical stability, solver versions and deterministic execution; no root cause asserted.
+
+**Exact ex-post fixed-price accounting:** Set `P_ref=P_noAI` for realized production plans of each scenario; `Δπ_fixed=P_noAI*(Q_AI−Q_noAI)−ΔC_total` and `price_feedback=(P_AI−P_noAI)*Q_AI`, so `Δπ_actual=Δπ_fixed+price_feedback`. The difference `price_feedback=price_effect+interaction_effect` includes the cross-term. Counterfactual repricing is NOT an intervened fixed-price game and firms would generally choose differently if actual prices were held fixed.
+
+**After 200 rounds, 900 paired markets (cumulative nine-player profits):**
+- mean realized Δπ = −62.607003, mean fixed-price Δπ = +217.842966, mean price feedback = −280.449968; accounting residual <2.6e-12.
+- actual Δπ negative 639/900, positive 261/900; fixed-price Δπ positive 779/900, negative 121/900; price feedback negative 882/900, positive 18/900.
+- **518/900 fixed-positive cases become actual-negative under observed endogenous price**; all 121 fixed-negative cases remain actual-negative; no case had fixed-negative but actual-positive.
+- sigma .5 actual/fixed/feedback means (−50.524004,+48.230887,−98.754891), fixed-to-actual positive→negative 130/300.
+- sigma 1 means (−37.490455,+147.331094,−184.821549), positive→negative 169/300.
+- sigma 2 means (−99.806549,+457.966916,−557.773465), positive→negative 219/300.
+
+**Per market-round period means** (unweighted mean across 900 matched markets per round):
+| period | actual Δπ | fixed-price Δπ | price feedback | Δ variable costs | Δ K | Δ P |
+|---|---:|---:|---:|---:|---:|---:|
+| 1–20 | +0.133795 | +0.917232 | −0.783437 | +0.738405 | +76.542684 | −0.120188 |
+| 21–100 | −0.285828 | +1.119699 | −1.405527 | +1.052752 | +111.102153 | −0.171775 |
+| 101–200 | −0.424167 | +1.099224 | −1.523390 | +1.073936 | +116.519542 | −0.176595 |
+Across all 200 rounds the mean fixed-price Δπ is positive in every round, while mean price feedback is negative in every round. A market's price change is mechanically linked to its quantity change through the approved inverse demand curve, and both scenarios' selected actions, cumulative adoptions and RL evolve jointly. **Interpretation:** enabling AI raises quantity and variable input expense; at baseline no-AI prices, resulting volume gains typically outweigh cost changes, but endogenous price feedback is often sufficiently negative to reverse relative profit gains. This is a stronger descriptive mechanism diagnosis, not an independent causal price effect or a generic welfare conclusion. Reconciliation discrepancies remain unresolved; thus full scientific validation remains pending, `research_validated=false`.
+
+**No core economic-engine changes.** No additional scientific claims or parameter decisions approved by this bookkeeping audit.
