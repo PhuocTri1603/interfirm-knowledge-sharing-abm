@@ -114,7 +114,7 @@ def figures(per,means,out):
     fig,axs=plt.subplots(1,3,figsize=(7.05,2.75),layout="constrained")
     metrics=(("mean_output","Mean output per round, $q$"),
              ("mean_implied_total_cost","Mean implied cost per round"),
-             ("mean_cumulative_profit","Cumulative profit, $\\Pi$"))
+             ("mean_cumulative_profit","Cumulative profit, $\Pi$"))
     for j,(metric,label) in enumerate(metrics):
         ax=axs[j]
         for policy,offset in ((A,-.09),(B,.09)):
@@ -122,7 +122,7 @@ def figures(per,means,out):
             ax.plot(np.arange(3)+offset,z[metric],marker="o",markersize=4,
                     color=ALLOCATION_COLORS["cost_adjusted" if policy==A else "productivity"],
                     label="Cost-adjusted" if policy==A else "Productivity")
-        ax.set_xticks(range(3),[rf"$\\sigma={s:g}$" for s in SIGMAS])
+        ax.set_xticks(range(3),[rf"$\sigma={s:g}$" for s in SIGMAS])
         ax.set_title(f"({chr(97+j)}) {label}",loc="left")
         ax.grid(axis="y",alpha=.45);ax.set_axisbelow(True)
         if j==1:
@@ -158,7 +158,7 @@ def figures(per,means,out):
         ax.plot(range(3),z.mean_active_ai_tasks,marker="o",markersize=4,
                 color=ALLOCATION_COLORS["cost_adjusted" if policy==A else "productivity"],
                 label="Cost-adjusted" if policy==A else "Productivity")
-    ax.set_xticks(range(3),[rf"$\\sigma={s:g}$" for s in SIGMAS])
+    ax.set_xticks(range(3),[rf"$\sigma={s:g}$" for s in SIGMAS])
     ax.set_ylim(bottom=0);ax.set_ylabel("Mean active tasks / round")
     ax.grid(axis="y",alpha=.45)
     fig.legend(*ax.get_legend_handles_labels(),loc="outside upper center",ncol=2,frameon=False)
@@ -182,7 +182,7 @@ def main():
     figures(per,means,out)
     rows=["# Section 3.2 — Technological substitutability: evidence audit",
           "","## Provenance",
-          f"Archived original run #42463803820, commit \`{SOURCE_COMMIT}\`, seed 11; "
+          f"Archived original run #42463803820, commit `{SOURCE_COMMIT}`, seed 11; "
           "Section 3.1 baseline. No simulation rerun or economic-model changes.",
           "","## Observed results",
           "Paired unit: one of 100 synthetic technology profiles, identical profile IDs "
@@ -260,7 +260,7 @@ def main():
            "numerical tolerances. Existing cross-workflow numerical solver discrepancies "
            "make this a substantive gate, not a formality. "
            "Single-seed synthetic outcomes are not externally calibrated; "
-           "no global optimum or causal identification is claimed. \`research_validated=false\`.",
+           "no global optimum or causal identification is claimed. `research_validated=false`.",
            ""]
     (out/"section3_2_evidence.md").write_text("\n".join(rows))
     for stem in ("figure_3_4_production_profitability","figure_3_5_task_allocation",
