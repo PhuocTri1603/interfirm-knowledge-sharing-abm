@@ -1,0 +1,24 @@
+{
+  "figures": [
+    "figure_3_1_profitability",
+    "figure_3_2_paired_differences",
+    "figure_3_3_policy_rankings"
+  ],
+  "formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "png_dpi": 300,
+  "profile_replicates_per_sigma": 100,
+  "figure3_selected_policies": [
+    "L3=uniform|L4=profit_based",
+    "L3=productivity|L4=profit_based",
+    "L3=cost_adjusted|L4=profit_based",
+    "L3=cost_adjusted|L4=cost_based"
+  ],
+  "figure3_input_rows": 540000,
+  "plotting_style": "scripts/paper_plot_style.py",
+  "integrity": "PASS",
+  "research_validated": false
+}
