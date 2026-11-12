@@ -1,6 +1,10 @@
 name: Paper Section 3.2 historical reproduction and observational mechanisms
 on:
   workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-reproduction.yml'
 permissions:
   contents: read
 jobs:
