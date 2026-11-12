@@ -1,0 +1,52 @@
+name: Game 1 AI reproducibility and fixed-price mechanism audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/audit_game1_ai_reconcile_fixed_price.py'
+      - '.github/workflows/game1-ai-reconcile-fixed-price.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download original full-horizon per-profile artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p results/game1_ai_mechanism_reconcile/full
+          for i in $(seq 0 99); do
+            mkdir -p "results/game1_ai_mechanism_reconcile/full/p_${i}"
+            for attempt in 1 2 3; do
+              gh run download 42826231816 -n "game1-full-profile-${i}" -D "results/game1_ai_mechanism_reconcile/full/p_${i}" && break
+              if [ "$attempt" = 3 ]; then exit 1; fi
+              sleep $((attempt * 5))
+            done
+          done
+      - name: Download original round-level per-profile artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p results/game1_ai_mechanism_reconcile/rounds
+          for i in $(seq 0 99); do
+            mkdir -p "results/game1_ai_mechanism_reconcile/rounds/p_${i}"
+            for attempt in 1 2 3; do
+              gh run download 43036152839 -n "game1-mechanisms-profile-${i}" -D "results/game1_ai_mechanism_reconcile/rounds/p_${i}" && break
+              if [ "$attempt" = 3 ]; then exit 1; fi
+              sleep $((attempt * 5))
+            done
+          done
+      - name: Reconcile and calculate ex-post fixed-price decomposition
+        run: python scripts/audit_game1_ai_reconcile_fixed_price.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-ai-reproducibility-fixed-price
+          path: results/game1_ai_mechanism_reconcile/aggregate/*.csv
