@@ -5,6 +5,9 @@ on:
     branches: [game1-economic-policy-interface]
     paths:
       - 'scripts/analyze_paper_section3_1.py'
+      - 'scripts/plot_paper_section3_1.py'
+      - 'scripts/paper_plot_style.py'
+      - 'tests/test_paper_section3_1_figures.py'
       - '.github/workflows/paper-section3-1.yml'
 permissions:
   contents: write
@@ -31,6 +34,12 @@ jobs:
           test "$(find /tmp/section31_source -name 'sigma_*_batch_*_rounds.csv' | wc -l)" -eq 30
       - name: Reanalyze original outputs and validate integrity
         run: python scripts/analyze_paper_section3_1.py --input /tmp/section31_source --out results/paper/section3
+      - name: Generate publication-quality figures from original round data
+        run: python scripts/plot_paper_section3_1.py --input /tmp/section31_source --out results/paper/section3
+      - name: Test plotting code and exported data
+        run: |
+          python -m pip install pytest
+          python -m pytest -q tests/test_paper_section3_1_figures.py
       - name: Upload evidence even if repository push is denied
         uses: actions/upload-artifact@v4
         with:
