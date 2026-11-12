@@ -1,10 +1,6 @@
 name: Paper Section 3.2 controlled full-sample reproduction and economic sensitivity
 on:
   workflow_dispatch:
-  push:
-    branches: [game1-economic-policy-interface]
-    paths:
-      - '.github/workflows/paper-section3-2-controlled-full-sample.yml'
 permissions:
   contents: read
 jobs:
