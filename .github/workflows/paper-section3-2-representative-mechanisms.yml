@@ -1,0 +1,77 @@
+name: Section 3.2 representative profiles strict reproduction and instrumentation
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-representative-mechanisms.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: section32-representative-mechanisms
+  cancel-in-progress: true
+jobs:
+  representative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        profile: [F021, F071, F091]
+        sigma: ['0.5', '1.0', '2.0']
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install unchanged historical engine and capture numerical runtime
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          mkdir -p /tmp/original /tmp/mechanism
+          python -m pip freeze > /tmp/mechanism/environment.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/mechanism/numerical_runtime.txt
+      - name: Download immutable historical archive
+        run: gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+      - name: Strict archived reproduction followed by independently gated instrumentation
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/check_paper_section3_2_targeted_mechanism.py --profile ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --archive /tmp/original --out /tmp/mechanism
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-representative-${{ matrix.profile }}-sigma-${{ matrix.sigma }}
+          path: /tmp/mechanism/
+          retention-days: 30
+          if-no-files-found: error
+  assess:
+    needs: representative
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: section32-representative-*
+          path: /tmp/representative
+      - name: Aggregate strict gates and determine whether economic decomposition is permitted
+        run: python scripts/assess_paper_section3_2_representatives.py --root /tmp/representative --out /tmp/assessment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-representative-assessment
+          path: /tmp/assessment/
+          if-no-files-found: warn
