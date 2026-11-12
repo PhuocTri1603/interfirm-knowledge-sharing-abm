@@ -396,3 +396,17 @@ Pending CI; no change to production/optimization/learning/market/seed, no tolera
 Workflow #43219989053 (https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43219989053) completed **SUCCESS** for all four jobs (trace x3 and compare). The green workflow status is **not** the strict archive-reproduction gate. Each independent execution produced exactly 9,154 SLSQP calls and detected the same **first archived mismatch: F011, sigma=0.5, round 8, L3=cost_adjusted|L4=profit_based**; archived output 0.922386678228658, reproduced output 0.9223870620939845, abs delta 3.8386532641432325e-7. The three observed solver traces compared identically on captured call input/output hashes, status, method, iteration and evaluation counts. `environment.txt` matched between the three runs. The compare job reported `first_pairwise_solver_differences=[]`, `first_archived_divergent_rounds=[8,8,8]`, `environments_identical=true`, and `reproducibility_gate=NOT_ESTABLISHED`.
 
 Interpretation: repeatability *within these three replays* is shown, but agreement with the original archive is not. The earlier targeted trace run #43207912859 (same nominal source and NumPy/SciPy versions) matched the archive; the new reproducible disagreement is consistent with a cross-run numerical discrepancy not explained by package versions alone. Historical per-solver traces do not exist, so **no first differing historical SLSQP invocation can yet be claimed**. Scope of future work: isolate archived vs replay optimizer behavior using controlled tests and numerical environment fingerprints before relaxing tolerances or interpreting independently instrumented mechanisms. Preserve `research_validated=false`; Section 3.2 cannot be handed over as validated mechanism analysis.
+
+
+## 2026-11-12 — BLAS threading sensitivity, run #43225602926
+
+Controlled numerical-runtime probe: https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43225602926, source commit `9f3f496ee26862d335b9fab8488b7b047a2886f8`. Both CI jobs completed successfully; artifacts `section32-blas-threads-1` (13947314243) and `section32-blas-threads-2` (13947334185).
+
+The probe held historical source commit `c614b86d9192a57fb402b4772b3c3bb6bf80b79f`, F011, sigma=0.5, seed=11, Python 3.11.18, NumPy 2.4.6, SciPy 1.17.1 constant, while setting `OPENBLAS_NUM_THREADS`, `OMP_NUM_THREADS`, `MKL_NUM_THREADS` together to 1 or 2. First archived discrepancy in both executions occurred at round 8, L3=cost_adjusted|L4=profit_based.
+
+- Archived q: **0.922386678228658**.
+- 1-thread q: **0.9223872969192003**, absolute discrepancy **6.186905422422839e-7**.
+- 2-thread q: **0.9223870620939845**, absolute discrepancy **3.8386532641432325e-7**.
+- One- versus two-thread outputs differ by **2.348252158e-7**.
+
+Interpretation: the experiment demonstrates sensitivity of this replay to numerical threading configuration. Since the probe simultaneously changed three thread-related environment variables, it does **not** isolate a specific BLAS library or prove a unique root cause of archived differences. The successful CI job statuses indicate the trace scripts ran successfully, not that the strict reproduction gate passed. Preserve strict tolerances, historical data, `research_validated=false`, and the mechanism-evidence embargo for Section 3.2 (task-level allocations, K/L, AI, cost decomposition, Figures 3.4–3.6).
