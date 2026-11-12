@@ -1,0 +1,47 @@
+name: Paper Section 3.2 historical reproduction and observational mechanisms
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        sigma: ['0.5','1.0','2.0']
+        batch: [0,1,2,3,4,5,6,7,8,9]
+    env:
+      MPLBACKEND: Agg
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install historical original source and its original dependencies
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip freeze > /tmp/reproduction-environment.txt
+      - name: Download archived original round outputs
+        run: |
+          mkdir -p /tmp/original /tmp/gate
+          gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+          cp /tmp/reproduction-environment.txt /tmp/gate/environment.txt
+      - name: Gate first; only then record mechanisms
+        run: |
+          PYTHONPATH=/tmp/game1-original/src python scripts/reproduce_paper_section3_2.py --sigma ${{ matrix.sigma }} --batch ${{ matrix.batch }} --archive /tmp/original --out /tmp/gate
+      - name: Preserve diagnostics even when reproduction fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: section32-sigma-${{ matrix.sigma }}-batch-${{ matrix.batch }}
+          path: /tmp/gate/
+          retention-days: 30
+          if-no-files-found: warn
