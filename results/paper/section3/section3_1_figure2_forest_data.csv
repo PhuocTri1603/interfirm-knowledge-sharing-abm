@@ -1,0 +1,13 @@
+sigma,comparison,policy_a,policy_b,mean_difference,lower,upper,positive_profiles,negative_profiles,tied_profiles,n
+0.5,0,L3=cost_adjusted|L4=profit_based,L3=productivity|L4=profit_based,58.65937764737691,43.12404087045272,74.1947144243011,80,20,0,100
+0.5,1,L3=cost_adjusted|L4=profit_based,L3=uniform|L4=profit_based,58.47285157959729,43.92245505037109,73.0232481088235,84,16,0,100
+0.5,2,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=cost_based,49.90763052515924,34.95685191583688,64.8584091344816,73,27,0,100
+0.5,3,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=no_automation,63.09479471252507,47.72476711956757,78.46482230548257,81,19,0,100
+1.0,0,L3=cost_adjusted|L4=profit_based,L3=productivity|L4=profit_based,59.82917820266356,43.06599202026074,76.59236438506639,77,23,0,100
+1.0,1,L3=cost_adjusted|L4=profit_based,L3=uniform|L4=profit_based,56.969422304986274,41.22509113410518,72.71375347586738,80,20,0,100
+1.0,2,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=cost_based,55.54667520043676,39.50810081146509,71.58524958940843,73,27,0,100
+1.0,3,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=no_automation,72.05737813935083,55.880339689559065,88.2344165891426,85,15,0,100
+2.0,0,L3=cost_adjusted|L4=profit_based,L3=productivity|L4=profit_based,-1.8670047531142813,-12.766879158297789,9.032869652069223,52,48,0,100
+2.0,1,L3=cost_adjusted|L4=profit_based,L3=uniform|L4=profit_based,1.4055057017540935,-9.09966599721711,11.910677400725296,55,45,0,100
+2.0,2,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=cost_based,40.33987300612545,28.362461908588017,52.317284103662885,73,27,0,100
+2.0,3,L3=cost_adjusted|L4=profit_based,L3=cost_adjusted|L4=no_automation,59.99594543402817,48.69642125978408,71.29546960827227,91,9,0,100
