@@ -120,10 +120,9 @@ def main():
                     "jacobian_full_row_rank":bool(len(sv)==len(positive)),
                     "jacobian_condition_full":float(sv[0]/sv[-1]) if len(sv) and sv[-1]>0 else None}
             jacobian_window.append(entry)
-        report.update("jacobian_window":jacobian_window,
-            "jacobian_window_events":[t["seq"] for t in window],
-            "jacobian_note":"Post-hoc finite differences at observed SLSQP evaluation points; condition number of equality-constraint Jacobian, not Hessian/KKT system.",
-            )
+        report.update(jacobian_window=jacobian_window,
+            jacobian_window_events=[t["seq"] for t in window],
+            jacobian_note="Post-hoc finite differences at observed SLSQP evaluation points; condition number of equality-constraint Jacobian, not Hessian/KKT system.")
         report.update({"profile":"F011","sigma":.5,"call":2,
             "threads":{k:os.environ.get(k) for k in ("OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS")},
             "x0":x0.tolist(),"x0_hash":hashvec(x0),"x0_evaluation":x0_eval,
