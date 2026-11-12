@@ -1,4 +1,4 @@
-name: Section 3.2 SLSQP call-two KKT and evaluation forensics
+name: Section 3.2 SLSQP call-two Jacobian conditioning and evaluation forensics
 on:
   push:
     branches: [game1-economic-policy-interface]
@@ -38,7 +38,7 @@ jobs:
           mkdir -p /tmp/forensics
           python -m pip freeze > /tmp/forensics/environment.txt
           python -c 'import numpy; numpy.show_runtime()' > /tmp/forensics/numerical_runtime.txt
-      - name: Capture solution coordinates, feasibility, approximate KKT, gradients, and first 160 evaluations
+      - name: Capture SLSQP trace and post-hoc Jacobian conditioning around events 120-136
         run: PYTHONPATH=/tmp/game1-original/src python scripts/probe_paper_section3_2_call2_forensics.py --out /tmp/forensics
       - uses: actions/upload-artifact@v4
         if: always()
@@ -63,7 +63,7 @@ jobs:
         with:
           pattern: section32-call2-forensics-*
           path: /tmp/forensics
-      - name: Compare actual solution distances, numerical gradients and earliest trace differences
+      - name: Compare shared-point Jacobians, singular values, gradient stability and event 131
         run: python scripts/compare_paper_section3_2_call2_forensics.py --root /tmp/forensics --out /tmp/assessment
       - uses: actions/upload-artifact@v4
         if: always()
