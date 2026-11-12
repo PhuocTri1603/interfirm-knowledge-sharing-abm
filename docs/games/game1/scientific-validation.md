@@ -410,3 +410,12 @@ The probe held historical source commit `c614b86d9192a57fb402b4772b3c3bb6bf80b79
 - One- versus two-thread outputs differ by **2.348252158e-7**.
 
 Interpretation: the experiment demonstrates sensitivity of this replay to numerical threading configuration. Since the probe simultaneously changed three thread-related environment variables, it does **not** isolate a specific BLAS library or prove a unique root cause of archived differences. The successful CI job statuses indicate the trace scripts ran successfully, not that the strict reproduction gate passed. Preserve strict tolerances, historical data, `research_validated=false`, and the mechanism-evidence embargo for Section 3.2 (task-level allocations, K/L, AI, cost decomposition, Figures 3.4–3.6).
+
+
+## 2026-11-12 — Full-sample controlled reproduction and economic stability gate launched
+
+Following the approved four-step Section 3.2 completion plan, added `scripts/analyze_paper_section3_2_numerical_stability.py` and `.github/workflows/paper-section3-2-controlled-full-sample.yml`. The new CI matrix runs 30 independent historical-engine batches (100 profiles × 3 sigmas × 9 strategies × 200 rounds = **540,000** round observations) under explicitly fixed `OPENBLAS_NUM_THREADS=2`, `OMP_NUM_THREADS=2`, `MKL_NUM_THREADS=2`, original engine commit `c614b86d9192a57fb402b4772b3c3bb6bf80b79f`, seed 11, unchanged strict tolerance (absolute 1e-7, relative 1e-9).
+
+Every batch saves baseline gate JSON and uninstrumented reproduced rounds even on failure. **Only if its archive reproduction gate passes**, that batch may record independent task/firm-level mechanisms and must also pass the instrumentation gate. The always-run aggregation job compares terminal profits, market winners and paired policy profitability signs and mean differences against the archived baseline across the full 540,000 rows, explicitly reporting whether economic conclusions survive numerical differences. The aggregation report must never substitute economic stability for strict numerical reproducibility; it retains `research_validated=false` and does not automatically validate Section 3.2.
+
+Pending: inspect full-sample CI artifacts and reconcile any failed batches. Then audit independently recorded task allocation, K/L, AI adoption, cost identities and price/market accounting; Figures 3.4–3.6 must not be promoted from placeholders until these checks pass. No change to production technology, optimization tolerances or historical experiment.
