@@ -1,9 +1,16 @@
 """Compare archived F011 diagnostic artifacts, including dynamic closure state and numerical runtime."""
-import argparse,hashlib,json,re
+import argparse,hashlib,json
 from pathlib import Path
 
 def load(p):
-    return json.loads(p.read_text()) if p.exists() else None
+    if not p.exists(): return None
+    raw=p.read_text()
+    try: return json.loads(raw)
+    except json.JSONDecodeError:
+        # Earlier trace wrote a literal escaped newline after valid JSON.
+        stripped=raw.rstrip()
+        if not stripped.endswith(chr(92)+"n"): raise
+        return json.loads(stripped[:-2])
 
 def sha(x):
     return hashlib.sha256(json.dumps(x,sort_keys=True,ensure_ascii=True).encode()).hexdigest()
