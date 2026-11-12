@@ -50,6 +50,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f --ignore-unmatch results/paper/section3/figure_3_3_policy_rankings.*
+          rm -f results/paper/section3/figure_3_3_policy_rankings.*
           git add -f results/paper/section3/
           if ! git diff --cached --quiet; then
             git commit -m "Publish verified original nine-policy Section 3.1 evidence"
