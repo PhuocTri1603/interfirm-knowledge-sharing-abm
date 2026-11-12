@@ -1,0 +1,48 @@
+name: Paper Section 3.1 reproducible nine-policy evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/analyze_paper_section3_1.py'
+      - '.github/workflows/paper-section3-1.yml'
+permissions:
+  contents: write
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'numpy==2.4.6' 'pandas==2.3.3' 'matplotlib==3.10.8'
+      - name: Retrieve exact original nine-policy run artifact
+        run: |
+          mkdir -p /tmp/section31_source
+          gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/section31_source
+          test "$(find /tmp/section31_source -name 'sigma_*_batch_*_rounds.csv' | wc -l)" -eq 30
+      - name: Reanalyze original outputs and validate integrity
+        run: python scripts/analyze_paper_section3_1.py --input /tmp/section31_source --out results/paper/section3
+      - name: Upload evidence even if repository push is denied
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-section3-1-evidence
+          path: results/paper/section3/
+          if-no-files-found: error
+      - name: Commit evidence tables figures and report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/paper/section3/
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish verified original nine-policy Section 3.1 evidence"
+            git push origin HEAD:game1-economic-policy-interface
+          fi
