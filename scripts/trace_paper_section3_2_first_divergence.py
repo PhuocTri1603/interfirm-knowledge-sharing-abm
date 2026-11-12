@@ -36,7 +36,7 @@ def main():
         calls.append(dict(call_index=context["optimizer_index"],round=context["round"],
             strategy_id=context["strategy"],candidate_index=context["candidate_index"],
             method=kw.get("method"),success=bool(res.success),status=int(res.status),
-            objective=float(res.fun),nit=int(getattr(res,"nit",-1)),
+            objective=float(res.fun),initial_x_hash=__import__("hashlib").sha256(np.asarray(x0,dtype="<f8").tobytes()).hexdigest()[:20],initial_x_norm=float(np.linalg.norm(x0)),constraint_count=len(kw.get("constraints",[])),nit=int(getattr(res,"nit",-1)),
             nfev=int(getattr(res,"nfev",-1)),x_norm=float(np.linalg.norm(res.x)),
             x_hash=__import__("hashlib").sha256(np.asarray(res.x,dtype="<f8").tobytes()).hexdigest()[:20]))
         return res
