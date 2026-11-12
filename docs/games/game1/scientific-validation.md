@@ -380,3 +380,12 @@ Added observational-only `scripts/trace_paper_section3_2_first_divergence.py` an
 **Environment:** Both downloaded artifact `environment.txt` files, failed batch #43194569720 (artifact 13934237200) and successful trace #43207912859 (artifact 13940801384), are byte-for-byte identical. Python 3.11.18 / NumPy 2.4.6 / SciPy 1.17.1 / pandas 2.3.3; same package versions as sampled original 2026-11-08 job logs. Unobserved floating-point or runtime differences, SLSQP sensitivity and numerical bifurcations remain hypotheses, not established causes. Do not change optimizer tolerances, claim all 100 profiles reproduce, or interpret unvalidated task-level mechanism results. `research_validated=false`.
 
 **Next diagnostic if required:** A single failed-profile process-independent comparison with full optimizer traces for **both** strict-pass and strict-fail executions, including candidate input hashes, optimizer initial points, constraints/modes and returned plans, is necessary before identifying the first *differing solver call*. Avoid full 30-job rerun until this has been localized.
+
+
+## 2026-11-12 — Section 3.2 finalization gate: independent-process solver traces
+
+User requires Section 3.2 completed before paper-agent handoff. The existing strict reproduction run #43194569720 ended with 3 success, 10 failure and 17 cancelled jobs, so full-sample gate remains **NOT PASSED**. No task-level mechanism figures or manuscript changes are authorized by these results.
+
+A focused 3-independent-process F011 diagnostic is implemented in `scripts/compare_paper_section3_2_solver_traces.py`, `scripts/trace_paper_section3_2_first_divergence.py` (now records optimizer initial-point hashes) and `.github/workflows/paper-section3-2-independent-traces.yml`, run https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43219989053. Each job imports unchanged historical source and records SLSQP call initial/output hashes, statuses, round/candidate mapping, and environment; compare job identifies earliest differing call and whether inputs already differed. A three-run pass would establish only targeted F011 reproducibility, **not** the 100-profile gate. If the three executions coincide, do not invent a root cause or silently declare complete; further controlled tests would be required.
+
+Pending CI; no change to production/optimization/learning/market/seed, no tolerance increase, `research_validated=false`.
