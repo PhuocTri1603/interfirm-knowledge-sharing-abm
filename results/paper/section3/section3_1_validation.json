@@ -1,0 +1,32 @@
+{
+  "source_run": 42463803820,
+  "source_commit": "c614b86d9192a57fb402b4772b3c3bb6bf80b79f",
+  "artifact_id": 13618500797,
+  "parameters": {
+    "demand_intercept": 2.0,
+    "demand_slope": 0.1111111111111111,
+    "wage": 0.009708737864077669,
+    "rental": 0.009708737864077669,
+    "adjustment_delta": 0.1,
+    "adoption_fee": 0.0025,
+    "eta": 0.1,
+    "epsilon": 0.15,
+    "seed": 11
+  },
+  "expected_firm_rounds": 540000,
+  "observed_firm_rounds": 540000,
+  "profiles": 100,
+  "sigma_conditions": 3,
+  "policies": 9,
+  "rounds_per_trajectory": 200,
+  "trajectories": 2700,
+  "market_rounds": 60000,
+  "duplicate_keys": 0,
+  "max_cumulative_round_residual": 4.547473508864641e-13,
+  "max_terminal_sum_residual": 4.547473508864641e-13,
+  "max_same_market_price_spread": 0.0,
+  "max_inverse_demand_residual": 6.661338147750939e-16,
+  "first_place_tied_markets": 0,
+  "independent_cost_accounting_available": false,
+  "research_validated": false
+}
