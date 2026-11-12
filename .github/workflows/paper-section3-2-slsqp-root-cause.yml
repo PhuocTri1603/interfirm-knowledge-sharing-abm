@@ -1,0 +1,73 @@
+name: Section 3.2 SLSQP call two numerical root-cause probe
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-slsqp-root-cause.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: one-a
+            threads: '1'
+          - label: one-b
+            threads: '1'
+          - label: two-a
+            threads: '2'
+          - label: two-b
+            threads: '2'
+    env:
+      OPENBLAS_NUM_THREADS: ${{ matrix.threads }}
+      OMP_NUM_THREADS: ${{ matrix.threads }}
+      MKL_NUM_THREADS: ${{ matrix.threads }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable engine and numerical dependencies
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          mkdir -p /tmp/probe
+          python -m pip freeze > /tmp/probe/environment.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/probe/numerical_runtime.txt
+      - name: Repeat identical objective and constrained optimization at call two
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/probe_paper_section3_2_solver_call2.py --out /tmp/probe --repeats 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-slsqp-call2-${{ matrix.label }}
+          path: /tmp/probe/
+          if-no-files-found: error
+  compare:
+    needs: probe
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: section32-slsqp-call2-*
+          path: /tmp/probes
+      - name: Compare numerical input evaluations and SLSQP outputs across independent runners
+        run: python scripts/compare_paper_section3_2_call2_probes.py --root /tmp/probes --out /tmp/assessment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-slsqp-call2-assessment
+          path: /tmp/assessment/
+          if-no-files-found: warn
