@@ -4,7 +4,7 @@ The archived experiment did not log SLSQP calls, so this identifies the earliest
 observable divergence and the solver calls contributing to its policy/round.
 It cannot identify an exact differing historical optimizer invocation.
 """
-import argparse,json,platform,sys
+import argparse,json,platform,sys,hashlib
 from pathlib import Path
 import numpy as np,pandas as pd,scipy
 import scipy.optimize as so
@@ -30,8 +30,38 @@ def main():
     orig_candidate=game.candidate
     calls=[];candidates=[]
     context={"round":None,"strategy":None,"candidate_index":0,"optimizer_index":0}
+
+    def static_fingerprint(obj):
+        """Do not evaluate objective or constraints; record their static structure."""
+        if obj is None or isinstance(obj,(bool,int,float,str)):
+            return obj
+        if isinstance(obj,np.ndarray):
+            return {"shape":list(obj.shape),"dtype":str(obj.dtype),
+                    "sha256":hashlib.sha256(obj.tobytes()).hexdigest()}
+        if isinstance(obj,(list,tuple)):
+            return [static_fingerprint(v) for v in obj]
+        if isinstance(obj,dict):
+            return {str(k):static_fingerprint(v) for k,v in sorted(obj.items())}
+        if callable(obj):
+            code=getattr(obj,"__code__",None)
+            cells=getattr(obj,"__closure__",None)
+            return {"callable":getattr(obj,"__qualname__",type(obj).__name__),
+                    "code_sha256":hashlib.sha256(code.co_code).hexdigest() if code else None,
+                    "closure_types":[type(v.cell_contents).__name__ for v in cells] if cells else []}
+        return {"type":type(obj).__name__}
     def traced_minimize(fun,x0,*a,**kw):
         context["optimizer_index"]+=1
+        if context["optimizer_index"]<=3:
+            details={"call_index":context["optimizer_index"],"strategy_id":context["strategy"],
+                     "candidate_index":context["candidate_index"],
+                     "x0":np.asarray(x0,dtype=float).tolist(),
+                     "objective":static_fingerprint(fun),
+                     "bounds":static_fingerprint(kw.get("bounds")),
+                     "constraints":static_fingerprint(kw.get("constraints")),
+                     "options":static_fingerprint(kw.get("options")),
+                     "method":kw.get("method")}
+            (out/("solver_input_%03d.json"%context["optimizer_index"])).write_text(
+                json.dumps(details,sort_keys=True,indent=2)+"\\n")
         res=orig_minimize(fun,x0,*a,**kw)
         calls.append(dict(call_index=context["optimizer_index"],round=context["round"],
             strategy_id=context["strategy"],candidate_index=context["candidate_index"],
