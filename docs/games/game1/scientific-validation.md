@@ -234,3 +234,38 @@ This decision **closes the open task-semantics interpretation question** from th
 **Run:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43036152839 , commit `98ac7f48771c04cffe8f3558e91569fbf9a24582`, workflow `Game 1 AI no-AI round-level mechanism audit`. Initial attempt concluded FAILURE; 95 configuration artifacts were available, aggregate missing. GitHub jobs API showed 95 successful profile jobs and five failures at profiles 76,77,78,86,87 (100 job page; final aggregate job pending/skipped due to needs). Logs for 77,78,86,87 indicate their Python computation completed and `actions/upload-artifact@v4` failed after five retries with `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`, a GitHub artifact service/response error, not an established engine or economics failure. Profile 76 logs were unavailable (404 BlobNotFound); underlying cause unverified.
 
 **Remediation:** Invoked GitHub connector `rerun_failed_workflow_run_jobs` for run #43036152839; GitHub returned success=true. The rerun of failed jobs is requested but **completion and aggregate results are not yet verified** at the time of this note. Do not claim scientific results or mark step passed until full aggregate `game1-ai-round-mechanisms-aggregate` is present and 180,000 round-paired observations checked. Keep engine untouched and `research_validated=false`.
+
+
+## 2026-11-12 — Round-level K / price / revenue mechanism analysis (run #43036152839, attempt 2)
+
+**Provenance:** https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43036152839 ; retry completed successfully (attempt 2), aggregate artifact `game1-ai-round-mechanisms-aggregate` ID `13912731662`, files `by_round.csv` (200 round means), `by_period.csv` (three non-overlapping period means), `by_sigma_period.csv` (nine sigma-period means). Five formerly missing profile artifacts [76,77,78,86,87] are now present; total artifact count 100 (99 per-profile visible on paginated endpoint plus aggregate). Job computes 100 × 3 sigma × 3 seeds × 200 rounds = **180,000 matched market-round observations**, each market containing nine player strategies. No changes to engine, demand, policy, payoffs or learning parameters. Accounting identities verify to numerical precision in the aggregate (max profit residual among displayed periods <1.3e-14). Source script `scripts/audit_game1_ai_round_mechanisms.py` observes original engine `run_game1(..., audit=True)`.
+
+**Definitions:** `delta` means AI-allowed scenario minus AI-disabled scenario, averaged across 900 matched markets *per round*. A market's K and L are totals over nine players, price is one shared market-clearing price, quantity is nine-player output total. AI-disabled control has capital use 0 **by construction**. Wage and rental are both `0.5/51.5≈0.0097087`; measured extra variable input cost = wage × delta L + rental × delta K. Output is normalized CES index treated as quantity by explicit modeling convention.
+
+| Component, mean per matched market-round | rounds 1–20 | rounds 21–100 | rounds 101–200 |
+|---|---:|---:|---:|
+| delta profit | +0.133795 | -0.285828 | -0.424167 |
+| delta revenue | +0.889603 | +0.783328 | +0.666460 |
+| delta variable input cost | +0.738405 | +1.052752 | +1.073936 |
+| delta capital used | +76.54268 | +111.10215 | +116.51954 |
+| delta labor used | -0.48695 | -2.66875 | -5.90408 |
+| rental × delta capital | +0.743133 | +1.078662 | +1.131258 |
+| wage × delta labor | -0.004728 | -0.025910 | -0.057321 |
+| delta adjustment cost | +0.01569 | +0.01636 | +0.01668 |
+| delta AI adoption fee | +0.00171 | +0.00005 | +0.00001 |
+| delta market quantity | +1.08169 | +1.54598 | +1.58935 |
+| delta market price | -0.12019 | -0.17178 | -0.17659 |
+| positive quantity revenue effect P0×ΔQ | +1.67304 | +2.18886 | +2.18985 |
+| negative price revenue effect Q0×ΔP | -0.49034 | -0.90310 | -0.98885 |
+| negative interaction ΔP×ΔQ | -0.29309 | -0.50243 | -0.53454 |
+
+**Mechanism decomposition (early→late, round-mean changes):** Additional capital rises +39.977 units per market-round, rental expense +0.3881; labor savings grow -5.417 in labor and -0.0526 in wage expense, net additional input expense +0.3355. The adverse revenue components price+interaction deepen from -0.7834 to -1.5234, offset in part by increased quantity component +0.5168 (1.6730→2.1899). Net revenue increment falls ~0.2231, and delta profit falls 0.5580 per market-round (+0.1338→-0.4242). This is an **exact accounting decomposition**, not identified causal mediation: K selection, P and Q evolve jointly under fixed demand, stochastic learning and policy changes. Market price differences are mechanically induced by quantity differences via the approved inverse demand rule. Mean per-round delta profit was negative in 186 of 200 rounds and first negative at round 15 (aggregated mean; not individual profile claims).
+
+**Sigma stratification, per-round delta profit:**
+- sigma 0.5: first 20 -0.03518, rounds 21–100 -0.24590, last 100 -0.30149.
+- sigma 1: +0.13280, -0.16614, -0.26861.
+- sigma 2: +0.30376, -0.44544, -0.70246.
+
+**Cross-run reproducibility caution:** Summing the new per-round mean delta profit yields +2.675894709 (first 20) and -62.607002632 (first 200), versus +2.675597757 and -62.653554024 in the earlier independent full-horizon run #42826231816. Difference in 200-round average = +0.046551392 (about 0.074% of the magnitude of the earlier mean). Although economically small and qualitatively consistent, the numerical difference must **not** be described as exact reproducibility. Investigate at profile/sigma/seed level and pin solver environment before scientific signoff; do not silently reconcile or overwrite originals.
+
+**Scientific status:** CI and round-level accounting/completeness PASS; economic diagnostic: rising capital input costs and stronger negative endogenous price feedback jointly account for lower relative market profit, while positive volume effects partly offset them. No isolated causal identification of learning, capital policy or price. Reproducibility discrepancy unresolved. Leave `research_validated=false`; do not change core engine based on diagnostic alone.
