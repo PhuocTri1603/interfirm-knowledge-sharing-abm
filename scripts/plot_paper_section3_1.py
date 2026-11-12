@@ -94,7 +94,7 @@ def create_figure1(summary,rounds,out):
     bx.grid(axis="x");bx.set_axisbelow(True)
     bx.legend(handles=[Line2D([0],[0],marker=m,color="#555555",lw=0,ms=4,label=rf"$\sigma={s:g}$")
                 for s,m in ((.5,"o"),(1.,"s"),(2.,"D"))],
-                loc="lower right",frameon=False,title="Mean markers",title_fontsize=7)
+                loc="upper right",frameon=False,title="Mean markers",title_fontsize=7)
     save_figure(fig,out,"figure_3_1_profitability")
     plt.close(fig)
 
@@ -170,7 +170,7 @@ def create_figure3(rounds,out):
                  linestyle=AUTOMATION_STYLES[parse_policy(p)[1]],lw=1.8,
                  label=policy_label(p,short=True)) for p in SELECTED],
                loc="outside lower center",ncol=2,frameon=False)
-    save_figure(fig,out,"figure_3_3_policy_rankings")
+    save_figure(fig,out,"figure_3_3_policy_dynamics")
     plt.close(fig)
 
 CAPTIONS="""
@@ -208,7 +208,7 @@ def main():
     text=text.rstrip()
     evidence.write_text(text+"\n\n"+CAPTIONS.strip()+"\n")
     manifest=dict(figures=["figure_3_1_profitability","figure_3_2_paired_differences",
-                           "figure_3_3_policy_rankings"],
+                           "figure_3_3_policy_dynamics"],
                   formats=["pdf","svg","png"],png_dpi=300,
                   profile_replicates_per_sigma=100,
                   figure3_selected_policies=list(SELECTED),
