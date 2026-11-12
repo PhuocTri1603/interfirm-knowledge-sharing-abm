@@ -96,6 +96,34 @@ def main():
         altered=dict(kw,constraints=wrapped_constraints)
         result=orig(record("objective",fun),x0.copy(),*pos,**altered)
         x=np.asarray(result.x,dtype=float)
+        # Post-hoc derivative diagnostics: only after SLSQP returns, so these
+        # evaluations cannot perturb the traced optimization trajectory.
+        window=[t for t in traces if 120<=t["seq"]<=136]
+        distinct={}
+        for t in window:
+            distinct.setdefault(t["x_hash"],t["x"])
+        jacobian_window=[]
+        for fingerprint,coords in distinct.items():
+            point=np.asarray(coords,dtype=float)
+            entry={"x_hash":fingerprint,"events":[t["seq"] for t in window if t["x_hash"]==fingerprint],
+                   "x":point.tolist(),"derivatives":{}}
+            for method in ("2-point","3-point"):
+                gj=np.asarray(approx_derivative(fun,point,method=method)).reshape(-1)
+                blocks=[np.asarray(approx_derivative(c["fun"],point,method=method)).reshape(-1,n) for c in cs]
+                j=np.vstack(blocks) if blocks else np.empty((0,n))
+                sv=np.linalg.svd(j,compute_uv=False) if j.size else np.empty(0)
+                positive=sv[sv>max(sv[0]*1e-12,1e-15)] if len(sv) else []
+                entry["derivatives"][method]={"objective_gradient":gj.tolist(),
+                    "constraint_jacobian":j.tolist(),"singular_values":sv.tolist(),
+                    "jacobian_rank_relative_1e-12":int(len(positive)),
+                    "jacobian_condition_nonzero":float(positive[0]/positive[-1]) if len(positive) else None,
+                    "jacobian_full_row_rank":bool(len(sv)==len(positive)),
+                    "jacobian_condition_full":float(sv[0]/sv[-1]) if len(sv) and sv[-1]>0 else None}
+            jacobian_window.append(entry)
+        report.update("jacobian_window":jacobian_window,
+            "jacobian_window_events":[t["seq"] for t in window],
+            "jacobian_note":"Post-hoc finite differences at observed SLSQP evaluation points; condition number of equality-constraint Jacobian, not Hessian/KKT system.",
+            )
         report.update({"profile":"F011","sigma":.5,"call":2,
             "threads":{k:os.environ.get(k) for k in ("OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS")},
             "x0":x0.tolist(),"x0_hash":hashvec(x0),"x0_evaluation":x0_eval,
