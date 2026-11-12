@@ -1,0 +1,42 @@
+name: Paper Section 3.2 targeted first-divergence solver trace
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-solver-trace.yml'
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Original commit and exact historical package versions
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip freeze > /tmp/solver_environment.txt
+      - name: Download original archived baseline
+        run: |
+          mkdir -p /tmp/original /tmp/trace
+          gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+          cp /tmp/solver_environment.txt /tmp/trace/environment.txt
+      - name: Trace one failed profile without changing optimizer
+        run: |
+          PYTHONPATH=/tmp/game1-original/src python scripts/trace_paper_section3_2_first_divergence.py --archive /tmp/original --out /tmp/trace --profile F011 --sigma 0.5
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-first-divergence-F011
+          path: /tmp/trace/
+          if-no-files-found: warn
