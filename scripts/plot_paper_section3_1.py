@@ -201,7 +201,11 @@ def main():
     evidence=out/"section3_1_evidence.md"
     text=evidence.read_text()
     # Single canonical report, deterministic on repeated execution.
-    text=text.split("## Publication figure captions (replacement figures)")[0]\n    if "## Figure captions" in text and "## Interpretation and limits" in text:\n        prefix,tail=text.split("## Figure captions",1)\n        text=prefix+"## Interpretation and limits"+tail.split("## Interpretation and limits",1)[1]\n    text=text.rstrip()
+    text=text.split("## Publication figure captions (replacement figures)")[0]
+    if "## Figure captions" in text and "## Interpretation and limits" in text:
+        prefix,tail=text.split("## Figure captions",1)
+        text=prefix+"## Interpretation and limits"+tail.split("## Interpretation and limits",1)[1]
+    text=text.rstrip()
     evidence.write_text(text+"\n\n"+CAPTIONS.strip()+"\n")
     manifest=dict(figures=["figure_3_1_profitability","figure_3_2_paired_differences",
                            "figure_3_3_policy_rankings"],
