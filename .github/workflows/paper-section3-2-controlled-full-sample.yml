@@ -1,0 +1,84 @@
+name: Paper Section 3.2 controlled full-sample reproduction and economic sensitivity
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-controlled-full-sample.yml'
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        sigma: ['0.5','1.0','2.0']
+        batch: [0,1,2,3,4,5,6,7,8,9]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install historical engine and record environment
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          mkdir -p /tmp/original /tmp/gate
+          python -m pip freeze > /tmp/gate/environment.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/gate/numerical_runtime.txt
+      - name: Download archived full sample
+        run: gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+      - name: Strict archive gate, then independent mechanism accounting
+        run: |
+          PYTHONPATH=/tmp/game1-original/src python scripts/reproduce_paper_section3_2.py --sigma ${{ matrix.sigma }} --batch ${{ matrix.batch }} --archive /tmp/original --out /tmp/gate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-controlled-sigma-${{ matrix.sigma }}-batch-${{ matrix.batch }}
+          path: /tmp/gate/
+          retention-days: 30
+          if-no-files-found: error
+  assess:
+    if: always()
+    needs: reproduce
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas==2.3.3 numpy==2.4.6
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: section32-controlled-sigma-*
+          path: /tmp/batches
+          merge-multiple: false
+      - name: Download historical baseline
+        run: |
+          mkdir -p /tmp/original /tmp/assessment
+          gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+      - name: Aggregate strict reproduction and economic conclusion sensitivity
+        run: python scripts/analyze_paper_section3_2_numerical_stability.py --root /tmp/batches --archive /tmp/original --out /tmp/assessment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-controlled-full-sample-assessment
+          path: /tmp/assessment/
+          if-no-files-found: warn
