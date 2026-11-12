@@ -1,0 +1,70 @@
+name: Section 3.2 dynamic input comparison and gated economic mechanism
+on:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-input-and-mechanism.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: section32-input-mechanism
+  cancel-in-progress: true
+jobs:
+  compare-existing-inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve existing dynamic-state evidence without rerunning solver
+        run: |
+          mkdir -p /tmp/existing /tmp/assessment
+          gh run download 43241488316 -R "${{ github.repository }}" -p 'section32-dynamic-*' -D /tmp/existing
+      - name: Compare objective closure, constraints, candidate state and runtime
+        run: python scripts/compare_paper_section3_2_dynamic_inputs.py --root /tmp/existing --out /tmp/assessment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-dynamic-input-evidence
+          path: /tmp/assessment/
+          if-no-files-found: warn
+  targeted-mechanism:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original immutable game and record runtime
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          mkdir -p /tmp/original /tmp/mechanism
+          python -m pip freeze > /tmp/mechanism/environment.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/mechanism/numerical_runtime.txt
+      - name: Download original historical archive
+        run: gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+      - name: Strict F011 archive gate then independent instrumentation and economic identities
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/check_paper_section3_2_targeted_mechanism.py --profile F011 --sigma 0.5 --archive /tmp/original --out /tmp/mechanism
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-F011-gated-economic-accounting
+          path: /tmp/mechanism/
+          if-no-files-found: warn
