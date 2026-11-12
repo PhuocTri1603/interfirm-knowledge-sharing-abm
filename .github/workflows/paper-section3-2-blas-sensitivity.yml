@@ -1,0 +1,48 @@
+name: Section 3.2 controlled BLAS-thread sensitivity
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-blas-sensitivity.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        threads: ['1', '2']
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: ${{ matrix.threads }}
+      OMP_NUM_THREADS: ${{ matrix.threads }}
+      MKL_NUM_THREADS: ${{ matrix.threads }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install unchanged original game and log numerical runtime
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          mkdir -p /tmp/original /tmp/trace
+          python -m pip freeze > /tmp/trace/environment.txt
+          python -c 'import numpy; numpy.show_runtime(); numpy.show_config()' > /tmp/trace/numerical_runtime.txt
+          env | grep -E '^(OPENBLAS|OMP|MKL)_' > /tmp/trace/thread_settings.txt
+      - name: Download original archived baseline
+        run: gh run download 42463803820 -R "${{ github.repository }}" -n game1-full-sample-analysis -D /tmp/original
+      - name: Trace F011 with controlled BLAS threads
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/trace_paper_section3_2_first_divergence.py --archive /tmp/original --out /tmp/trace --profile F011 --sigma 0.5
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section32-blas-threads-${{ matrix.threads }}
+          path: /tmp/trace/
+          if-no-files-found: warn
