@@ -38,7 +38,7 @@ def main():
         if isinstance(obj,np.ndarray):
             return {"shape":list(obj.shape),"dtype":str(obj.dtype),
                     "sha256":hashlib.sha256(obj.tobytes()).hexdigest()}
-        if isinstance(obj,(list,tuple)):
+        if isinstance(obj,(list,tuple,set,frozenset)):
             return [static_fingerprint(v) for v in obj]
         if isinstance(obj,dict):
             return {str(k):static_fingerprint(v) for k,v in sorted(obj.items())}
@@ -48,7 +48,26 @@ def main():
             return {"callable":getattr(obj,"__qualname__",type(obj).__name__),
                     "code_sha256":hashlib.sha256(code.co_code).hexdigest() if code else None,
                     "closure_types":[type(v.cell_contents).__name__ for v in cells] if cells else []}
+        if hasattr(obj,"__dict__"):
+            return {"type":type(obj).__name__,"fields":static_fingerprint(vars(obj))}
         return {"type":type(obj).__name__}
+    def closure_state(fun):
+        """Read captured numerical state without calling optimizer functions."""
+        cells=getattr(fun,"__closure__",None) or ()
+        names=getattr(getattr(fun,"__code__",None),"co_freevars",())
+        result={}
+        for name,cell in zip(names,cells):
+            value=cell.cell_contents
+            if isinstance(value,(int,float,str,bool,type(None),np.ndarray,list,tuple,dict)):
+                result[name]=static_fingerprint(value)
+            elif callable(value):
+                result[name]=static_fingerprint(value)
+            elif hasattr(value,"__dict__"):
+                result[name]={"type":type(value).__name__,
+                              "fields":static_fingerprint(vars(value))}
+            else:
+                result[name]={"type":type(value).__name__}
+        return result
     def traced_minimize(fun,x0,*a,**kw):
         context["optimizer_index"]+=1
         if context["optimizer_index"]<=3:
@@ -56,8 +75,10 @@ def main():
                      "candidate_index":context["candidate_index"],
                      "x0":np.asarray(x0,dtype=float).tolist(),
                      "objective":static_fingerprint(fun),
+                     "objective_closure":closure_state(fun),
                      "bounds":static_fingerprint(kw.get("bounds")),
                      "constraints":static_fingerprint(kw.get("constraints")),
+                     "constraint_closures":[closure_state(v.get("fun")) for v in kw.get("constraints",[]) if isinstance(v,dict) and callable(v.get("fun"))],
                      "options":static_fingerprint(kw.get("options")),
                      "method":kw.get("method")}
             (out/("solver_input_%03d.json"%context["optimizer_index"])).write_text(
@@ -74,6 +95,13 @@ def main():
         context["candidate_index"]+=1
         context["strategy"]=f"L3={l3}|L4={l4}"
         begin=len(calls)
+        if context["candidate_index"]<=2:
+            (out/("candidate_state_%03d.json"%context["candidate_index"])).write_text(
+                json.dumps({"firm":static_fingerprint(vars(firm)),"technology":static_fingerprint(vars(tech)),
+                "l3":l3,"l4":l4,"budget":budget,"prior_price":price,
+                "previous":[static_fingerprint(vars(x)) for x in previous],
+                "adopted":sorted(adopted),"parameters":static_fingerprint(vars(p)),
+                "last_modes":list(last_modes) if last_modes is not None else None},sort_keys=True,indent=2)+"\\n")
         result=orig_candidate(firm,tech,l3,l4,budget,price,previous,adopted,p,last_modes)
         candidates.append(dict(round=context["round"],strategy_id=context["strategy"],
             candidate_index=context["candidate_index"],start_solver_call=begin+1,
