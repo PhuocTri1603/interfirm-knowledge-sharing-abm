@@ -1,4 +1,4 @@
-name: Section 3.2 dynamic input comparison and gated economic mechanism
+name: Section 3.2 dynamic input comparison and gated economic mechanism (corrected JSON)
 on:
   push:
     branches: [game1-economic-policy-interface]
