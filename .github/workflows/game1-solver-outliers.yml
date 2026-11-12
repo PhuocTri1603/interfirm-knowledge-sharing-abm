@@ -1,0 +1,37 @@
+name: Game 1 targeted solver reproducibility investigation
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - 'scripts/audit_game1_solver_outliers.py'
+      - '.github/workflows/game1-solver-outliers.yml'
+permissions:
+  contents: read
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        profile: [26,31,34]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]' 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - run: python scripts/audit_game1_solver_outliers.py --case ${{ matrix.profile }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-solver-outlier-${{ matrix.profile }}
+          path: results/game1_solver_outliers/*.csv
+          if-no-files-found: warn
