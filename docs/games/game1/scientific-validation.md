@@ -595,3 +595,25 @@ The previous attempt [#43362972641](https://github.com/PhuocTri1603/interfirm-kn
 All 12 jobs passed independent accounting assertions: `profit=price*output-variable_cost-adjustment_cost-adoption_cost`, market quantity equals sum of 9 players' outputs, market price equals `max(0,2-quantity/9)`, nonnegative K and L, and consistency of active AI count with selected plan. Dynamic reproduction gate versus the prior fixed-SIMD artifacts returned **zero** action mismatches and **zero** differences (not merely within tolerance) in output, price, profit, cumulative profit, AI active/adopted counts, market quantity and market price for all checked jobs. Illustrative log maxima: F011 sigma .5 profit accounting residual `2.220446049250313e-16`, quantity residual `8.881784197001252e-16`, inverse-demand residual `2.220446049250313e-16`; F071 sigma 2 profit residual `1.1102230246251565e-16`, quantity residual `1.7763568394002505e-15`; F091 sigma 2 profit residual `2.220446049250313e-16`.
 
 **Scope:** Dynamic series for capital/labor **used** (not exogenous investment or employment decisions), AI task counts and adoption, output, costs and market price are now reproducible and accounting-consistent for 12 cases. This is a **measurement/instrumentation PASS**, not a finding that a particular mechanism causes profit differences. The audit does not independently reproduce the frozen historical archive's strict gate for all cases, does not validate 100 profiles, and does not yet establish task-level AI intensity or a causal decomposition. Section 3.2 can proceed to carefully test price/quantity/cost/AI associations and accounting decompositions, with competing explanations; `research_validated=false`.
+
+
+## 2026-11-13 — Section 3.2 paired-strategy 200-round accounting decomposition (four profiles)
+
+**Source:** All 12 verified `dynamic-audit-*` artifacts from successful workflow #43363627323, 21,600 player-round observations. Offline analysis compared A=`L3=cost_adjusted|L4=profit_based` with B=`L3=productivity|L4=profit_based` **within the same profile, sigma, and round**, thus sharing endogenous price `P_t`. The identity `pi_A-pi_B=P_t(q_A-q_B)-(C_A-C_B)`, with `C=variable_cost+adjustment_cost+adoption_cost`, holds across all 2,400 paired rounds to max residual `1.1102230246251565e-15`. Aggregate totals are summed over 200 rounds; reported units are simulation units, not empirical currencies.
+
+| Profile | sigma | Revenue A−B | Cost A−B | Profit A−B |
+|---|---:|---:|---:|---:|
+| F011 | .5 | -20.0964 | +2.8498 | -22.9461 |
+| F011 | 1 | +6.9530 | +17.5644 | -10.6114 |
+| F011 | 2 | -108.6146 | -33.0547 | -75.5600 |
+| F021 | .5 | +103.4181 | +30.9556 | +72.4625 |
+| F021 | 1 | +174.7638 | +60.2665 | +114.4973 |
+| F021 | 2 | -78.7018 | -18.4224 | -60.2794 |
+| F071 | .5 | +71.1753 | +51.8507 | +19.3246 |
+| F071 | 1 | +72.1787 | +51.8508 | +20.3279 |
+| F071 | 2 | -84.2191 | -56.0470 | -28.1721 |
+| F091 | .5 | +53.0001 | +38.2565 | +14.7436 |
+| F091 | 1 | +74.9068 | +52.1744 | +22.7324 |
+| F091 | 2 | -91.0621 | -57.1220 | -33.9400 |
+
+**Interpretation strictly descriptive:** At sigma=1 A has a revenue premium exceeding its cost premium for F021/F071/F091, whereas at sigma=2 A has lower revenue and lower cost but the revenue deficit exceeds its cost saving. F011 is negative at all sigma. This does not identify causal contributions of K/L, AI or sigma to profit: sigma changes endogenous equilibrium prices and actions, and `P_t Δq_t` is a within-market accounting term, not an isolated quantity intervention. The paired comparisons do not establish whether the change across sigma is due to technology, endogenous price, learning, automation, or interactions. Next analyze within-strategy across-sigma paths, prices, K/L and AI counts, and apply carefully labeled counterfactuals only after approval. Keep `research_validated=false`.
