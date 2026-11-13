@@ -53,9 +53,31 @@
       "cost": "P*q-profit implied"
     },
     "figure_3_5": {
-      "status": "PENDING",
-      "reason": "Task-level observational instrumentation implemented; 12-case CI baseline gate in progress, no PASS claim until all 12 complete and artifact checked",
-      "workflow_run": 43381074120
+      "status": "PASS_SCOPED_FIXED_SIMD",
+      "profiles": [
+        "F011",
+        "F021",
+        "F071",
+        "F091"
+      ],
+      "sigma": [
+        0.5,
+        1,
+        2
+      ],
+      "strategies": [
+        "L3=cost_adjusted|L4=profit_based",
+        "L3=productivity|L4=profit_based"
+      ],
+      "source_run": 43381091601,
+      "source_commit": "6d4ee5bd97251ae4b8fb2e3b8599c23dfc59fd35",
+      "task_records_all_strategies": 432000,
+      "focal_task_records": 96000,
+      "figure_summary_cells": 480,
+      "max_task_vs_firm_aggregation_error": 1.4210854715202004e-14,
+      "max_observation_vs_baseline_dynamic": 0,
+      "strict_archive_original_equivalence": false,
+      "details": "12/12 task-level baseline observational gates PASS; fixed-SIMD paths, not strict original archive reproductions. Task heatmap shows 200-round mean normalized task activity; not all 100 profiles."
     },
     "figure_3_6": {
       "status": "PASS",
@@ -82,11 +104,11 @@
     "causal_identification": false,
     "paper_agent_handoff": "BLOCKED_PENDING_FULL_VALIDATION",
     "open_gates": [
-      "12-case task-level baseline equivalence",
-      "strict historical archive numerical reproduction",
-      "independent-seed robustness",
-      "full-profile K/L/AI mechanism generalization if claimed",
-      "manual figure QA and numbering approval"
-    ]
+      "strict historical archive reproduction not all PASS",
+      "independent-seed robustness not established",
+      "100-profile task mechanism validation not established"
+    ],
+    "task_workflow_failed_run": 43381074120,
+    "task_workflow_success_run": 43381091601
   }
 }
