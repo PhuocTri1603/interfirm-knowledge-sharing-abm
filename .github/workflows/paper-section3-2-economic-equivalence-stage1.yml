@@ -1,0 +1,87 @@
+name: Section 3.2 F011 sigma 1 and 2 economic equivalence
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-economic-equivalence-stage1.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        sigma: ['1', '2']
+        runner: [a, b]
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen engine and pinned dependencies
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Replay selected 200-round case
+        run: |
+          mkdir -p /tmp/case
+          PYTHONPATH=/tmp/game1-original/src python scripts/check_paper_section3_2_fixed_simd_profiles.py --profile F011 --sigma ${{ matrix.sigma }} --out /tmp/case
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/case/runtime.txt
+          lscpu > /tmp/case/cpu.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixed-simd-F011-sigma-${{ matrix.sigma }}-${{ matrix.runner }}
+          path: /tmp/case
+  compare:
+    needs: replay
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install comparator dependencies
+        run: python -m pip install 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fixed-simd-F011-sigma-*
+          path: /tmp/trials
+      - name: Download existing immutable archive and sigma 0.5 baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/archive /tmp/baseline /tmp/out
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/archive/archive.zip
+          gh api repos/${{ github.repository }}/actions/artifacts/14007940245/zip > /tmp/baseline/baseline.zip
+          unzip -q /tmp/baseline/baseline.zip -d /tmp/baseline
+          test -f /tmp/baseline/deterministic_solver_trial.json
+      - name: Compare reproducibility before historical archive, then cross-sigma effect signs
+        run: |
+          PYTHONPATH=scripts python scripts/compare_paper_section3_2_economic_equivalence.py --trials /tmp/trials --archive-zip /tmp/archive/archive.zip --baseline /tmp/baseline/deterministic_solver_trial.json --out /tmp/out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixed-simd-F011-economic-equivalence-report
+          path: /tmp/out
