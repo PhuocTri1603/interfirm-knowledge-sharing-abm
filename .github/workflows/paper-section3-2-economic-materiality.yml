@@ -1,0 +1,45 @@
+name: Section 3.2 existing-data economic materiality audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths:
+      - '.github/workflows/paper-section3-2-economic-materiality.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download only existing seed11 replay traces
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/full100
+          for batch in 0 1 2 3 4 5 6 7 8 9; do
+            name="full100-batch-${batch}-seed-11"
+            mkdir -p "/tmp/full100/${name}"
+            gh run download 43392326894 --name "${name}" --dir "/tmp/full100/${name}"
+          done
+      - name: Download immutable historical archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/historical
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/historical.zip
+          unzip -q /tmp/historical.zip -d /tmp/historical
+      - name: Audit economic materiality without rerunning the model
+        run: |
+          python scripts/audit_section3_2_economic_materiality.py --replays /tmp/full100 --archive /tmp/historical --out /tmp/economic-audit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-economic-materiality-existing-data
+          path: /tmp/economic-audit
