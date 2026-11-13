@@ -1,4 +1,4 @@
-name: Section 3.2 deterministic SLSQP solver trial
+name: Section 3.2 deterministic SLSQP solver trial (callback fix)
 on:
   workflow_dispatch:
   push:
