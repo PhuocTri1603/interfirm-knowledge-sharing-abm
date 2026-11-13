@@ -1,0 +1,83 @@
+name: Section 3.2 first SLSQP divergence forensics
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-first-solver-difference.yml']
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [one-a, one-b, one-c, one-d]
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen economic engine and pinned numerical stack
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Capture numerical runtime and first four rounds of SLSQP
+        run: |
+          mkdir -p /tmp/forensics
+          python -m pip freeze > /tmp/forensics/pip-freeze.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/forensics/numerical-runtime.txt
+          lscpu > /tmp/forensics/cpu.txt
+          PYTHONPATH=/tmp/game1-original/src python scripts/probe_paper_section3_2_first_solver_difference.py --rounds 4 --out /tmp/forensics
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: slsqp-first-difference-${{ matrix.label }}
+          path: /tmp/forensics
+  compare:
+    needs: trace
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: slsqp-first-difference-*
+          path: /tmp/forensics
+      - name: Compare first differing SLSQP call and its common inputs
+        run: |
+          python - <<'PY'
+          import json,pathlib,sys
+          files=sorted(pathlib.Path("/tmp/forensics").rglob("slsqp_first_divergence.json"))
+          if len(files)!=4:
+              print("INCOMPLETE",len(files));sys.exit(2)
+          d=[json.loads(f.read_text()) for f in files]
+          print("RUNNERS",[(f.parent.name,len(x["calls"])) for f,x in zip(files,d)])
+          n=min(len(x["calls"]) for x in d)
+          first=next((i for i in range(n) if len({x["calls"][i]["solution_sha256"] for x in d})>1),None)
+          print("FIRST_DIFFERING_SOLVER_CALL",None if first is None else first+1)
+          if first is not None:
+              calls=[x["calls"][first] for x in d]
+              for f,c in zip(files,calls):
+                  print("SOLVER",f.parent.name,json.dumps({k:c[k] for k in ("solution_sha256","objective","gradient_inf_norm","status","success","message","nit","nfev","njev","max_constraint_violation","bound_violation")}))
+              print("IDENTICAL_X0",len({c["input"]["x0_sha256"] for c in calls})==1)
+              print("IDENTICAL_F0",len({c["input"]["f0"] for c in calls})==1)
+              print("IDENTICAL_GRAD0",all(c["input"]["grad0"]==calls[0]["input"]["grad0"] for c in calls))
+              print("IDENTICAL_CONSTRAINTS0",all(c["input"]["constraints0"]==calls[0]["input"]["constraints0"] for c in calls))
+              print("MAX_SOLUTION_COORDINATE_DIFFERENCE",max(abs(a-b) for c in calls[1:] for a,b in zip(calls[0]["solution"],c["solution"])))
+          for f,x in zip(files,d):
+              print("RUNTIME",f.parent.name,json.dumps(x["runtime"],sort_keys=True))
+          print("DIAGNOSTIC_COMPLETE",True)
+          PY
