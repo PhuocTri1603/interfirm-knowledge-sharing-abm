@@ -4,6 +4,7 @@ Runs one technology profile and one RNG seed at both sigma levels, 200 rounds,
 nine interacting strategies per market. Accounting counterfactual only.
 """
 import argparse,csv,json,math
+from dataclasses import replace
 from pathlib import Path
 import interfirm_abm.game1_nine_strategy as game
 from interfirm_abm.task_a6_market import approved_profiles
@@ -11,7 +12,7 @@ from reproduce_paper_section3_2 import params
 A="L3=cost_adjusted|L4=profit_based"
 B="L3=productivity|L4=profit_based"
 def run(profile,seed,sigma):
-    p=params();p.seed=seed
+    p=replace(params(),seed=seed)
     result=game.run_game1(profile,sigma,p,rounds=200)
     players={(int(r["round"]),r["strategy_id"]):r for r in result["players"]}
     markets={int(r["round"]):r for r in result["market"]}
