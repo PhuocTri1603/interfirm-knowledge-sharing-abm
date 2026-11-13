@@ -44,6 +44,6 @@ report=dict(status="PASS_ACCOUNTING_AND_COVERAGE",profiles=100,seeds=[11,23,47],
   negative_price_all_300=all(float(r["price_revaluation"])< -1e-8 for r in rows),
   positive_fixed_price_all_300=all(float(r["fixed_price_profit_change"])>1e-8 for r in rows),
   original_engine_unchanged=True,strict_historical_archive_equivalence_not_proven=True,
-  counterfactual_is_accounting_not_causal=True,research_validated=False,seeds=summary)
+  counterfactual_is_accounting_not_causal=True,research_validated=False,seed_summaries=summary)
 (out/"full100_paired_seed_report.json").write_text(json.dumps(report,indent=2)+"\n")
 print(json.dumps(report,indent=2))
