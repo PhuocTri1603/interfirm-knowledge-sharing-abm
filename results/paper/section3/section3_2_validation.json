@@ -9,7 +9,7 @@
   "profile_ids_consistent_across_sigma": true,
   "max_terminal_cumulative_profit_residual": 4.547473508864641e-13,
   "max_section3_1_baseline_mean_residual": 1.4210854715202004e-14,
-  "revenue_identity_max_error": 0.0,
+  "revenue_identity_max_error": 0,
   "implied_cost_identity_max_error": 1.1102230246251565e-16,
   "independent_component_cost_reconciliation": false,
   "task_allocation_observed": false,
@@ -30,5 +30,54 @@
   ],
   "exact_sigma_comparability": "same fixed task profile and reference; CES sigma changes; endogenous choices and prices also change",
   "research_validated": false,
-  "round_level_derived_total_cost": "revenue minus realized profit (algebraic, not independently verified)"
+  "round_level_derived_total_cost": "revenue minus realized profit (algebraic, not independently verified)",
+  "figure_qa_2026_11_13": {
+    "source_archive_artifact": 13618500797,
+    "source_archive_run": 42463803820,
+    "seed": 11,
+    "dynamic_audit_run": 43363627323,
+    "dynamic_profiles": [
+      "F011",
+      "F021",
+      "F071",
+      "F091"
+    ],
+    "dynamic_profile_sigma_cases": 12,
+    "dynamic_firm_rounds": 21600,
+    "dynamic_market_rounds": 2400,
+    "full100_revaluation_run": 43378220484,
+    "full100_revaluation_artifact": 14015257527,
+    "figure_3_4": {
+      "status": "PASS",
+      "scope": "100 profiles",
+      "cost": "P*q-profit implied"
+    },
+    "figure_3_5": {
+      "status": "PENDING",
+      "reason": "No independently verified task-level allocation files in 12 dynamic audit artifacts"
+    },
+    "figure_3_6": {
+      "status": "PASS",
+      "scope": "4 profiles",
+      "capital_labor": "absolute input use not stocks or utilization ratios",
+      "active_ai": "task count not capital"
+    },
+    "figure_3_7_provisional": {
+      "status": "PASS",
+      "scope": "4 profiles",
+      "settlement_max_abs_error": 4.440892098500626e-16
+    },
+    "figure_3_8_provisional": {
+      "status": "PASS",
+      "scope": "100 profiles",
+      "quantity": 39820.182457077586,
+      "cost_contribution": -12863.74929060052,
+      "price_revaluation": -33631.65745222476,
+      "observed_delta_profit": -6675.224285747697,
+      "identity_error": 9.094947017729282e-13
+    },
+    "historical_strict_archive_all_pass": false,
+    "independent_seed_robustness_pass": false,
+    "causal_identification": false
+  }
 }
