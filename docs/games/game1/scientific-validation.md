@@ -700,3 +700,23 @@ Round-phase market means (1–50, 51–100, 101–150, 151–200), sigma1 versus
 - F091 Q: (5.480,6.454,6.746,7.008) vs (7.220,8.317,8.781,8.811); P: (1.391,1.283,1.250,1.221) vs (1.198,1.076,1.024,1.021).
 
 **Interpretation boundary:** This is a validated accounting mechanism for these four profiles, not a general causal attribution or proof for all 100 configurations. Further work could use controlled counterfactual price-taking revaluation, holding decisions fixed, or controlled sigma experiments, explicitly separating accounting from structural causality. `research_validated=false`.
+
+
+## 2026-11-13 — Fixed-output, fixed-cost price revaluation counterfactual PASS
+
+GitHub Actions [#43377098268](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43377098268) completed success. Artifact `section3-2-fixed-price-counterfactual` ID **14015201803** contains `counterfactual_rounds.csv` (21,600 records), `counterfactual_summary.csv` (120 rows: 4 profiles ×3 sigma contrasts ×10 groupings including all players), and `counterfactual_report.json`. All twelve dynamic-audit source gates PASS. No economic-engine execution or alteration; all simulated output and costs are held as recorded. Maximum profit identity residual `7.771561172376096e-16`; revenue identity residual `6.661338147750939e-16`.
+
+For matched player-round observations across sigma baseline 1 and target 2, define `CF_profit_2_at_P1=P1*q2-C2`. Then `profit2-profit1 = (CF_profit_2_at_P1-profit1) + (P2-P1)*q2`. Summing over 9 players × 200 rounds:
+
+| Profile | Observed delta profit | Fixed-P1 counterfactual delta profit | Price-revaluation component |
+|---|---:|---:|---:|
+| F011 | +68.966 | +215.155 | -146.189 |
+| F021 | -28.543 | +583.924 | -612.467 |
+| F071 | -54.015 | +174.742 | -228.757 |
+| F091 | -94.806 | +254.439 | -349.246 |
+
+All four aggregate fixed-P1 counterfactual changes are positive; three of four actual aggregate changes are negative. This is an **accounting decomposition** showing that equilibrium-price revaluation can offset positive output/cost contributions. It does not prove that exogenously holding P fixed would yield the same production decisions: firms optimize under price expectations and the counterfactual is not a market-clearing equilibrium.
+
+The symmetric target-price decomposition is also exact: `DeltaProfit = P2*(q2-q1)+(P2-P1)*q1-DeltaCost`. Its price components differ materially from the baseline-price decomposition: F011 -117.913, F021 -414.560, F071 -191.272, F091 -269.687. Therefore the price-component magnitude is reference/index-number dependent. Avoid a single causal 'share due to price' claim.
+
+Heterogeneity: out of nine strategies, actual delta profit >0 for F011 2, F021 2, F071 3, F091 4; fixed-P1 counterfactual delta profit >0 for F011 4, F021 3, F071 5, F091 7 (using 1e-8 zero tolerance). Aggregate gains do not imply all individual strategies benefit. `research_validated=false`.
