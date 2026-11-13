@@ -102,7 +102,7 @@
     "historical_strict_archive_all_pass": false,
     "independent_seed_robustness_pass": "PASS_SCOPED_10_PROFILES_3_SEEDS_NOT_ALL100",
     "causal_identification": false,
-    "paper_agent_handoff": "BLOCKED_PENDING_RESEARCHER_ADJUDICATION_OF_UNRESOLVED_GATES",
+    "paper_agent_handoff": "BLOCKED_PENDING_FULL100_RESULTS_AND_STRICT_ARCHIVE_ADJUDICATION",
     "open_gates": [
       "strict historical archive numerical equivalence unresolved",
       "100-profile three-seed robustness untested",
@@ -185,6 +185,31 @@
       "strict archive original numerical equivalence not established",
       "price revaluation is an exact ex-post accounting identity, not a market-clearing causal intervention"
     ],
+    "research_validated": false
+  },
+  "full100_three_seed_and_strict_archive_2026_11_13": {
+    "status": "RUNNING_OR_QUEUED_RESULTS_NOT_VERIFIED",
+    "run_id": 43392326894,
+    "head_sha": "389ec60afc989a087cb1a1eba382cdd8a19db53a",
+    "profiles": 100,
+    "seeds": [
+      11,
+      23,
+      47
+    ],
+    "sigmas": [
+      1,
+      2
+    ],
+    "expected_markets": 600,
+    "expected_player_rounds": 1080000,
+    "expected_historical_strict_rows": 360000,
+    "historical_archive_run": 42463803820,
+    "historical_archive_artifact": 13618500797,
+    "strict_atol": 1e-7,
+    "strict_rtol": 1e-9,
+    "strict_numerical_equivalence": "PENDING",
+    "full100_robustness": "PENDING",
     "research_validated": false
   }
 }
