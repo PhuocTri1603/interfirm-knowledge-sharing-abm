@@ -1,0 +1,45 @@
+name: Section 3.2 fixed-output price counterfactual
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-price-counterfactual.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - name: Download twelve previously validated dynamic series
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/dynamics /tmp/counterfactual
+          for spec in \
+            F011:0.5:14009163095 F011:1:14009241975 F011:2:14009836280 \
+            F021:0.5:14009851183 F021:1:14010105285 F021:2:14008609714 \
+            F071:0.5:14009946949 F071:1:14009716867 F071:2:14009373208 \
+            F091:0.5:14009737144 F091:1:14010105880 F091:2:14009996577; do
+            IFS=: read -r profile sigma artifact <<< "$spec"
+            dir="/tmp/dynamics/dynamic-audit-${profile}-sigma-${sigma}"
+            mkdir -p "$dir"
+            gh api "repos/${{ github.repository }}/actions/artifacts/${artifact}/zip" > /tmp/source.zip
+            unzip -q /tmp/source.zip -d "$dir"
+            test -s "$dir/firm_dynamics.csv"
+            test -s "$dir/market_dynamics.csv"
+            test -s "$dir/dynamic_gate.json"
+            test -s "$dir/audit_report.json"
+          done
+      - name: Compute fixed-price counterfactual without rerunning the engine
+        run: |
+          python scripts/check_paper_section3_2_fixed_price_counterfactual.py --root /tmp/dynamics --out /tmp/counterfactual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-fixed-price-counterfactual
+          path: /tmp/counterfactual
