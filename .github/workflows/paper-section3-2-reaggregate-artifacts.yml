@@ -1,6 +1,9 @@
 name: Section 3.2 aggregate existing full100 artifacts
 on:
   workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-reaggregate-artifacts.yml']
 permissions:
   contents: read
   actions: read
