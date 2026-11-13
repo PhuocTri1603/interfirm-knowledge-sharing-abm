@@ -84,6 +84,29 @@ def main():
                 details[sid]={"archive_effect":effect,"new_effect":trial_effect,"sign_changed":bool(np.sign(effect)!=np.sign(trial_effect))}
             report["cross_sigma"][f"{profile}|{s1:g}->{s2:g}"]={"sign_flips":signs,"max_effect_absolute_error":max_error,"strategies":details}
             print("CROSS_SIGMA",profile,s1,s2,"sign_flips",signs,"max_effect_error",max_error)
+    # Cross-technology comparisons at matched sigma; only compare conclusions
+    # supported by terminal cumulative-profit data, not causal mechanisms.
+    cross_profiles={}
+    for sigma in (.5,1.,2.):
+        profiles=sorted(p for p,s in originals if s==sigma)
+        for p1,p2 in combinations(profiles,2):
+            a0=originals[(p1,sigma)];b0=originals[(p2,sigma)]
+            a1=reproduced[(p1,sigma)];b1=reproduced[(p2,sigma)]
+            flips=0;max_effect_error=0.
+            for sid in a0.index:
+                effect=float(a0[sid]-b0[sid])
+                new_effect=float(a1[sid]-b1[sid])
+                flips+=int(np.sign(effect)!=np.sign(new_effect))
+                max_effect_error=max(max_effect_error,abs(effect-new_effect))
+            cross_profiles[f"{p1}->{p2}|{sigma:g}"]={"sign_flips":flips,"comparisons":len(a0),"max_effect_absolute_error":max_effect_error}
+    report["cross_profiles"]=cross_profiles
+    report["aggregate"]={"cases":len(report["cases"]),
+       "ordering_equivalent_cases":sum(bool(c["ordering_equivalent"]) for c in report["cases"].values()),
+       "strict_archive_pass_cases":sum(bool(c["strict"]["pass"]) for c in report["cases"].values()),
+       "cross_sigma_sign_flips":sum(x["sign_flips"] for x in report["cross_sigma"].values()),
+       "cross_profile_sign_flips":sum(x["sign_flips"] for x in cross_profiles.values()),
+       "cross_profile_contrasts":sum(x["comparisons"] for x in cross_profiles.values())}
+    print("AGGREGATE",json.dumps(report["aggregate"]))
     report["strict_archive_gate_pass"]=all(c["strict"]["pass"] for c in report["cases"].values())
     (out/"economic_equivalence.json").write_text(json.dumps(report,indent=2))
     print("REPORT_WRITTEN",str(out/"economic_equivalence.json"))
