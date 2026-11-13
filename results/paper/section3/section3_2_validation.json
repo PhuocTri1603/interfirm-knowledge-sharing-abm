@@ -54,7 +54,8 @@
     },
     "figure_3_5": {
       "status": "PENDING",
-      "reason": "No independently verified task-level allocation files in 12 dynamic audit artifacts"
+      "reason": "Task-level observational instrumentation implemented; 12-case CI baseline gate in progress, no PASS claim until all 12 complete and artifact checked",
+      "workflow_run": 43381074120
     },
     "figure_3_6": {
       "status": "PASS",
@@ -78,6 +79,14 @@
     },
     "historical_strict_archive_all_pass": false,
     "independent_seed_robustness_pass": false,
-    "causal_identification": false
+    "causal_identification": false,
+    "paper_agent_handoff": "BLOCKED_PENDING_FULL_VALIDATION",
+    "open_gates": [
+      "12-case task-level baseline equivalence",
+      "strict historical archive numerical reproduction",
+      "independent-seed robustness",
+      "full-profile K/L/AI mechanism generalization if claimed",
+      "manual figure QA and numbering approval"
+    ]
   }
 }
