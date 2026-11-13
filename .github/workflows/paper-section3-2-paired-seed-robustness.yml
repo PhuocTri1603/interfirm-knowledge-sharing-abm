@@ -1,0 +1,73 @@
+name: Section 3.2 paired-seed sigma price and ranking robustness
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-paired-seed-robustness.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  paired:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 15
+      matrix:
+        profile: [F001, F011, F021, F031, F041, F051, F061, F071, F081, F091]
+        seed: [11, 23, 47]
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original economic engine and pinned numerical environment
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Run paired sigma markets and validate accounting
+        run: |
+          PYTHONPATH=/tmp/game1-original/src:scripts python scripts/audit_section3_2_paired_seed_sigma.py --profile ${{ matrix.profile }} --seed ${{ matrix.seed }} --out /tmp/paired
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: paired-${{ matrix.profile }}-seed-${{ matrix.seed }}
+          path: /tmp/paired
+  aggregate:
+    needs: paired
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: paired-*
+          path: /tmp/paired-all
+      - name: Validate all 30 pairs and aggregate price, A-B gap and winners
+        run: |
+          python scripts/summarize_section3_2_paired_seed_sigma.py --input /tmp/paired-all --out /tmp/summary
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-paired-seed-robustness-report
+          path: /tmp/summary
