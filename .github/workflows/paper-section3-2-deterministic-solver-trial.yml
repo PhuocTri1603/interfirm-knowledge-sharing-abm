@@ -42,7 +42,8 @@ jobs:
           python -m pip freeze > /tmp/pip-freeze.txt
           python -c 'import numpy; numpy.show_runtime()' > /tmp/numerical-runtime.txt
       - name: Test numerical solver only on F011 sigma 0.5
-        run: PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 200 --out /tmp/trial
+        run: |
+          PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 200 --out /tmp/trial
           cp /tmp/pip-freeze.txt /tmp/numerical-runtime.txt /tmp/trial/
       - uses: actions/upload-artifact@v4
         if: always()
