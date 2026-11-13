@@ -10,10 +10,18 @@ profiles=approved_profiles()[a.batch*10:(a.batch+1)*10]
 assert len(profiles)==10
 out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
 rows=[]
+archive_rows=[]
 for profile in profiles:
     x,m1,ss=run(profile,a.seed,1.)
     y,m2,ss2=run(profile,a.seed,2.)
     assert ss==ss2 and len(ss)==9
+    if a.seed==11:
+        for sigma,records in ((1.,x),(2.,y)):
+            for (round_,strategy),r in records.items():
+                archive_rows.append(dict(profile_id=profile.firm_id,sigma=sigma,round=round_,
+                    strategy_id=strategy,action=r["action"],output=r["output"],price=r["price"],
+                    profit=r["profit"],cumulative_profit=r["cumulative_profit"],
+                    adopted_count=r["adopted_count"],active_ai_count=r["active_ai_count"]))
     d={s:dict(pi1=0.,pi2=0.,cf2=0.,quantity=0.,cost=0.,price=0.) for s in ss}
     for t in range(1,201):
         p1=float(m1[t]["price"]);p2=float(m2[t]["price"])
@@ -42,6 +50,10 @@ for profile in profiles:
         winner_sigma1=w1,winner_sigma2=w2,winner_sigma2_repriced=wc,
         observed_winner_changed=int(w1!=w2),repricing_changes_winner=int(w2!=wc),
         max_accounting_residual=residual,engine_modified=False,research_validated=False))
+if a.seed==11:
+    assert len(archive_rows)==36000
+    with (out/"seed11_original_solver_rounds.csv").open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=list(archive_rows[0]));w.writeheader();w.writerows(archive_rows)
 with (out/"paired_seed_markets.csv").open("w",newline="") as f:
     w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
 (out/"batch_gate.json").write_text(json.dumps(dict(batch=a.batch,seed=a.seed,profiles=[r["profile"] for r in rows],pass_accounting=True,strict_archive_equivalence_not_claimed=True,engine_modified=False,research_validated=False),indent=2)+"\n")
