@@ -1,0 +1,49 @@
+name: Section 3.2 historical numerical environment diagnostic
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-historical-environment.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore original archive installation and numerical environment
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python - <<'PY'
+          import sys, numpy, scipy, pandas
+          print("Python",sys.version)
+          print("NumPy",numpy.__version__,"SciPy",scipy.__version__,"pandas",pandas.__version__)
+          numpy.show_config()
+          PY
+      - name: Reproduce one original ten-profile seed11 batch with no BLAS overrides
+        run: |
+          PYTHONPATH=/tmp/game1-original/src:scripts python scripts/audit_section3_2_full100_seed_batch.py --batch 0 --seed 11 --out /tmp/replay
+      - name: Retrieve historical archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/historical
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/historical.zip
+          unzip -q /tmp/historical.zip -d /tmp/historical
+      - name: Strict comparison of matching 36000 rows
+        run: |
+          python scripts/diagnose_section3_2_historical_environment.py --replay /tmp/replay/seed11_original_solver_rounds.csv --archive /tmp/historical --out /tmp/diagnostic
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-historical-environment-subset-diagnostic
+          path: /tmp/diagnostic
