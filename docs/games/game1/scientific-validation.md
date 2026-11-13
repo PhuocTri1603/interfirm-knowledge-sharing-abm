@@ -545,3 +545,29 @@ Pointwise relative denominator `max(abs(archive),abs(new))`; restrict to values 
 Runner bitwise reproducibility: sigma=1 PASS (2/2), sigma=2 PASS (2/2). Strict archive `ATOL=1e-7, RTOL=1e-9`: sigma=1 PASS, sigma=2 PASS; sigma=0.5 remains FAIL as separately documented. Across all three sigma cases: zero action mismatches, zero AI-count mismatches, zero pairwise cumulative-profit sign flips, unchanged winner `L3=uniform|L4=profit_based`. Max relative terminal pairwise-gap errors: sigma=0.5 `8.782223635334758e-06`, sigma=1 `1.2809009364273565e-14`, sigma=2 `5.484007399617798e-10`.
 
 Cross-sigma terminal cumulative-profit effects (nine strategy-specific contrasts each): sigma=0.5→1: 0/9 sign flips, max absolute effect difference `0.00028193058764713896`; sigma=0.5→2: 0/9 sign flips, max `0.0002819314984776611`; sigma=1→2: 0/9 sign flips, max `1.4806545323153841e-08`. These are computational **economic-equivalence diagnostics for F011**; do not infer causal mechanism or generality to other profiles. Historical strict gate unchanged; `research_validated=false`. The next proposed stage is F021, F071, F091 across sigma=.5,1,2, subject to their own reproducibility and archive comparisons.
+
+
+## 2026-11-13 — F021/F071/F091 cross-technology fixed-SIMD economic-equivalence results
+
+[Workflow #43361285797](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43361285797) completed success (18 independent 200-round replay jobs plus comparator), commit `53c22aafd500edae0cf5e2d2ac5e28ae15cedb2f`. Immutable historical archive artifact `13618500797`; output comparison artifact `fixed-simd-cross-technology-equivalence-report` ID `14007829496`. Original economic engine frozen at `c614b86d9192a57fb402b4772b3c3bb6bf80b79f`, same fixed-SIMD SLSQP numerical candidate, 2 runners per profile/sigma case. No change to original archive or strict tolerances (`ATOL=1e-7, RTOL=1e-9`).
+
+All 9/9 profile-sigma cases bitwise reproducible across independent runners. Strict archive PASS 2/9 (F021 sigma 1 and 2); strict FAIL 7/9. All 9/9 retain actions, AI counts, and terminal winner; 8/9 retain every pairwise cumulative-profit sign across 200 rounds. F021 sigma 1 has **3 within-round pairwise sign/tie changes** even though strict archive PASS, with maximum cumulative-profit difference only `1.1368683772161603e-13`; likely machine-precision near-ties, but exact pair details need inspection before concluding. Do not conflate strict numerical pass with bitwise identity.
+
+| Profile | sigma | strict archive | pairwise sign/tie changes (out of 7200) | max abs cumulative profit difference | weighted cumulative-profit relative error |
+| --- | ---: | --- | ---: | ---: | ---: |
+| F021 | 0.5 | FAIL | 0 | 0.0004658832834536497 | 6.024883460194941e-07 |
+| F021 | 1 | PASS | 3 | 1.1368683772161603e-13 | 9.051736856473278e-17 |
+| F021 | 2 | PASS | 0 | 2.283815092596342e-08 | 6.326921415957829e-11 |
+| F071 | 0.5 | FAIL | 0 | 4.840260617555714e-05 | 3.572738960339898e-07 |
+| F071 | 1 | FAIL | 0 | 5.051799833211135e-05 | 3.2421898663143797e-07 |
+| F071 | 2 | FAIL | 0 | 0.005440076418913975 | 3.547846963202765e-05 |
+| F091 | 0.5 | FAIL | 0 | 0.0005600292168708165 | 2.837557936723677e-06 |
+| F091 | 1 | FAIL | 0 | 0.0006590686265788293 | 4.111891181061375e-06 |
+| F091 | 2 | FAIL | 0 | 0.020313192225117405 | 7.655708013130596e-05 |
+
+Cross-sigma terminal profit contrast signs unchanged: 0/81 flips (3 profiles × 3 sigma contrasts × 9 strategies). Cross-profile terminal profit contrast signs unchanged: 0/81 flips (3 profile pairs × 3 sigma values × 9 strategies). Terminal winners from both archive and new trials:
+- F021 sigma .5 and 1: `L3=cost_adjusted|L4=profit_based`; sigma 2: `L3=uniform|L4=profit_based`.
+- F071 sigma .5 and 1: `L3=cost_adjusted|L4=cost_based`; sigma 2: `L3=productivity|L4=profit_based`.
+- F091 sigma .5: `L3=cost_adjusted|L4=cost_based`; sigma 1: `L3=cost_adjusted|L4=profit_based`; sigma 2: `L3=productivity|L4=profit_based`.
+
+**Inference:** Signs of terminal profit effects across technology and sigma and terminal winning-strategy identities are numerically stable in these three representative profiles, despite archive strict mismatches. Winners vary across technology/sigma; do not infer uniform economic behavior or mechanism. The three F021 sigma=1 sign/tie changes require direct near-tie assessment; no Section 3.2 causal price/cost/K/L/AI decomposition is validated. `research_validated=false`.
