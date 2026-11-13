@@ -1,4 +1,4 @@
-name: Section 3.2 single-thread 200-round reproducibility gate
+name: Section 3.2 fixed-SIMD 200-round SLSQP reproducibility gate
 on:
   workflow_dispatch:
   push:
@@ -26,6 +26,8 @@ jobs:
       VECLIB_MAXIMUM_THREADS: '1'
       NUMEXPR_NUM_THREADS: '1'
       PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,10 +43,11 @@ jobs:
           python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
           python -m pip freeze > /tmp/pip-freeze.txt
           python -c 'import numpy; numpy.show_runtime()' > /tmp/numerical-runtime.txt
+          lscpu > /tmp/cpu.txt
       - name: Test numerical solver only on F011 sigma 0.5
         run: |
           PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 200 --out /tmp/trial
-          cp /tmp/pip-freeze.txt /tmp/numerical-runtime.txt /tmp/trial/
+          cp /tmp/pip-freeze.txt /tmp/numerical-runtime.txt /tmp/cpu.txt /tmp/trial/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
