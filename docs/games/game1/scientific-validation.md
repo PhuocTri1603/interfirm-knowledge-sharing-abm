@@ -643,3 +643,27 @@ Price is mechanically determined by `P_t=max(0,2-Q_t/9)`; maximum direct check e
 | F091 | -56.672 | -165.969 | -109.296 | -184.759 | -12.358 | +31.149 |
 
 The **relative quantity term** is negative in all four; relative price term also negative; positive interaction offsets some of these effects. The B strategy expands output more than A as sigma increases. For F021, A's 200-round total output change +19.067, B +237.678; K changes -774.101 vs +6959.740, AI task-round changes 0 vs +1074. For F071 output changes +5.178 vs +139.283; F091 +8.396 vs +153.792; F011 +10.775 vs +95.426. This accounts for the revenue-gap reversal, but **does not causally isolate technology from equilibrium prices or adaptation**: prices and decisions are jointly endogenous to sigma, and the decomposition includes an interaction. Full identification would require explicit approved counterfactuals holding either price path or decision path fixed, and appropriate equilibrium consistency checks. Do not infer that AI necessarily reduces labor; do not claim generality across 100 profiles. `research_validated=false`.
+
+
+## 2026-11-13 — Within-market, within-round profit-gap accounting from verified dynamic series
+
+Source: 12 CSV artifacts from [dynamic audit run #43363627323](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43363627323); four profiles F011/F021/F071/F091, sigma .5/1/2, nine strategies, 200 rounds each (21,600 player-rounds, 2,400 market-rounds). The pair A=`L3=cost_adjusted|L4=profit_based`, B=`L3=productivity|L4=profit_based` is compared **within the same market and round**. Price is common across A/B within a market-round. Exact accounting: `profit_A-profit_B = P_t*(q_A-q_B) - [(variable+adjustment+adoption)_A-(variable+adjustment+adoption)_B]`; maximum per-round decomposition residual `8.881784197001252e-16`. Cumulative contrasts over 200 rounds:
+
+| Profile | Sigma | Revenue A-B | Cost A-B | Profit A-B | Output A-B |
+|---|---:|---:|---:|---:|---:|
+| F011 | .5 | -20.09637 | 2.84977 | -22.94614 | -11.40808 |
+| F011 | 1 | 6.95304 | 17.56442 | -10.61138 | 7.58733 |
+| F011 | 2 | -108.61463 | -33.05467 | -75.55997 | -77.06354 |
+| F021 | .5 | 103.41811 | 30.95562 | 72.46249 | 82.98738 |
+| F021 | 1 | 174.76378 | 60.26647 | 114.49731 | 145.83809 |
+| F021 | 2 | -78.70178 | -18.42238 | -60.27939 | -72.77300 |
+| F071 | .5 | 71.17528 | 51.85070 | 19.32457 | 57.13736 |
+| F071 | 1 | 72.17868 | 51.85077 | 20.32791 | 59.88251 |
+| F071 | 2 | -84.21910 | -56.04701 | -28.17208 | -74.22244 |
+| F091 | .5 | 53.00011 | 38.25647 | 14.74363 | 43.39196 |
+| F091 | 1 | 74.90682 | 52.17440 | 22.73242 | 62.61780 |
+| F091 | 2 | -91.06205 | -57.12204 | -33.94002 | -82.77777 |
+
+For F021/F071/F091, A's profit advantage at sigma .5 and 1 reverses at sigma 2; cost savings at sigma 2 do not offset lower revenues. F011 has A below B for all three sigma. The revenue sign coincides with output sign in all 12 cases, consistent with common positive market prices within each round. Do not equate cumulative revenue differences with a fixed price times cumulative quantity difference; P varies by round.
+
+Cross-sigma market means (quantity, price): F011 [.5:(4.60136,1.48874),1:(4.69994,1.47778),2:(5.81455,1.35394)]; F021 [.5:(6.01114,1.33210),1:(6.33349,1.29628),2:(9.20546,.97717)]; F071 [.5:(6.20910,1.31010),1:(6.57017,1.26998),2:(7.84581,1.12824)]; F091 [.5:(6.07719,1.32476),1:(6.42230,1.28641),2:(8.28216,1.07976)]. These are **different simulated markets** across sigma; a cross-sigma profit comparison must separately account for endogenous market price changes. These accounting decompositions are descriptive, not causal evidence. Follow-up: inspect round-level trajectories, K/L, AI counts, market total supply, and prices before attributing mechanism. `research_validated=false`.
