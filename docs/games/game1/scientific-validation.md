@@ -667,3 +667,36 @@ Source: 12 CSV artifacts from [dynamic audit run #43363627323](https://github.co
 For F021/F071/F091, A's profit advantage at sigma .5 and 1 reverses at sigma 2; cost savings at sigma 2 do not offset lower revenues. F011 has A below B for all three sigma. The revenue sign coincides with output sign in all 12 cases, consistent with common positive market prices within each round. Do not equate cumulative revenue differences with a fixed price times cumulative quantity difference; P varies by round.
 
 Cross-sigma market means (quantity, price): F011 [.5:(4.60136,1.48874),1:(4.69994,1.47778),2:(5.81455,1.35394)]; F021 [.5:(6.01114,1.33210),1:(6.33349,1.29628),2:(9.20546,.97717)]; F071 [.5:(6.20910,1.31010),1:(6.57017,1.26998),2:(7.84581,1.12824)]; F091 [.5:(6.07719,1.32476),1:(6.42230,1.28641),2:(8.28216,1.07976)]. These are **different simulated markets** across sigma; a cross-sigma profit comparison must separately account for endogenous market price changes. These accounting decompositions are descriptive, not causal evidence. Follow-up: inspect round-level trajectories, K/L, AI counts, market total supply, and prices before attributing mechanism. `research_validated=false`.
+
+
+## 2026-11-13 — Joint dynamic supply, price, K/L, AI, and sigma accounting (four profiles)
+
+Analyzed all twelve `dynamic-audit-*` artifacts from [workflow #43363627323](https://github.com/PhuocTri1603/interfirm-knowledge-sharing-abm/actions/runs/43363627323): 21,600 firm-round observations and 2,400 market-round observations. Compare sigma=1 to sigma=2 **for each profile**, matching the same strategy and round across two different simulated markets. This is a descriptive matched-round accounting comparison, not a causal controlled intervention that holds other endogenous outcomes constant.
+
+| Profile | Mean market Q sigma1 -> sigma2 | Mean P sigma1 -> sigma2 | Delta summed K used | Delta summed L used | Delta summed active-AI task-rounds |
+|---|---|---|---:|---:|---:|
+| F011 | 4.69994 -> 5.81455 | 1.47778 -> 1.35394 | +11450.952 | +13.388 | +1548 |
+| F021 | 6.33349 -> 9.20546 | 1.29628 -> .97717 | +15568.027 | -287.955 | +2214 |
+| F071 | 6.57017 -> 7.84581 | 1.26998 -> 1.12824 | +14681.738 | 0 | +1134 |
+| F091 | 6.42230 -> 8.28216 | 1.28641 -> 1.07976 | +21364.418 | +889.963 | +2457 |
+
+`K`/`L` are **per-round inputs used**, summed across all 9 players and 200 rounds, not net capital investment, workforce size, or a stock. `active_ai_count` counts capital-using tasks each round, summed into task-rounds; it is not a unique count of newly purchased AI. Labor does not uniformly decline as sigma rises. The inverse demand identity `P=max(0,2-Q/9)` holds at each round, so falling P is mechanically tied to higher Q; endogenous Q depends on all players' decisions.
+
+For each player and round, exact **Laspeyres-base quantity / final-quantity price** revenue decomposition across sigma1 to sigma2: `P2*q2-P1*q1=P1*(q2-q1)+(P2-P1)*q2`; then `DeltaProfit=DeltaRevenue-DeltaCost`. Sum over 9 players and 200 rounds:
+
+| Profile | Quantity term at P1 | Price term at q2 | Net revenue change | Total cost change | Profit change |
+|---|---:|---:|---:|---:|---:|
+| F011 | +327.933 | -146.189 | +181.745 | +112.778 | +68.966 |
+| F021 | +734.228 | -612.467 | +121.761 | +150.304 | -28.543 |
+| F071 | +318.987 | -228.757 | +90.230 | +144.245 | -54.015 |
+| F091 | +474.257 | -349.246 | +125.012 | +219.818 | -94.806 |
+
+All four have positive quantity terms, negative price terms, and higher costs. F021's +734.228 quantity term is largely offset by -612.467 price term, leaving +121.761 revenue, below +150.304 costs. F011 remains profitable on net (+68.966). This decomposition's allocation between price and quantity is **index-number/base dependent**; swapping the reference price yields another exact decomposition. It measures observed equilibrium responses, not a structurally identified isolated technological effect. Technology affects both own quantity/cost and competitors' quantity, hence equilibrium price; these channels are not independently identified by accounting alone.
+
+Round-phase market means (1–50, 51–100, 101–150, 151–200), sigma1 versus sigma2:
+- F011 Q: (4.133,4.599,4.629,5.438) vs (5.204,5.719,5.738,6.596); P: (1.541,1.489,1.486,1.396) vs (1.422,1.365,1.362,1.267).
+- F021 Q: (5.106,5.879,6.990,7.358) vs (7.629,9.059,9.508,10.627); P: (1.433,1.347,1.223,1.182) vs (1.152,.993,.944,.819).
+- F071 Q: (5.634,6.887,6.893,6.868) vs (6.809,8.195,8.174,8.205); P: (1.374,1.235,1.234,1.237) vs (1.243,1.089,1.092,1.088).
+- F091 Q: (5.480,6.454,6.746,7.008) vs (7.220,8.317,8.781,8.811); P: (1.391,1.283,1.250,1.221) vs (1.198,1.076,1.024,1.021).
+
+**Interpretation boundary:** This is a validated accounting mechanism for these four profiles, not a general causal attribution or proof for all 100 configurations. Further work could use controlled counterfactual price-taking revaluation, holding decisions fixed, or controlled sigma experiments, explicitly separating accounting from structural causality. `research_validated=false`.
