@@ -7,6 +7,7 @@ from scipy.optimize import minimize as scipy_minimize
 import interfirm_abm.game1_nine_strategy as game
 from interfirm_abm.task_a6_market import approved_profiles
 from reproduce_paper_section3_2 import params
+from interfirm_abm.task_a5_normalized import technology_for_profile
 from trial_paper_section3_2_deterministic_solver import stable_gradient
 
 def main():
@@ -45,6 +46,8 @@ def main():
     assert len(rows)==1800 and len(markets)==200
     p=params()
     idx=0
+    tech=technology_for_profile(firm,a.sigma)
+    task_rows=[]
     previous_by_strategy={sid:game.zero_plan() for sid in (f'L3={l3}|L4={l4}' for l3,l4 in game.strategy_ids())}
     enriched=[]
     for r in rows:
@@ -71,8 +74,35 @@ def main():
         assert sum(x.capital>1e-9 for x in plan)==r['active_ai_count']
         assert labor<=firm.labor_endowment+1e-7 and capital<=firm.capital_endowment+1e-7
         enriched.append(dict(r,revenue=r['price']*r['output'],variable_cost=variable,adjustment_cost=adjust,adoption_cost=adoption,newly_adopted_count=len(new),market_quantity=markets[r['round']-1]['quantity'],labor_used=labor,capital_used=capital))
+        activities=firm.evaluate_allocation(list(plan))
+        assert abs(tech.output_index(activities)-r["output"])<1e-8
+        for task,allocation in zip(firm.tasks,plan):
+            activity=activities[task.task_id]
+            assert abs(activity-(task.labor_productivity*allocation.labor+task.capital_productivity*allocation.capital))<1e-8
+            assert not (allocation.capital>1e-9 and not task.automation_eligible)
+            task_rows.append(dict(round=r["round"],strategy_id=sid,task_id=task.task_id,
+                labor_allocation=allocation.labor,capital_allocation=allocation.capital,
+                labor_productivity=task.labor_productivity,capital_productivity=task.capital_productivity,
+                automation_eligible=int(task.automation_eligible),
+                actual_ai_use=int(allocation.capital>1e-9),task_activity=activity,
+                reference_activity=tech.reference[task.task_id],
+                normalized_activity=activity/tech.reference[task.task_id]))
         previous_by_strategy[sid]=plan
     assert idx==len(observations)
+    assert len(task_rows)==36000
+    with (out/"task_dynamics.csv").open("w",newline="") as fh:
+        w=csv.DictWriter(fh,fieldnames=list(task_rows[0]));w.writeheader();w.writerows(task_rows)
+    by_key={}
+    for tr in task_rows:
+        key=(tr["round"],tr["strategy_id"])
+        v=by_key.setdefault(key,[0.,0.,0])
+        v[0]+=tr["labor_allocation"];v[1]+=tr["capital_allocation"];v[2]+=tr["actual_ai_use"]
+    assert len(by_key)==1800
+    for r in enriched:
+        v=by_key[(r["round"],r["strategy_id"])]
+        assert abs(v[0]-r["labor_used"])<1e-8
+        assert abs(v[1]-r["capital_used"])<1e-8
+        assert v[2]==r["active_ai_count"]
     rows=enriched
     fields=["round","strategy_id","action","output","price","profit","cumulative_profit","adopted_count","active_ai_count","revenue","variable_cost","adjustment_cost","adoption_cost","newly_adopted_count","market_quantity","labor_used","capital_used"]
     with (out/"firm_dynamics.csv").open("w",newline="") as fh:
