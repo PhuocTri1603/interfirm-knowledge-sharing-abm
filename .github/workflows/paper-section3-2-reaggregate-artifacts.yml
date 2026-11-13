@@ -1,0 +1,46 @@
+name: Section 3.2 aggregate existing full100 artifacts
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download original 30 batch artifacts without rerunning markets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/full100
+          for seed in 11 23 47; do
+            for batch in 0 1 2 3 4 5 6 7 8 9; do
+              name="full100-batch-${batch}-seed-${seed}"
+              mkdir -p "/tmp/full100/${name}"
+              gh run download 43392326894 --name "${name}" --dir "/tmp/full100/${name}"
+            done
+          done
+      - name: Require all 300 pairs and validate economic decomposition
+        run: |
+          python scripts/summarize_section3_2_full100_seeds.py --input /tmp/full100 --out /tmp/summary
+      - name: Retrieve immutable historical full-sample archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/historical
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/historical.zip
+          unzip -q /tmp/historical.zip -d /tmp/historical
+      - name: Strict historical seed11 round-level numerical diagnostic
+        run: |
+          python scripts/compare_section3_2_full100_archive.py --replays /tmp/full100 --archive /tmp/historical --out /tmp/summary
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-full100-three-seed-report
+          path: /tmp/summary
