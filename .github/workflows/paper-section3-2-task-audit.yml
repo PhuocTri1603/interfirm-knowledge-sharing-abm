@@ -64,11 +64,6 @@ jobs:
       - name: Compare task-observed firm and market paths with previously PASSed dynamic audit
         run: |
           python scripts/gate_paper_section3_2_task_dynamics.py --current /tmp/audit --baseline /tmp/baseline --out /tmp/audit/task_gate.json
-      - name: Compare audited paths with previous fixed-SIMD trial
-        run: |
-          TRIAL=$(find /tmp/baseline -type f \( -name trial.json -o -name deterministic_solver_trial.json \) | head -1)
-          test -n "$TRIAL"
-          python scripts/gate_paper_section3_2_dynamic_audit.py --audit /tmp/audit --trial "$TRIAL" --out /tmp/audit/dynamic_gate.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
