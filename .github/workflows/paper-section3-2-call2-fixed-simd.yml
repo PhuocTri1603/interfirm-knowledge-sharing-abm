@@ -1,4 +1,4 @@
-name: Section 3.2 isolated SLSQP call 2 fixed SIMD
+name: Section 3.2 isolated SLSQP call 2 fixed SIMD (scope fix)
 on:
   workflow_dispatch:
   push:
