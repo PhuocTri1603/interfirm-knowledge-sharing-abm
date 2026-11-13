@@ -1,4 +1,4 @@
-name: Section 3.2 dynamic K L AI cost price validation
+name: Section 3.2 dynamic K L AI cost price validation (candidate observation)
 on:
   workflow_dispatch:
   push:
