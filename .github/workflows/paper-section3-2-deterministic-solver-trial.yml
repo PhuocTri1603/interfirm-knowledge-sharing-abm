@@ -1,0 +1,71 @@
+name: Section 3.2 deterministic SLSQP solver trial
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-deterministic-solver-trial.yml']
+permissions:
+  contents: read
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: one-a, threads: '1'}
+          - {label: one-b, threads: '1'}
+          - {label: two-a, threads: '2'}
+          - {label: two-b, threads: '2'}
+    env:
+      OPENBLAS_NUM_THREADS: ${{ matrix.threads }}
+      OMP_NUM_THREADS: ${{ matrix.threads }}
+      MKL_NUM_THREADS: ${{ matrix.threads }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable original engine
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+      - name: Test numerical solver only on F011 sigma 0.5
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 12 --out /tmp/trial
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deterministic-solver-${{ matrix.label }}
+          path: /tmp/trial
+  compare:
+    needs: trial
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deterministic-solver-*
+          path: /tmp/trials
+      - name: Strict comparison across four independent runners
+        run: |
+          python - <<'PY'
+          import json,pathlib,sys
+          files=sorted(pathlib.Path("/tmp/trials").rglob("deterministic_solver_trial.json"))
+          if len(files)!=4:
+              print("INCOMPLETE",len(files));sys.exit(2)
+          data=[json.loads(p.read_text()) for p in files]
+          for p,d in zip(files,data):
+              print("TRIAL",p.parent.name,d["digest"],"calls",d["solver_calls"])
+          identical=len({d["digest"] for d in data})==1
+          print("BITWISE_REPRODUCIBLE",identical)
+          if not identical:
+              base=data[0]["rows"]
+              for p,d in zip(files[1:],data[1:]):
+                  mismatch=next((i for i,(a,b) in enumerate(zip(base,d["rows"])) if a!=b),None)
+                  print("FIRST_MISMATCH",p.parent.name,mismatch)
+          sys.exit(0 if identical else 3)
+          PY
