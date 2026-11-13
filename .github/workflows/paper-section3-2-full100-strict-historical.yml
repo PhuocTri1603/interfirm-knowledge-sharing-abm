@@ -1,0 +1,104 @@
+name: Section 3.2 full100 strict historical numerical equivalence
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-full100-strict-historical.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        batch: [0,1,2,3,4,5,6,7,8,9]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original engine using historical dependency resolution and no BLAS overrides
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python - <<'PY'
+          import numpy, scipy, pandas, sys
+          print("Python", sys.version)
+          print("NumPy", numpy.__version__, "SciPy", scipy.__version__, "pandas", pandas.__version__)
+          numpy.show_config()
+          PY
+      - name: Replay ten profiles for sigma1 and sigma2 at seed11
+        run: |
+          PYTHONPATH=/tmp/game1-original/src:scripts python scripts/audit_section3_2_full100_seed_batch.py --batch ${{ matrix.batch }} --seed 11 --out /tmp/replay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-strict-batch-${{ matrix.batch }}
+          path: /tmp/replay/seed11_original_solver_rounds.csv
+          retention-days: 30
+  strict:
+    needs: batch
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download ten newly replayed batches
+        uses: actions/download-artifact@v4
+        with:
+          pattern: historical-strict-batch-*
+          path: /tmp/replays
+      - name: Download immutable historical archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/historical
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/historical.zip
+          unzip -q /tmp/historical.zip -d /tmp/historical
+      - name: Require ten complete replay batches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import csv
+          files=sorted(Path('/tmp/replays').rglob('seed11_original_solver_rounds.csv'))
+          assert len(files)==10, f'Expected 10 batches; found {len(files)}'
+          for file in files:
+              with file.open() as f:
+                  n=sum(1 for _ in csv.DictReader(f))
+              assert n==36000, (file,n)
+          print('FULL_COVERAGE_PASS',len(files)*36000)
+          PY
+      - name: Compare all 360000 rows against historical archive without tolerance changes
+        run: |
+          python scripts/compare_section3_2_full100_archive.py --replays /tmp/replays --archive /tmp/historical --out /tmp/strict
+      - name: Enforce strict pass as workflow gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/strict/seed11_historical_strict_comparison.json')
+          report=json.loads(p.read_text())
+          assert report['rows']==360000
+          assert report['profiles']==100
+          assert report['status']=='STRICT_PASS', report['status']
+          assert report['action_mismatches']==0
+          assert report['ranking_mismatches']==0
+          assert all(v['mismatched']==0 for v in report['fields'].values())
+          assert report['research_validated'] is False
+          print('FULL_SAMPLE_STRICT_NUMERICAL_EQUIVALENCE_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-full100-historical-strict-report
+          path: /tmp/strict
