@@ -47,7 +47,7 @@ def main():
                     [float(fn(row))-origin for row in e],dtype=float)
             cs.append(cc)
         kw["constraints"]=cs
-        kw["jac"]=stable_gradient
+        kw["jac"]=lambda x,objective=fun: stable_gradient(objective,x)
         return scipy_minimize(fun,x0,*pos,**kw)
     game.minimize=deterministic
     try:
