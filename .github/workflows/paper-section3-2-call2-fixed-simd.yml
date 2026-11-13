@@ -1,0 +1,78 @@
+name: Section 3.2 isolated SLSQP call 2 fixed SIMD
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-call2-fixed-simd.yml']
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [one-a, one-b, one-c, one-d]
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable economic engine and pinned numerical stack
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Capture runtime and replay exact second SLSQP call three times
+        run: |
+          mkdir -p /tmp/call2
+          python -m pip freeze > /tmp/call2/pip-freeze.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/call2/numerical-runtime.txt
+          lscpu > /tmp/call2/cpu.txt
+          PYTHONPATH=/tmp/game1-original/src python scripts/probe_paper_section3_2_call2_repeats.py --out /tmp/call2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: call2-fixed-simd-${{ matrix.label }}
+          path: /tmp/call2
+  compare:
+    needs: replay
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: call2-fixed-simd-*
+          path: /tmp/call2
+      - name: Compare identical input and KKT diagnostics
+        run: |
+          python - <<'PY'
+          import json,pathlib,sys
+          files=sorted(pathlib.Path("/tmp/call2").rglob("call2_repeats.json"))
+          if len(files)!=4:
+              print("INCOMPLETE",len(files));sys.exit(2)
+          data=[json.loads(f.read_text()) for f in files]
+          print("INPUT_IDENTICAL",all(d["input"]==data[0]["input"] for d in data))
+          for f,d in zip(files,data):
+              for i,r in enumerate(d["repeats"]):
+                  print("RESULT",f.parent.name,i+1,r["sha256"],"objective",r["objective"],"kkt",r["kkt_stationarity_inf"],"primal",r["max_primal_violation"],"status",r["status"],"nit",r["nit"],"nfev",r["nfev"])
+          all_results=[r for d in data for r in d["repeats"]]
+          print("BITWISE_REPRODUCIBLE",len({r["sha256"] for r in all_results})==1)
+          print("MAX_OBJECTIVE_SPREAD",max(r["objective"] for r in all_results)-min(r["objective"] for r in all_results))
+          print("MAX_COORDINATE_SPREAD",max(max(r["x"][j] for r in all_results)-min(r["x"][j] for r in all_results) for j in range(len(all_results[0]["x"]))))
+          print("DIAGNOSTIC_COMPLETE",True)
+          PY
