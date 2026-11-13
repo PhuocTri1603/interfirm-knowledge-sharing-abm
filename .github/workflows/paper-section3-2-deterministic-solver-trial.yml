@@ -1,4 +1,4 @@
-name: Section 3.2 deterministic SLSQP solver trial (callback fix)
+name: Section 3.2 single-thread 200-round reproducibility gate
 on:
   workflow_dispatch:
   push:
@@ -9,19 +9,23 @@ permissions:
 jobs:
   trial:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
         include:
-          - {label: one-a, threads: '1'}
-          - {label: one-b, threads: '1'}
-          - {label: two-a, threads: '2'}
-          - {label: two-b, threads: '2'}
+          - {label: one-a}
+          - {label: one-b}
+          - {label: one-c}
+          - {label: one-d}
     env:
-      OPENBLAS_NUM_THREADS: ${{ matrix.threads }}
-      OMP_NUM_THREADS: ${{ matrix.threads }}
-      MKL_NUM_THREADS: ${{ matrix.threads }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,8 +38,12 @@ jobs:
         run: |
           git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
           python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+          python -m pip freeze > /tmp/pip-freeze.txt
+          python -c 'import numpy; numpy.show_runtime()' > /tmp/numerical-runtime.txt
       - name: Test numerical solver only on F011 sigma 0.5
-        run: PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 12 --out /tmp/trial
+        run: PYTHONPATH=/tmp/game1-original/src python scripts/trial_paper_section3_2_deterministic_solver.py --rounds 200 --out /tmp/trial
+          cp /tmp/pip-freeze.txt /tmp/numerical-runtime.txt /tmp/trial/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -50,7 +58,7 @@ jobs:
         with:
           pattern: deterministic-solver-*
           path: /tmp/trials
-      - name: Strict comparison across four independent runners
+      - name: Strict bitwise comparison across four independent single-thread 200-round runners
         run: |
           python - <<'PY'
           import json,pathlib,sys
@@ -60,7 +68,7 @@ jobs:
           data=[json.loads(p.read_text()) for p in files]
           for p,d in zip(files,data):
               print("TRIAL",p.parent.name,d["digest"],"calls",d["solver_calls"])
-          identical=len({d["digest"] for d in data})==1
+          identical=len({d["digest"] for d in data})==1 and all(d["rounds"]==200 and len(d["rows"])==1800 and len(d["markets"])==200 for d in data)
           print("BITWISE_REPRODUCIBLE",identical)
           if not identical:
               base=data[0]["rows"]
