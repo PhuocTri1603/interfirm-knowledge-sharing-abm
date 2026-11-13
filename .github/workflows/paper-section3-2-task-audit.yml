@@ -1,0 +1,76 @@
+name: Section 3.2 task-level observational reproduction audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-task-audit.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {profile: F011, sigma: '0.5', baseline_artifact: 14009163095}
+          - {profile: F011, sigma: '1', baseline_artifact: 14009241975}
+          - {profile: F011, sigma: '2', baseline_artifact: 14009836280}
+          - {profile: F021, sigma: '0.5', baseline_artifact: 14009851183}
+          - {profile: F021, sigma: '1', baseline_artifact: 14010105285}
+          - {profile: F021, sigma: '2', baseline_artifact: 14008609714}
+          - {profile: F071, sigma: '0.5', baseline_artifact: 14009946949}
+          - {profile: F071, sigma: '1', baseline_artifact: 14009716867}
+          - {profile: F071, sigma: '2', baseline_artifact: 14009373208}
+          - {profile: F091, sigma: '0.5', baseline_artifact: 14009737144}
+          - {profile: F091, sigma: '1', baseline_artifact: 14010105880}
+          - {profile: F091, sigma: '2', baseline_artifact: 14009996577}
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen engine and pinned dependencies
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Retrieve preexisting fixed-SIMD trial
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/audit /tmp/baseline
+          gh api repos/${{ github.repository }}/actions/artifacts/${{ matrix.baseline_artifact }}/zip > /tmp/baseline.zip
+          unzip -q /tmp/baseline.zip -d /tmp/baseline
+          find /tmp/baseline -type f
+      - name: Audit economic identities and dynamic paths
+        run: |
+          PYTHONPATH=/tmp/game1-original/src:scripts python scripts/audit_paper_section3_2_fixed_simd_dynamics.py --profile ${{ matrix.profile }} --sigma ${{ matrix.sigma }} --out /tmp/audit
+      - name: Compare task-observed firm and market paths with previously PASSed dynamic audit
+        run: |
+          python scripts/gate_paper_section3_2_task_dynamics.py --current /tmp/audit --baseline /tmp/baseline --out /tmp/audit/task_gate.json
+      - name: Compare audited paths with previous fixed-SIMD trial
+        run: |
+          TRIAL=$(find /tmp/baseline -type f \( -name trial.json -o -name deterministic_solver_trial.json \) | head -1)
+          test -n "$TRIAL"
+          python scripts/gate_paper_section3_2_dynamic_audit.py --audit /tmp/audit --trial "$TRIAL" --out /tmp/audit/dynamic_gate.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: task-audit-${{ matrix.profile }}-sigma-${{ matrix.sigma }}
+          path: /tmp/audit
