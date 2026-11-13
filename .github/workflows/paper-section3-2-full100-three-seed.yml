@@ -1,0 +1,72 @@
+name: Section 3.2 full100 paired three-seed sigma robustness
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-full100-three-seed.yml']
+permissions:
+  contents: read
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 15
+      matrix:
+        batch: [0,1,2,3,4,5,6,7,8,9]
+        seed: [11,23,47]
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: AVX512F,AVX512_SKX,AVX512_CLX,AVX512_CNL,AVX512_ICL,AVX512_SPR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original engine and pinned numerical environment
+        run: |
+          git worktree add --detach /tmp/game1-original c614b86d9192a57fb402b4772b3c3bb6bf80b79f
+          python -m pip install -e '/tmp/game1-original[dev]'
+          python -m pip install --force-reinstall 'numpy==2.4.6' 'scipy==1.17.1' 'pandas==2.3.3'
+      - name: Run ten paired profile markets per seed
+        run: |
+          PYTHONPATH=/tmp/game1-original/src:scripts python scripts/audit_section3_2_full100_seed_batch.py --batch ${{ matrix.batch }} --seed ${{ matrix.seed }} --out /tmp/paired
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full100-batch-${{ matrix.batch }}-seed-${{ matrix.seed }}
+          path: /tmp/paired
+  aggregate:
+    needs: batch
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: full100-batch-*
+          path: /tmp/full100
+      - name: Require all 300 pairs and validate economic decomposition
+        run: |
+          python scripts/summarize_section3_2_full100_seeds.py --input /tmp/full100 --out /tmp/summary
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-full100-three-seed-report
+          path: /tmp/summary
