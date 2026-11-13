@@ -100,15 +100,91 @@
       "identity_error": 9.094947017729282e-13
     },
     "historical_strict_archive_all_pass": false,
-    "independent_seed_robustness_pass": false,
+    "independent_seed_robustness_pass": "PASS_SCOPED_10_PROFILES_3_SEEDS_NOT_ALL100",
     "causal_identification": false,
-    "paper_agent_handoff": "BLOCKED_PENDING_FULL_VALIDATION",
+    "paper_agent_handoff": "BLOCKED_PENDING_RESEARCHER_ADJUDICATION_OF_UNRESOLVED_GATES",
     "open_gates": [
-      "strict historical archive reproduction not all PASS",
-      "independent-seed robustness not established",
-      "100-profile task mechanism validation not established"
+      "strict historical archive numerical equivalence unresolved",
+      "100-profile three-seed robustness untested",
+      "all-100 task-level mechanism unobserved; four-profile illustrative scope maintained",
+      "Figure 3.7–3.8 manuscript numbering and final editorial acceptance"
     ],
     "task_workflow_failed_run": 43381074120,
     "task_workflow_success_run": 43381091601
+  },
+  "paired_seed_robustness_2026_11_13": {
+    "status": "PASS_SCOPED_ACCOUNTING_AND_COVERAGE",
+    "run_id": 43388257090,
+    "run_conclusion": "success",
+    "head_sha": "65891961ad925c28bc04c963f4614fee02f77996",
+    "report_artifact_id": 14020931768,
+    "profiles": [
+      "F001",
+      "F011",
+      "F021",
+      "F031",
+      "F041",
+      "F051",
+      "F061",
+      "F071",
+      "F081",
+      "F091"
+    ],
+    "seeds": [
+      11,
+      23,
+      47
+    ],
+    "sigma_reference": 1,
+    "sigma_target": 2,
+    "markets": 60,
+    "paired_profile_seed_comparisons": 30,
+    "firm_rounds": 108000,
+    "per_pair_profit_accounting_max_residual": 1.1368683772161605e-12,
+    "negative_price_revaluation_pairs": 30,
+    "positive_fixed_price_profit_pairs": 30,
+    "negative_A_minus_B_gap_change_pairs": 27,
+    "observed_winner_changes": 13,
+    "repricing_winner_changes": 0,
+    "distinct_sigma2_winner_varies_with_seed_profiles": 9,
+    "seed_results": [
+      {
+        "seed": 11,
+        "price_revaluation": -4930.614479742412,
+        "fixed_price_profit_change": 3991.317433063769,
+        "observed_profit_change": -939.2970466786447,
+        "AB_gap_sigma1": 1230.0005824798118,
+        "AB_gap_sigma2": 24.627982216355775,
+        "observed_winner_changes": 5,
+        "repricing_winner_changes": 0
+      },
+      {
+        "seed": 23,
+        "price_revaluation": -4997.119189834521,
+        "fixed_price_profit_change": 3743.114033655915,
+        "observed_profit_change": -1254.0051561786067,
+        "AB_gap_sigma1": 1010.7095160015531,
+        "AB_gap_sigma2": 126.37171806037259,
+        "observed_winner_changes": 4,
+        "repricing_winner_changes": 0
+      },
+      {
+        "seed": 47,
+        "price_revaluation": -4986.218240733348,
+        "fixed_price_profit_change": 4161.81402108663,
+        "observed_profit_change": -824.4042196467169,
+        "AB_gap_sigma1": 654.7315446902506,
+        "AB_gap_sigma2": -491.19887964106624,
+        "observed_winner_changes": 4,
+        "repricing_winner_changes": 0
+      }
+    ],
+    "limitations": [
+      "Profile scope 10, not all 100",
+      "sigma2 A versus B sign not stable across seeds",
+      "strict archive original numerical equivalence not established",
+      "price revaluation is an exact ex-post accounting identity, not a market-clearing causal intervention"
+    ],
+    "research_validated": false
   }
 }
