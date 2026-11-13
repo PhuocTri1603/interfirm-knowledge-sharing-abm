@@ -22,6 +22,7 @@ def main():
     original=game.minimize
     calls=[0]
     results=[]
+    captured_input={}
     def wrapped(fun,x0,*pos,**kw):
         if kw.get("method")!="SLSQP":
             return original(fun,x0,*pos,**kw)
@@ -56,6 +57,7 @@ def main():
           "constraint_jacobians0":[np.asarray(c["jac"](x0)).tolist() for c in cs],
           "constraint_types":[c["type"] for c in cs],
           "options":kw.get("options")}
+        captured_input.update(original_input)
         def diagnostic(res):
             x=np.asarray(res.x,float)
             g=stable_gradient(fun,x)
@@ -109,8 +111,8 @@ def main():
     runtime={"python":platform.python_version(),"numpy":np.__version__,"scipy":scipy.__version__,
       "platform":platform.platform(),"machine":platform.machine(),
       "env":{k:os.getenv(k) for k in ("OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS","BLIS_NUM_THREADS","NUMEXPR_NUM_THREADS","PYTHONHASHSEED","NPY_DISABLE_CPU_FEATURES","OPENBLAS_CORETYPE")}}
-    payload={"input":original_input,"repeats":results,"runtime":runtime,"research_validated":False}
+    payload={"input":captured_input,"repeats":results,"runtime":runtime,"research_validated":False}
     (out/"call2_repeats.json").write_text(json.dumps(payload,indent=2))
-    print("CALL2_REPEATS",json.dumps({"input_hash":original_input["x0_sha256"],"solution_hashes":[r["sha256"] for r in results],"kkt":[r["kkt_stationarity_inf"] for r in results]}))
+    print("CALL2_REPEATS",json.dumps({"input_hash":captured_input["x0_sha256"],"solution_hashes":[r["sha256"] for r in results],"kkt":[r["kkt_stationarity_inf"] for r in results]}))
 if __name__=="__main__":
     main()
