@@ -1,0 +1,31 @@
+name: Section 3.2 full 100-profile revaluation and winner ranking
+on:
+  workflow_dispatch:
+  push:
+    branches: [game1-economic-policy-interface]
+    paths: ['.github/workflows/paper-section3-2-full100-counterfactual.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  full100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - name: Download original frozen archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/artifacts/13618500797/zip" > /tmp/game1-frozen-archive.zip
+          unzip -Z1 /tmp/game1-frozen-archive.zip | grep -q 'sigma_2_batch_09_rounds.csv'
+      - name: Audit all 100 profiles, price revaluation and rankings
+        run: |
+          python scripts/check_paper_section3_2_full100_counterfactual.py --archive /tmp/game1-frozen-archive.zip --out /tmp/full100
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section3-2-full100-revaluation-ranking
+          path: /tmp/full100
