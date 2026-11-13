@@ -1,5 +1,6 @@
 """Audit dynamic economic states with the same fixed-SIMD numerical solver; no engine edits."""
 import argparse,csv,json,math
+from math import fsum
 from pathlib import Path
 import numpy as np
 from scipy.optimize import minimize as scipy_minimize
@@ -15,6 +16,8 @@ def main():
     ap.add_argument("--out",required=True)
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     old=game.minimize
+    original_candidate=game.candidate
+    observations=[]
     def wrapper(fun,x0,*pos,**kw):
         if kw.get("method")!="SLSQP":return old(fun,x0,*pos,**kw)
         cs=[]
@@ -26,13 +29,51 @@ def main():
             cs.append(cc)
         kw["constraints"]=cs;kw["jac"]=lambda x,objective=fun:stable_gradient(objective,x)
         return scipy_minimize(fun,x0,*pos,**kw)
+    def observed_candidate(firm,tech,l3,l4,budget,price,previous,adopted,p,last_modes=None):
+        chosen=original_candidate(firm,tech,l3,l4,budget,price,previous,adopted,p,last_modes)
+        observations.append((l3,l4,previous,chosen))
+        return chosen
     game.minimize=wrapper
+    game.candidate=observed_candidate
     try:
         firm=next(f for f in approved_profiles() if f.firm_id==a.profile)
-        result=game.run_game1(firm,a.sigma,params(),rounds=200,audit=True)
-    finally:game.minimize=old
+        result=game.run_game1(firm,a.sigma,params(),rounds=200)
+    finally:
+        game.minimize=old
+        game.candidate=original_candidate
     rows=result["players"];markets=result["market"]
     assert len(rows)==1800 and len(markets)==200
+    p=params()
+    idx=0
+    previous_by_strategy={sid:game.zero_plan() for sid in (f'L3={l3}|L4={l4}' for l3,l4 in game.strategy_ids())}
+    enriched=[]
+    for r in rows:
+        sid=r['strategy_id']
+        previous=previous_by_strategy[sid]
+        if r['action']=='shutdown':
+            plan=game.zero_plan()
+            new=frozenset()
+            cost=game.adjustment(plan,previous,p)
+        else:
+            l3,l4,observed_previous,chosen=observations[idx]
+            idx+=1
+            assert sid==f'L3={l3}|L4={l4}'
+            assert all(a==b for a,b in zip(previous,observed_previous))
+            _,plan,q,cost,new,_=chosen
+            assert abs(q-r['output'])<1e-7
+        labor=fsum(x.labor for x in plan)
+        capital=fsum(x.capital for x in plan)
+        variable=p.wage*labor+p.rental*capital
+        adjust=game.adjustment(plan,previous,p)
+        adoption=p.adoption_fee*len(new)
+        assert abs(cost-variable-adjust-adoption)<1e-8
+        assert abs(r['profit']-(r['price']*r['output']-cost))<1e-8
+        assert sum(x.capital>1e-9 for x in plan)==r['active_ai_count']
+        assert labor<=firm.labor_endowment+1e-7 and capital<=firm.capital_endowment+1e-7
+        enriched.append(dict(r,revenue=r['price']*r['output'],variable_cost=variable,adjustment_cost=adjust,adoption_cost=adoption,newly_adopted_count=len(new),market_quantity=markets[r['round']-1]['quantity'],labor_used=labor,capital_used=capital))
+        previous_by_strategy[sid]=plan
+    assert idx==len(observations)
+    rows=enriched
     fields=["round","strategy_id","action","output","price","profit","cumulative_profit","adopted_count","active_ai_count","revenue","variable_cost","adjustment_cost","adoption_cost","newly_adopted_count","market_quantity","labor_used","capital_used"]
     with (out/"firm_dynamics.csv").open("w",newline="") as fh:
         w=csv.DictWriter(fh,fieldnames=fields);w.writeheader();w.writerows(rows)
