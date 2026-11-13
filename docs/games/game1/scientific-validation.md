@@ -617,3 +617,29 @@ All 12 jobs passed independent accounting assertions: `profit=price*output-varia
 | F091 | 2 | -91.0621 | -57.1220 | -33.9400 |
 
 **Interpretation strictly descriptive:** At sigma=1 A has a revenue premium exceeding its cost premium for F021/F071/F091, whereas at sigma=2 A has lower revenue and lower cost but the revenue deficit exceeds its cost saving. F011 is negative at all sigma. This does not identify causal contributions of K/L, AI or sigma to profit: sigma changes endogenous equilibrium prices and actions, and `P_t Δq_t` is a within-market accounting term, not an isolated quantity intervention. The paired comparisons do not establish whether the change across sigma is due to technology, endogenous price, learning, automation, or interactions. Next analyze within-strategy across-sigma paths, prices, K/L and AI counts, and apply carefully labeled counterfactuals only after approval. Keep `research_validated=false`.
+
+
+## 2026-11-13 — Joint sigma comparative statics: market Q/P, K/L, AI, and exact price-versus-quantity revenue accounting
+
+**Data:** 12 verified `dynamic-audit-*` artifacts, workflow #43363627323; `section3_2_dynamic_12cases.csv` (21,600 strategy-round observations). Descriptive comparisons align **round and strategy** across sigma values in each of F011/F021/F071/F091; all quantities in simulation units. These are not isolated causal technology shocks holding choices and market prices fixed.
+
+**Market means per round, sigma=1 -> 2** (each market has 9 players; 200 rounds):
+| Profile | Q at 1 | Q at 2 | P at 1 | P at 2 | delta K | delta L | delta active AI task counts |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| F011 | 4.6999 | 5.8146 | 1.4778 | 1.3539 | +57.2548 | +0.0669 | +7.740 |
+| F021 | 6.3335 | 9.2055 | 1.2963 | 0.9772 | +77.8401 | -1.4398 | +11.070 |
+| F071 | 6.5702 | 7.8458 | 1.2700 | 1.1282 | +73.4087 | ~0 | +5.670 |
+| F091 | 6.4223 | 8.2822 | 1.2864 | 1.0798 | +106.8221 | +4.4498 | +12.285 |
+
+Price is mechanically determined by `P_t=max(0,2-Q_t/9)`; maximum direct check error in the aggregated data `6.661338147750939e-16`. Supply increases and price decreases in all four cases. Total K use and active AI task counts increase in all four; L use does not consistently decrease. K/L are **utilized input allocations**, not investment or employment.
+
+**Exact decomposition of sigma 1→2 revenue changes for a strategy:** `delta(Pq)=P_1*(q_2-q_1)+q_1*(P_2-P_1)+(P_2-P_1)*(q_2-q_1)`, computed per aligned round and summed over 200 rounds. These are labeled baseline-price quantity component, baseline-output price component, and price×quantity interaction. They are **accounting terms, not identified causal effects**. Subtracting B from A gives the change in the A-minus-B strategy gap, with A=`L3=cost_adjusted|L4=profit_based` and B=`L3=productivity|L4=profit_based`:
+
+| Profile | delta profit gap | delta revenue gap | delta cost gap | quantity component | price component | interaction |
+|---|---:|---:|---:|---:|---:|---:|
+| F011 | -64.949 | -115.568 | -50.619 | -125.253 | -0.965 | +10.651 |
+| F021 | -174.777 | -253.466 | -78.689 | -277.129 | -46.110 | +69.773 |
+| F071 | -48.500 | -156.398 | -107.898 | -167.713 | -8.573 | +19.887 |
+| F091 | -56.672 | -165.969 | -109.296 | -184.759 | -12.358 | +31.149 |
+
+The **relative quantity term** is negative in all four; relative price term also negative; positive interaction offsets some of these effects. The B strategy expands output more than A as sigma increases. For F021, A's 200-round total output change +19.067, B +237.678; K changes -774.101 vs +6959.740, AI task-round changes 0 vs +1074. For F071 output changes +5.178 vs +139.283; F091 +8.396 vs +153.792; F011 +10.775 vs +95.426. This accounts for the revenue-gap reversal, but **does not causally isolate technology from equilibrium prices or adaptation**: prices and decisions are jointly endogenous to sigma, and the decomposition includes an interaction. Full identification would require explicit approved counterfactuals holding either price path or decision path fixed, and appropriate equilibrium consistency checks. Do not infer that AI necessarily reduces labor; do not claim generality across 100 profiles. `research_validated=false`.
