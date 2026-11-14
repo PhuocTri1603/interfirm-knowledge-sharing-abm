@@ -257,7 +257,7 @@ def candidate(firm, tech, l3, l4, budget, price, previous, adopted, p, last_mode
             return best
 
 
-def run_game1(firm, sigma, p, rounds=200, audit=False, decision_trace=None):
+def run_game1(firm, sigma, p, rounds=200, audit=False, decision_trace=None, task_audit=None):
     if rounds < 1:
         raise ValueError("rounds must be positive")
     tech = technology_for_profile(firm, sigma)
@@ -332,6 +332,22 @@ def run_game1(firm, sigma, p, rounds=200, audit=False, decision_trace=None):
                               newly_adopted_count=len(new), market_quantity=total_q,
                               labor_used=fsum(a.labor for a in plan),
                               capital_used=fsum(a.capital for a in plan))
+            if task_audit is not None:
+                # Read-only task-level observations. No solver calls or RNG draws.
+                activities = firm.evaluate_allocation(list(plan))
+                for task, allocation in zip(firm.tasks, plan):
+                    task_audit.append(dict(
+                        profile_id=firm.firm_id, sigma=sigma, round=t,
+                        strategy_id=sid, task_id=task.task_id,
+                        labor_allocation=allocation.labor,
+                        capital_allocation=allocation.capital,
+                        labor_productivity=task.labor_productivity,
+                        capital_productivity=task.capital_productivity,
+                        automation_eligible=int(task.automation_eligible),
+                        actual_ai_use=int(allocation.capital > 1e-9),
+                        task_activity=activities[task.task_id],
+                        normalized_activity=activities[task.task_id] / tech.reference[task.task_id],
+                        new_ai_adoption=int(task.task_id in new)))
             rows.append(record)
         markets.append(dict(round=t, quantity=total_q, price=price))
         prior_price = price
