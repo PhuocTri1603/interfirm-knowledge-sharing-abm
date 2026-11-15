@@ -1,0 +1,53 @@
+name: Cournot A6 minimal nine-match pilot
+on:
+  push:
+    paths:
+      - 'scripts/cournot_a6_three_allocation.py'
+      - 'experiments/cournot_a6_baseline_params.json'
+      - '.github/workflows/cournot-a6-minimal.yml'
+  workflow_dispatch:
+
+jobs:
+  cournot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install A6 engine
+        run: python -m pip install -e .
+      - name: Run 9 Cournot matchups on F001
+        run: |
+          python scripts/cournot_a6_three_allocation.py \
+            --profiles data/firms/task_based_100_firms_profiles.csv \
+            --tasks data/firms/task_based_100_firms_tasks.csv \
+            --params-json experiments/cournot_a6_baseline_params.json \
+            --profile-id F001 --sigma 1.0 --rounds 200 --ai-policy profit_based \
+            --out results/cournot_a6_f001_sigma1.csv
+      - name: Build 3x3 payoff matrix
+        run: |
+          python - <<'PY'
+          import csv
+          from collections import defaultdict
+          from pathlib import Path
+          rows=list(csv.DictReader(open('results/cournot_a6_f001_sigma1.csv')))
+          totals=defaultdict(float)
+          for r in rows:
+              totals[(r['strategy_a'],r['strategy_b'],r['player'])]+=float(r['profit'])
+          out=Path('results/cournot_a6_payoff_matrix.csv')
+          with out.open('w',newline='') as f:
+              w=csv.writer(f)
+              w.writerow(['strategy_a','strategy_b','profit_a_200','profit_b_200'])
+              for a in ('uniform','productivity','cost_adjusted'):
+                  for b in ('uniform','productivity','cost_adjusted'):
+                      w.writerow([a,b,totals[(a,b,'A')],totals[(a,b,'B')]])
+          print(out.read_text())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cournot-a6-f001-sigma1
+          path: results/*.csv
+          if-no-files-found: warn
