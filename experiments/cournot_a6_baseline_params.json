@@ -1,0 +1,11 @@
+{
+  "demand_intercept": 2.0,
+  "demand_slope": 0.1111111111111111,
+  "wage": 0.009708737864077669,
+  "rental": 0.009708737864077669,
+  "adjustment_delta": 0.1,
+  "adoption_fee": 0.0025,
+  "eta": 0.1,
+  "epsilon": 0.15,
+  "seed": 11
+}
