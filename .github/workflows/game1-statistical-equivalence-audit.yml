@@ -1,0 +1,33 @@
+name: Game 1 statistical equivalence audit
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  statistical-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - name: Download fixed original archive and 30 observational artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/observations /tmp/statistical-report
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/archive.zip
+          gh api 'repos/${{ github.repository }}/actions/runs/43593085278/artifacts?per_page=100' --jq '.artifacts[] | select(.name | startswith("game1-task-sigma-")) | [.id,.name] | @tsv' > /tmp/manifest.tsv
+          test "$(wc -l < /tmp/manifest.tsv)" -eq 30
+          while IFS="$(printf '\t')" read -r id name; do
+            gh api "repos/${{ github.repository }}/actions/artifacts/$id/zip" > "/tmp/observations/$name.zip"
+          done < /tmp/manifest.tsv
+      - name: Statistical equivalence (fixed economic margins, paired profile bootstrap)
+        run: python scripts/statistical_equivalence_audit.py --archive /tmp/archive.zip --observations /tmp/observations --out /tmp/statistical-report --bootstrap 4000
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-statistical-equivalence-audit
+          path: /tmp/statistical-report/
