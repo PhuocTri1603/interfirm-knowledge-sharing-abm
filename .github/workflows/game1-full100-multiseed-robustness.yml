@@ -1,0 +1,58 @@
+name: Game 1 full100 multi-seed robustness
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  simulate:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        seed: [11, 23, 47]
+        sigma: ['0.5','1.0','2.0']
+        batch: [0,1,2,3,4,5,6,7,8,9]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e .
+      - name: Run fixed engine with independent seed and export summaries
+        run: python scripts/game1_full100_multiseed_collect.py --seed ${{ matrix.seed }} --sigma ${{ matrix.sigma }} --batch ${{ matrix.batch }} --out /tmp/seed-data
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game1-robustness-seed-${{ matrix.seed }}-sigma-${{ matrix.sigma }}-batch-${{ matrix.batch }}
+          path: /tmp/seed-data/
+          retention-days: 30
+  analyze:
+    needs: simulate
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: game1-economic-policy-interface
+      - name: Download all 90 batch artifacts from this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/seed-artifacts /tmp/robustness-report
+          gh api 'repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?per_page=100' --jq '.artifacts[] | select(.name | startswith("game1-robustness-seed-")) | [.id,.name] | @tsv' > /tmp/manifest.tsv
+          test "$(wc -l < /tmp/manifest.tsv)" -eq 90
+          while IFS="$(printf '\t')" read -r id name; do
+            gh api "repos/${{ github.repository }}/actions/artifacts/$id/zip" > "/tmp/seed-artifacts/$name.zip"
+          done < /tmp/manifest.tsv
+      - name: Paired multi-seed statistical robustness audit
+        run: python scripts/game1_full100_multiseed_analyze.py --artifacts /tmp/seed-artifacts --out /tmp/robustness-report --bootstrap 4000
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-full100-multiseed-robustness-report
+          path: /tmp/robustness-report/
