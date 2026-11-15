@@ -1,0 +1,31 @@
+name: Compare full100 task observations to original archive
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve historical archive and all 30 completed task-observation artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/observations /tmp/report
+          gh api repos/${{ github.repository }}/actions/artifacts/13618500797/zip > /tmp/archive.zip
+          gh api 'repos/${{ github.repository }}/actions/runs/43593085278/artifacts?per_page=100' --jq '.artifacts[] | select(.name | startswith("game1-task-sigma-")) | [.id,.name] | @tsv' > /tmp/artifact_manifest.tsv
+          test "$(wc -l < /tmp/artifact_manifest.tsv)" -eq 30
+          while IFS="$(printf '\t')" read -r id name; do
+            gh api "repos/${{ github.repository }}/actions/artifacts/$id/zip" > "/tmp/observations/$name.zip"
+          done < /tmp/artifact_manifest.tsv
+      - name: Compare all 540000 player-rounds and terminal rankings
+        run: python scripts/compare_full100_task_observations_to_archive.py --archive /tmp/archive.zip --observations /tmp/observations --out /tmp/report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: game1-full100-archive-observation-comparison
+          path: /tmp/report/
